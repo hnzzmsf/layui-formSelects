@@ -163,6 +163,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					}
 					dom.html(html);
 				}
+				//判断dom中是否包含了空的option, 如果不包含, 添加
+				if (!dom.find('option[value=""]').length) {
+					$('<option value=""></option>').insertBefore(dom.find('option:first'));
+				}
 				if (dom.parent().hasClass(commons.data.pclass)) {
 					dom.parent().attr('lay-filter', filter).addClass('layui-form');
 				} else {
@@ -225,7 +229,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					    ipt = _ref3[1];
 
 					if (!ipt.find('.xm-select-empty').length) {
-						var span = $('<span ' + tips + ' class="xm-select-empty">' + ipt.prev().attr('placeholder') + '</span>');
+						var _tips = options.tips ? options.tips : ipt.prev().attr('placeholder');
+						var span = $('<span ' + _tips + ' class="xm-select-empty">' + _tips + '</span>');
 						span.css(styles.inputEmpty);
 						ipt.append(span);
 					}
@@ -495,7 +500,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					name: sel.attr('' + commons.data.name),
 					type: sel.attr(commons.data.name + '-type'),
 					max: sel.attr(commons.data.name + '-max'),
-					icon: sel.attr(commons.data.name + '-icon')
+					icon: sel.attr(commons.data.name + '-icon'),
+					tips: sel.attr(commons.data.name + '-placeholder')
 				};
 			},
 			cloneOptions: function cloneOptions(options, hisOptions) {

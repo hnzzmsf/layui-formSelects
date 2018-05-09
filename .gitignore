@@ -1,6 +1,7 @@
 script
 .project
 node_modules
-.balbelrc
+.babelrc
 package.json
 package-lock.json
+example/*test.html
