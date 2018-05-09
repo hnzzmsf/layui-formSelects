@@ -150,6 +150,10 @@
 						}
 						dom.html(html);
 					}
+					//判断dom中是否包含了空的option, 如果不包含, 添加
+					if(!dom.find('option[value=""]').length){
+						$(`<option value=""></option>`).insertBefore(dom.find('option:first'));
+					}
 					if(dom.parent().hasClass(commons.data.pclass)) {
 						dom.parent().attr('lay-filter', filter).addClass('layui-form');
 					} else {
@@ -202,7 +206,8 @@
 					if(!vals.length) {
 						let [tips, ipt] = [`fsw="${options.name}"`, commons.methods.getIpt(options)];
 						if(!ipt.find('.xm-select-empty').length) {
-							let span = $(`<span ${tips} class="xm-select-empty">${ipt.prev().attr('placeholder')}</span>`);
+							let tips = options.tips ? options.tips : ipt.prev().attr('placeholder');
+							let span = $(`<span ${tips} class="xm-select-empty">${tips}</span>`);
 							span.css(styles.inputEmpty);
 							ipt.append(span);
 						}
@@ -464,6 +469,7 @@
 						type: sel.attr(`${commons.data.name}-type`),
 						max: sel.attr(`${commons.data.name}-max`),
 						icon: sel.attr(`${commons.data.name}-icon`),
+						tips: sel.attr(`${commons.data.name}-placeholder`),
 					}
 				},
 				cloneOptions: (options, hisOptions) => {
