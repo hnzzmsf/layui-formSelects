@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>多选三: icon模式</title>
+		<link rel="stylesheet" type="text/css" href="../UI/layui-v2.2.6/layui/css/layui.css" />
+	</head>
+
+	<body>
+		
+		<div style="padding: 20px; height: 800px;">
+			<h2></h2>
+			<select name="city" xm-select="select1" xm-select-type="3">
+				<option value=""></option>
+				<option value="1">北京</option>
+				<option value="2" selected="selected">上海</option>
+				<option value="3">广州</option>
+				<option value="4" selected="selected">深圳</option>
+				<option value="5">天堂xxxx</option>
+				<option value="6">地狱</option>
+				<option value="7">仙界x</option>
+				<option value="8">神界</option>
+			</select>
+		</div>
+		
+		<script src="../UI/layui-v2.2.6/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			layui.config({
+				base: '../dist/'
+			}).extend({
+				formSelects: 'formSelects-v3.min'
+			}).use(['jquery', 'form', 'formSelects'], function() {
+				var $ = layui.jquery;
+				$('h2').html($('title').html());
+			});
+		</script>
+	</body>
+
+</html>

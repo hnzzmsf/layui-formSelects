@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>多选六: 定义多选最多个数, 最多选择两个, 超出后自定义提示</title>
+		<link rel="stylesheet" type="text/css" href="../UI/layui-v2.2.6/layui/css/layui.css" />
+	</head>
+
+	<body>
+
+		<div style="padding: 20px; height: 800px;">
+			<h2></h2>
+			<select name="city" xm-select="select1" xm-select-type="2" xm-select-max="2">
+				<option value=""></option>
+				<option value="1">北京</option>
+				<option value="2" selected="selected">上海</option>
+				<option value="3">广州</option>
+				<option value="4" selected="selected">深圳</option>
+				<option value="5">天堂xxxx</option>
+				<option value="6">地狱</option>
+				<option value="7">仙界x</option>
+				<option value="8">神界</option>
+			</select>
+		</div>
+
+		<script src="../UI/layui-v2.2.6/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			layui.config({
+				base: '../dist/'
+			}).extend({
+				formSelects: 'formSelects-v3.min'
+			}).use(['jquery', 'form', 'formSelects'], function() {
+				var $ = layui.jquery,
+					formSelects = layui.formSelects;
+				$('h2').html($('title').html());
+				
+				formSelects.render({
+					name: 'select1',
+					maxTips: function(arr, val, max){
+						//arr: 已选择的数据
+						//val: {"name": "北京", "val": 1}
+						//max: 当前设置的最大值
+						alert('超了... 选择了: ' + val.name)
+					}
+				});
+			});
+		</script>
+	</body>
+
+</html>
