@@ -40,14 +40,13 @@ layui.config({
  
   2018年5月9日
   
-  1.添加xm-select-icon参数, 可以在icon模式下自定义选中icon
-  2.添加xm-select-placeholder参数, 可以自定义选项为空时候的提示, 优先级高于空option的配置
-  3.新增render.on的参数, 可以获取当前选中/取消的状态和值
-  4.修改调用table.render会对多选造成的bug
-  5.修改点击x号后placeholder重复显示的bug
-  6.修改layui-v2.3.0下的一些bug
-  7.使用babel转换为es5代码
-    上传至GitHub, 有兴趣可以 Star一下
+  1. 添加xm-select-icon参数, 可以在icon模式下自定义选中icon
+  2. 添加xm-select-placeholder参数, 可以自定义选项为空时候的提示, 优先级高于空option的配置
+  3. 新增render.on的参数, 可以获取当前选中/取消的状态和值
+  4. 修改调用table.render会对多选造成的bug
+  5. 修改点击x号后placeholder重复显示的bug
+  6. 修改layui-v2.3.0下的一些bug
+  7. 使用babel转换为es5代码
 
  - 3.0.5
  
