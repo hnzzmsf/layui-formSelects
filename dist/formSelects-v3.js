@@ -5,7 +5,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 3.0.6
+ * version: 3.0.9
  * https://faysunshine.com/layui/template/formSelects-v3/formSelects-v3.js
  */
 (function (layui, window, factory) {
@@ -36,7 +36,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 			if (type instanceof Array) {
 				vals = type;
-				type = 1;
+				type = 'all';
 			}
 			if (name && vals && vals instanceof Array) {
 				var options = commons.data.confs.get(name);
@@ -50,6 +50,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			if (!arr) {
 				return vals;
 			}
+			arr = arr.map(function (val) {
+				val.num = val.num ? val.num : 1;
+				return val;
+			});
 			if (type == 'val') {
 				return arr.map(function (val) {
 					return val.val;
@@ -77,6 +81,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				if (commons.data.confs.get(options.name)) {
 					options = commons.methods.cloneOptions(options, commons.data.confs.get(options.name));
 					commons.methods.init(options);
+				} else {
+					var dom = commons.methods.getDom(options, true);
+					if (dom.length) {
+						var hisOptions = commons.methods.cloneOptions(commons.methods.getOptions(dom), commons.data.DEFAULT_OPTIONS);
+						options = commons.methods.cloneOptions(options, hisOptions);
+						commons.methods.init(options);
+					}
 				}
 			} else {
 				commons.methods.autoInit();
@@ -84,12 +95,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		},
 		delete: function _delete(name, abs) {
 			if (name && commons.data.confs.get(name)) {
-				var dom = commons.methods.getDom({ name: name });
+				var dom = commons.methods.getDom({
+					name: name
+				});
 				if (dom.parent().hasClass(commons.data.pclass)) {
 					if (abs) {
 						dom.removeAttr(commons.data.name);
 					}
-					dom.css('display', 'initial');
+					dom.removeAttr('style');
 					dom.parent()[0].outerHTML = dom[0].outerHTML;
 				}
 				commons.data.confs.delete(name);
@@ -97,6 +110,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					commons.data.temps[item].delete(name);
 				}
 				commons.data.values.delete(name);
+			}
+		},
+		style: function style(name, colors) {
+			if (name) {
+				if (!colors) {
+					commons.methods.loadCss(name, null);
+				} else if (colors instanceof Array) {
+					commons.methods.loadCss(name, colors);
+				} else {
+					var arr = [colors.labelBgColor, colors.labelColor, colors.labelIconBgColor, colors.labelIconColor, colors.labelLabelBorderColor, colors.thisBgColor, colors.thisColor];
+					commons.methods.loadCss(name, arr);
+				}
 			}
 		}
 	},
@@ -110,7 +135,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				type: 1, //显示模式, 1:layui-this, 2:checkbox, 3:icon
 				icon: {
 					class: 'layui-icon-ok',
-					text: '&#xe605;'
+					text: '&#xe618;'
 				},
 				max: null,
 				maxTips: null,
@@ -126,19 +151,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				disabled: 'disabled'
 			},
 			confs: new Map(),
-			times: new Map(),
 			temps: {
 				dom: new Map(),
 				div: new Map()
 			},
-			values: new Map()
+			resize: new Map(),
+			values: new Map(),
+			times: new Map()
 		},
 		methods: {
-			init: function init(options) {
-				commons.data.times.set(options.name, Date.now());
-				options = commons.methods.cloneOptions(options);
+			init: function init(options, clone) {
+				if (!clone) {
+					options = commons.methods.cloneOptions(options);
+				}
 				//原始dom添加一个filter
-				var _ref = ['xm-' + options.name, commons.methods.getDom(options)],
+				var _ref = ['xm-' + options.name, commons.methods.getDom(options, true)],
 				    filter = _ref[0],
 				    dom = _ref[1];
 
@@ -173,6 +200,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					dom.wrap('<div class="layui-form ' + commons.data.pclass + '" lay-filter="' + filter + '"></div>');
 				}
 				dom.attr('lay-filter', filter);
+				options.type ? dom.attr('xm-select-type', options.type) : dom.removeAttr('xm-select-type');
+				options.max ? dom.attr('xm-select-max', options.max) : dom.removeAttr('xm-select-max');
 				commons.methods.formRender('select', filter, true);
 				//1.去掉layui的原始渲染
 				commons.methods.getDom(options).next().addClass(commons.data.vclass);
@@ -204,13 +233,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					    $label = _ref2[0],
 					    $close = _ref2[1];
 
-					$label.css(styles.inputLabel);
-					$close.css(styles.inputLabelClose);
-					$close.hover(function () {
-						return void $close.css(styles.inputLabelCloseHover);
-					}, function () {
-						return void $close.css(styles.inputLabelCloseUnHover);
-					});
 					$label.append($close);
 					ipt.append($label);
 				});
@@ -230,8 +252,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 					if (!ipt.find('.xm-select-empty').length) {
 						var _tips = options.tips ? options.tips : ipt.prev().attr('placeholder');
-						var span = $('<span ' + _tips + ' class="xm-select-empty">' + _tips + '</span>');
-						span.css(styles.inputEmpty);
+						var cls = 'fsw="' + options.name + '"';
+						var span = $('<span ' + cls + ' class="xm-select-empty">' + _tips + '</span>');
 						ipt.append(span);
 					}
 				}
@@ -249,9 +271,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						commons.methods.typeHandler(options, dd, false);
 					}
 				} else {
-					commons.methods.remove(vals, val);
-					commons.methods.delLabel(options, [val]);
-					commons.methods.typeHandler(options, dd, isAdd);
+					if (!dd.hasClass('layui-disabled')) {
+						commons.methods.remove(vals, val);
+						commons.methods.delLabel(options, [val]);
+						commons.methods.typeHandler(options, dd, isAdd);
+					}
 				}
 				commons.methods.retop(options);
 			},
@@ -264,7 +288,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						var text = $target.text();
 						var dis = $target.hasClass('layui-disabled') ? 'disabled' : '';
 						$target.text('');
-						$target.append('\n\t\t\t\t\t\t\t\t<span lay-filter="' + filter + '">\n\t\t\t\t\t\t\t\t\t<input type="checkbox" name="" title="' + text + '" lay-skin="primary" ' + dis + '> \t\n\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t');
+						$target.append('\n\t\t\t\t\t\t\t\t<span lay-filter="' + filter + '">\n\t\t\t\t\t\t\t\t\t<input type="checkbox" title="' + text + '" lay-skin="primary" ' + dis + '> \t\n\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t');
 					});
 					form.render('checkbox', filter);
 					div.find('dl dd .layui-form-checkbox').css('margin-top', '1px');
@@ -281,11 +305,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					//对勾
 					if (isAdd) {
 						var span = $('\n\t\t\t\t\t\t\t\t<span><i class="layui-icon ' + options.icon.class + '">' + options.icon.text + '</i></span>\t\n\t\t\t\t\t\t\t');
-						span.css(styles.typeYes);
-						dd.css(styles.typeSelectedColor);
 						dd.append(span);
 					} else {
-						dd.css(styles.typeUnSelectedColor);
 						dd.find('span').remove();
 					}
 				} else if (options.type == 2) {
@@ -295,73 +316,127 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					} else {
 						dd.find('.layui-form-checkbox').removeClass('layui-form-checked');
 					}
-				} else {
-					if (isAdd) {
-						dd.css({
-							backgroundColor: '#5FB878',
-							color: '#FFF'
-						});
-					} else {
-						dd.css({
-							backgroundColor: 'inherit',
-							color: 'inherit'
-						});
-					}
 				}
+				isAdd ? dd.addClass(commons.data.name + '-this') : dd.removeClass(commons.data.name + '-this');
+				dd.removeClass('layui-this');
 				commons.methods.showPlaceholder(options);
 			},
 			on: function on(options, filter) {
 				form.on('select(' + filter + ')', function (data) {
+					if (options.radio) {
+						commons.methods.getDiv(options).find('dl').removeClass('xm-select-show').addClass('xm-select-hidn').css('display', 'none');
+						var selected = void 0,
+						    val = void 0;
+						if (data.value) {
+							val = {
+								name: commons.methods.getDom(options).find('option[value=\'' + data.value + '\']').text(),
+								val: data.value
+							};
+							selected = commons.methods.indexOf(commons.methods.getValues(options), val) == -1;
+							if (selected) {
+								var hisVal = select3.value(options.name)[0];
+								if (hisVal) {
+									commons.methods.valHandler(options, hisVal, false, false);
+									commons.methods.setValues(options, []);
+								}
+							}
+							commons.methods.valHandler(options, val, selected, false);
+						} else {
+							selected = false;
+							val = select3.value(options.name)[0];
+							if (val) {
+								commons.methods.valHandler(options, val, selected, false);
+								commons.methods.setValues(options, []);
+							}
+						}
+						if (val && options.on && options.on instanceof Function) {
+							options.on(data, select3.value(options.name), val, selected);
+						}
+						return;
+					}
+					if (commons.methods.getDiv(options).hasClass('layui-form-selectup') || commons.methods.getDiv(options).find('dl').css('top').startsWith('-')) {
+						setTimeout(function () {
+							commons.methods.getDiv(options).addClass('layui-form-selectup');
+						}, 50);
+					}
+
+					if (options.repeat) {
+						if (data.value) {
+							var ipt = commons.methods.getIpt(options);
+							if (options.delete) {
+								var _val = {
+									name: commons.methods.getDom(options).find('option[value=\'' + data.value + '\']').text(),
+									val: data.value
+								};
+								commons.methods.valHandler(options, _val, false);
+								ipt.parent().next().find('dd[lay-value=\'' + data.value + '\'] .layui-form-checkbox > i').html('&#xe605;');
+								options.delete = false;
+								if (options.on && options.on instanceof Function) {
+									options.on(data, select3.value(options.name), _val, false);
+								}
+								return;
+							} else {
+								var _val2 = void 0;
+								var vals = commons.methods.getValues(options);
+								for (var i in vals) {
+									if (vals[i].val == data.value) {
+										_val2 = vals[i];
+										break;
+									}
+								}
+								if (_val2) {
+									_val2.num = (_val2.num ? _val2.num : 1) + 1;
+								} else {
+									_val2 = {
+										name: commons.methods.getDom(options).find('option[value=\'' + data.value + '\']').text(),
+										val: data.value,
+										num: 1
+									};
+								}
+								if (_val2.num == 1) {
+									commons.methods.valHandler(options, _val2, true);
+								} else {
+									//更改label
+									var font = ipt.find('span[value=\'' + data.value + '\'] font');
+									var text = font.text().split('【')[0];
+									font.text(text + '\u3010' + _val2.num + '\u3011').css('margin-right', '-9px');
+									ipt.parent().next().find('dd[lay-value=\'' + data.value + '\'] .layui-form-checkbox > i').html(_val2.num > 99 ? '&#xe65f;' : _val2.num);
+									commons.methods.retop(options);
+								}
+								if (options.on && options.on instanceof Function) {
+									options.on(data, select3.value(options.name), _val2, true);
+								}
+							}
+
+							setTimeout(function () {
+								commons.methods.getDiv(options).addClass('layui-form-selected').find('dl dd.layui-this').removeClass('layui-this');
+							}, 3);
+							return;
+						}
+					}
 					if (data.value) {
-						var val = {
+						var _val3 = {
 							name: commons.methods.getDom(options).find('option[value=\'' + data.value + '\']').text(),
 							val: data.value
 						};
-						commons.methods.removeDefaultClass(options);
-						var selected = commons.methods.indexOf(commons.methods.getValues(options), val) == -1;
-						commons.methods.valHandler(options, val, selected, true);
+						var _selected = commons.methods.indexOf(commons.methods.getValues(options), _val3) == -1;
+						commons.methods.valHandler(options, _val3, _selected, true);
 
 						if (options.on && options.on instanceof Function) {
-							options.on(data, select3.value(options.name), val, selected);
+							options.on(data, select3.value(options.name), _val3, _selected);
 						}
+
+						setTimeout(function () {
+							commons.methods.getDiv(options).addClass('layui-form-selected').find('dl dd.layui-this').removeClass('layui-this');
+						}, 3);
 					} else {
-						var vals = commons.methods.getValues(options);
-						while (vals.length) {
-							commons.methods.valHandler(options, vals[0], false, true);
+						if (commons.methods.getDom(options).attr('xm-select-search') == undefined) {
+							commons.methods.removeAll(options);
+							setTimeout(function () {
+								commons.methods.getDiv(options).addClass('layui-form-selected');
+							}, 3);
 						}
 					}
-					var up = div.hasClass('layui-form-selectup');
-					setTimeout(function () {
-						var div = commons.methods.getDiv(options);
-						div.find('dl').css('display', 'block');
-						div.addClass('layui-form-selected');
-						if (up) {
-							div.addClass('layui-form-selectup');
-						}
-					}, 10);
-				});
-				var div = commons.methods.getDiv(options);
-				var inputSelector = 'body:not(select[' + commons.data.name + '=' + options.name + '] + div)';
-				$(document).off('click', inputSelector).on('click', inputSelector, function (e) {
-					setTimeout(function () {
-						if (e.target.getAttribute('fsw') == options.name) {
-							if ($(e.target).hasClass('xm-select-empty')) {
-								if (div.find('dl').css('display') != 'block') {
-									div.addClass('layui-form-selected');
-								} else {
-									div.removeClass('layui-form-selected');
-								}
-							} else if (e.target.hasAttribute('fsw') && !$(e.target).is('i')) {
-								div.addClass('layui-form-selected');
-							}
-						}
-						var show = div.hasClass('layui-form-selected') ? 'block' : 'none';
-						if (show == 'block') {
-							commons.methods.retop(options);
-						}
-						div.find('dl').css('display', show);
-						div.find('dl dd.layui-this').removeClass('layui-this');
-					}, 10);
 				});
 			},
 			maxTips: function maxTips(options, val) {
@@ -380,56 +455,112 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			},
 			indexOf: function indexOf(arr, val) {
 				for (var i = 0; i < arr.length; i++) {
-					if (arr[i].val == val || arr[i] == val || JSON.stringify(arr[i]) == JSON.stringify(val)) {
+					if (arr[i].val == val || arr[i].val == (val ? val.val : val) || arr[i] == val || JSON.stringify(arr[i]) == JSON.stringify(val)) {
 						return i;
 					}
 				}
 				return -1;
 			},
 			remove: function remove(arr, val) {
-				var index = commons.methods.indexOf(arr, val);
+				var index = commons.methods.indexOf(arr, val ? val.val : val);
 				if (index > -1) {
 					arr.splice(index, 1);
 					return true;
 				}
 				return false;
 			},
-			removeDefaultClass: function removeDefaultClass(options) {
+			removeAll: function removeAll(options) {
 				var div = commons.methods.getDiv(options);
+				var vals = div.find('dl dd.xm-select-this:not(.layui-disabled)');
+				vals.each(function (index, item) {
+					options.delete = true;
+					item.click();
+				});
+				return vals.length;
+			},
+			removeDefaultClass: function removeDefaultClass(options) {
+				var _ref4 = [commons.methods.getDom(options), commons.methods.getDiv(options)],
+				    dom = _ref4[0],
+				    div = _ref4[1];
+
+				div.find('dl').addClass('xm-select-hidn');
 				div.find('dl dd.layui-this').removeClass('layui-this');
-				var text = '清空已选择' + (options.max ? '. \u5F53\u524D\u914D\u7F6E: \u6700\u591A\u9009\u62E9 ' + options.max + ' \u4E2A' : '');
-				if (div.find('dl dd.layui-select-tips').length) {
-					div.find('dl dd.layui-select-tips').text(text);
-				} else {
-					$('<dd lay-value="" class="layui-select-tips">' + text + '</dd>').insertBefore(div.find('dl dd:first'));
+				div.find('dl').append('<dt style="display:none;">x<dt/>');
+				var text = options.radio ? '请选择' : '清空已选择' + (options.max ? '. \u5F53\u524D\u914D\u7F6E: \u6700\u591A\u9009\u62E9 ' + options.max + ' \u4E2A' : '');
+				var html = '<span>' + text + '</span>';
+				var that = div.find('dl dd.layui-select-tips');
+				if (dom.attr('xm-select-search') != undefined) {
+					var icon = '&#xe640;';
+					html = '<input class="layui-input xm-select-input-search" placeholder="\u5173\u952E\u5B57\u641C\u7D22"><span><i title="' + text + '" xm-select-clear="' + options.name + '" class="layui-icon">' + icon + '</i></span>';
+					that.addClass('xm-select-dd-search');
+					that.off('click');
+				}
+				commons.methods.handlerDataTable(dom, '38px');
+				that.html(html);
+			},
+			handlerDataTable: function handlerDataTable(dom, height) {
+				if (dom.length == undefined) {
+					dom = $(dom);
+				}
+				if (dom.parents('div.layui-table-cell').length) {
+					var index = dom.parents('tr').attr('data-index');
+					dom.parents('.layui-table-box').find('tbody tr[data-index=\'' + index + '\'] div.layui-table-cell').css({
+						height: height,
+						lineHeight: height,
+						overflow: 'unset'
+					});
 				}
 			},
 			overrideInput: function overrideInput(options) {
-				var _div = commons.methods.getDiv(options);
-				var _ref4 = [_div.find('.layui-select-title input:first'), $('<div class="layui-input ' + commons.data.name + '"></div>')],
-				    $input = _ref4[0],
-				    $orinput = _ref4[1];
+				var _ref5 = [commons.methods.getDiv(options), commons.methods.getDom(options)],
+				    _div = _ref5[0],
+				    _dom = _ref5[1];
+				var _ref6 = [_div.find('.layui-select-title input:first'), $('<div class="layui-input ' + commons.data.name + '"></div>')],
+				    $input = _ref6[0],
+				    $orinput = _ref6[1];
 
-				$input.css(styles.hiddenInput);
-				$orinput.css(styles.input);
 				$orinput.insertAfter($input);
-				if ($input.parents('.layui-form-pane').length) {
+				if ($input.parents('.layui-form-pane').length && $input.parents('.layui-form-item[pane]').length) {
 					$orinput.css('border', 'none');
+				}
+				if (options.height) {
+					$orinput.addClass('.xm-select-height').css('height', options.height);
+				}
+				if (_dom.attr('disabled') != undefined) {
+					$orinput.append($('<div style="\n\t\t\t\t\t\t\t    width: 100%;\n\t\t\t\t\t\t\t    height: 100%;\n\t\t\t\t\t\t\t    display: block;\n\t\t\t\t\t\t\t    position: absolute;\n\t\t\t\t\t\t\t    left: 0;\n\t\t\t\t\t\t\t    top: 0;\n\t\t\t\t\t\t\t"></div>').addClass('layui-disabled'));
 				}
 			},
 			retop: function retop(options) {
 				var div = commons.methods.getIpt(options);
-				var dl = div.parent('.layui-select-title').next();
-				if (dl.parent().hasClass('layui-form-selectup')) {
-					div.parent('.layui-select-title').next().css({
-						top: 'auto',
-						bottom: div[0].offsetTop + div.height() + 14 + 'px'
-					});
-				} else {
-					div.parent('.layui-select-title').next().css({
-						top: div[0].offsetTop + div.height() + 14 + 'px',
-						bottom: 'auto'
-					});
+				if (div.length) {
+					var dl = div.parent('.layui-select-title').next();
+					var up = dl.parent().hasClass('layui-form-selectup') || dl.css('top').startsWith('-');
+					var time = commons.data.times.get(options.name);
+					if (time) {
+						if (Date.now() - time.time < 100 || options.delete) {
+							up = time.up;
+							options.delete = false;
+						} else {
+							time.up = up;
+						}
+						time.time = Date.now();
+					} else {
+						commons.data.times.set(options.name, {
+							time: Date.now(),
+							up: up
+						});
+					}
+					if (up) {
+						div.parent('.layui-select-title').next().css({
+							top: 'auto',
+							bottom: div[0].offsetTop + div.height() + 14 + 'px'
+						});
+					} else {
+						div.parent('.layui-select-title').next().css({
+							top: div[0].offsetTop + div.height() + 14 + 'px',
+							bottom: 'auto'
+						});
+					}
 				}
 			},
 			getElementTop: function getElementTop(element) {
@@ -441,20 +572,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				}
 				return actualTop;
 			},
-			getDom: function getDom(options) {
-				var _ref5 = [commons.data.temps.dom, options.name],
-				    _dom = _ref5[0],
-				    _name = _ref5[1];
+			getDom: function getDom(options, isNew) {
+				var _ref7 = [commons.data.temps.dom, options.name],
+				    _dom = _ref7[0],
+				    _name = _ref7[1];
 
+				if (isNew) {
+					_dom.set(_name, $('select[' + commons.data.name + '=\'' + _name + '\']'));
+				}
 				if (!_dom.has(_name)) {
 					_dom.set(_name, $('select[' + commons.data.name + '=\'' + _name + '\']'));
 				}
 				return _dom.get(_name);
 			},
 			getDiv: function getDiv(options) {
-				var _ref6 = [commons.data.temps.div, options.name],
-				    _div = _ref6[0],
-				    _name = _ref6[1];
+				var _ref8 = [commons.data.temps.div, options.name],
+				    _div = _ref8[0],
+				    _name = _ref8[1];
 
 				if (!_div.has(_name)) {
 					_div.set(_name, $('select[' + commons.data.name + '=\'' + _name + '\']').next());
@@ -469,19 +603,34 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				var vals = options.init ? options.init : _dom.find('option[selected]').map(function (index, target) {
 					return $(target).attr('value');
 				}).toArray();
-				return vals.map(function (val) {
-					return {
-						name: _dom.find('option[value=\'' + val + '\']').text(),
-						val: val + ""
-					};
-				}).filter(function (val) {
-					return val.name && val.val;
-				});
+				var result = void 0;
+				if (options.radio) {
+					var one = vals.map(function (val) {
+						var opt = _dom.find('option[value=\'' + val + '\']');
+						return {
+							name: opt.attr('disabled') != undefined ? null : opt.text(),
+							val: val + ""
+						};
+					}).filter(function (val) {
+						return val.name && val.val;
+					})[0];
+					result = one ? [one] : [];
+				} else {
+					result = vals.map(function (val) {
+						return {
+							name: _dom.find('option[value=\'' + val + '\']').text(),
+							val: val + ""
+						};
+					}).filter(function (val) {
+						return val.name && val.val;
+					});
+				}
+				return result;
 			},
 			getValues: function getValues(options) {
-				var _ref7 = [commons.data.values, options.name],
-				    _arr = _ref7[0],
-				    _name = _ref7[1];
+				var _ref9 = [commons.data.values, options.name],
+				    _arr = _ref9[0],
+				    _name = _ref9[1];
 
 				if (!_arr.has(_name)) {
 					_arr.set(_name, []);
@@ -489,9 +638,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				return _arr.get(_name);
 			},
 			setValues: function setValues(options, vals) {
-				var _ref8 = [commons.data.values, options.name],
-				    _arr = _ref8[0],
-				    _name = _ref8[1];
+				var _ref10 = [commons.data.values, options.name],
+				    _arr = _ref10[0],
+				    _name = _ref10[1];
 
 				_arr.set(_name, vals);
 			},
@@ -501,7 +650,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					type: sel.attr(commons.data.name + '-type'),
 					max: sel.attr(commons.data.name + '-max'),
 					icon: sel.attr(commons.data.name + '-icon'),
-					tips: sel.attr(commons.data.name + '-placeholder')
+					tips: sel.attr(commons.data.name + '-placeholder'),
+					height: sel.attr(commons.data.name + '-height'),
+					radio: sel.attr(commons.data.name + '-radio') != undefined,
+					repeat: sel.attr(commons.data.name + '-repeat') != undefined
 				};
 			},
 			cloneOptions: function cloneOptions(options, hisOptions) {
@@ -521,30 +673,163 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 							text: icon
 						};
 					}
+				} else {
+					var v = layui.v.split('.');
+					if (v[0] < 2 || v[1] <= 2) {
+						options.icon = {
+							class: '',
+							text: hisOptions.icon.text
+						};
+					} else {
+						options.icon = {
+							class: hisOptions.icon.class,
+							text: ''
+						};
+					}
 				}
-				return $.extend(true, {}, hisOptions, options);
+				return $.extend({}, hisOptions, options);
 			},
-			autoInit: function autoInit() {
+			autoInit: function autoInit(repeat) {
 				$('select[' + commons.data.name + ']').each(function (index, target) {
 					var sel = $(target);
 					sel.css('display', 'none');
-					commons.methods.init(commons.methods.getOptions(sel));
+					var options = commons.methods.getOptions(sel);
+					if (!repeat) {
+						var hisOptions = commons.data.confs.get(options.name);
+						options.init = select3.value(options.name, 'val');
+						commons.methods.init(commons.methods.cloneOptions(options, hisOptions), true);
+					} else {
+						commons.methods.init(options);
+					}
 				});
 			},
-			listenClose: function listenClose() {
-				$(document).on('click', 'i[fsw]', function (e) {
-					var _ref9 = [$(e.target).parents('.layui-form-select').prev(), $(e.target).parent()],
-					    sel = _ref9[0],
-					    span = _ref9[1];
+			listenCloseHandler: function listenCloseHandler(e, that, block) {
+				if (block.length) {
+					var _ref11 = [block.find('.layui-form-select'), block.find('dl')],
+					    div = _ref11[0],
+					    dl = _ref11[1];
 
-					var val = {
-						name: span.find('font').text(),
-						val: span.attr('value')
-					};
-					var options = commons.methods.getOptions(sel);
-					commons.methods.getDiv(options).find('dl dd[lay-value=\'' + val.val + '\']').click();
-					commons.methods.valHandler(commons.methods.getOptions(sel), val, false);
+					var name = block.find('select').attr('xm-select');
+
+					if (that.hasClass('layui-disabled')) {
+						return;
+					}
+
+					if (that.attr('xm-select-clear') != undefined) {
+						if (that.is('i')) {
+							var options = commons.data.confs.get($(e.target).attr('xm-select-clear'));
+							if (options) {
+								var length = commons.methods.removeAll(options);
+								if (options.radio && length) {
+									return;
+								}
+							}
+							div.addClass('layui-form-selected');
+							dl.find('.xm-select-input-search').focus();
+							return;
+						}
+					}
+
+					if (that.hasClass('xm-select-dd-search') || that.hasClass('xm-select-input-search')) {
+						div.addClass('layui-form-selected');
+						dl.find('.xm-select-input-search').focus();
+						return;
+					}
+
+					$('.xm-select-parent > select:not([xm-select=\'' + name + '\']) + div > dl').removeClass('xm-select-show').addClass('xm-select-hidn').css('display', 'none');
+
+					if (that.attr('fsw') != undefined) {
+						if (that.is('i')) {
+							var _ref12 = [$(e.target).parents('.layui-form-select').prev(), $(e.target).parent()],
+							    sel = _ref12[0],
+							    span = _ref12[1];
+
+							var val = {
+								name: span.find('font').text(),
+								val: span.attr('value')
+							};
+							var _options = commons.methods.getOptions(sel);
+							_options = commons.data.confs.get(_options.name);
+							_options.delete = true;
+							commons.methods.getDiv(_options).find('dl dd[lay-value=\'' + val.val + '\']').click();
+							commons.methods.valHandler(commons.methods.getOptions(sel), val, false);
+							setTimeout(function () {
+								if (dl.hasClass('xm-select-show')) {
+									div.addClass('layui-form-selected');
+									dl.find('.xm-select-input-search').focus();
+								} else {
+									div.removeClass('layui-form-selected');
+								}
+							}, 3);
+							return;
+						}
+					}
+
+					if (block.find('select').attr('xm-select-radio') != undefined) {
+						setTimeout(function () {
+							if (dl.hasClass('xm-select-show')) {
+								div.removeClass('layui-form-selected');
+								dl.removeClass('xm-select-show').addClass('xm-select-hidn').css('display', 'none');
+							} else {
+								div.addClass('layui-form-selected');
+								dl.removeClass('xm-select-hidn').addClass('xm-select-show').css('display', 'block');
+								dl.find('.xm-select-input-search').focus();
+							}
+						}, 3);
+						return;
+					}
+
+					if (dl.hasClass('xm-select-show')) {
+						if (that.hasClass('xm-select') || that.hasClass('xm-select-empty')) {
+							dl.removeClass('xm-select-show').addClass('xm-select-hidn').css('display', 'none');
+							div.removeClass('layui-form-selected');
+						} else {
+							div.addClass('layui-form-selected');
+							dl.find('.xm-select-input-search').focus();
+						}
+						return;
+					}
+					dl.removeClass('xm-select-hidn').addClass('xm-select-show').css('display', 'block');
+					div.addClass('layui-form-selected');
+					dl.find('.xm-select-input-search').focus();
+				} else {
+					$('.xm-select-parent > .layui-form-select > dl.xm-select-show').removeClass('xm-select-show').addClass('xm-select-hidn').css('display', 'none');
+				}
+			},
+			listenClose: function listenClose() {
+				$(document).on('click', function (e) {
+					var that = $(e.target);
+					var block = that.parents('.xm-select-parent');
+					setTimeout(function () {
+						commons.methods.listenCloseHandler(e, that, block);
+						commons.methods.retop({ name: block.find('select[xm-select]').attr('xm-select') });
+						$('.xm-select-parent input.xm-select-input-search').each(function (index, item) {
+							var that = $(item);
+							if (that.parents('dl').hasClass('xm-select-hidn')) {
+								that.val('');
+								that.parents('dl').find('.layui-hide').removeClass('layui-hide');
+								that.parents('dl').find('p').remove();
+							}
+						});
+					}, 10);
 				});
+				$(document).on({
+					'input propertychange': function inputPropertychange(e) {
+						var that = $(e.target);
+						var dl = that.parents('dl');
+						that.parents('dl').find('p').remove();
+						dl.find('.layui-hide').removeClass('layui-hide');
+						dl.find('dd:not(.layui-select-tips):not(:contains(\'' + that.val() + '\'))').addClass('layui-hide');
+						if (!dl.find('dd:not(.layui-select-tips):not(.layui-hide)').length) {
+							dl.append('<p class="xm-select-search-empty">\u65E0\u5339\u914D\u9879</p>');
+						}
+						dl.find('dt').each(function (index, item) {
+							if (!$(item).nextUntil('dt', ':not(.layui-hide)').length) {
+								$(item).addClass('layui-hide');
+							}
+						});
+					}
+				}, '.xm-select-parent input.xm-select-input-search');
 			},
 			formRender: null,
 			rewriteRender: function rewriteRender() {
@@ -558,78 +843,95 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 								commons.methods.init(commons.methods.getOptions(sel));
 							}
 						}
+						return;
+					}
+					commons.methods.autoInit(repeat);
+				};
+			},
+			loadCss: function loadCss(skin, cs) {
+				if (skin) {
+					if (skin == 'default') {
+						return;
+					}
+					var sn = void 0;
+					if ($('style[skin]').length) {
+						sn = $('style[skin]');
 					} else {
-						if (type == 'select') {
-							commons.methods.autoInit();
+						sn = $('<style ' + skin + ' type="text/css"></style>');
+					}
+					var df = styles.colors[skin] ? styles.colors[skin] : styles.colors.default;
+					var colors = $.extend([], df, cs);
+					sn.html(styles.cssColor(skin, colors[0], colors[1], colors[2], colors[3], colors[4], colors[5], colors[6]));
+					sn.insertAfter($('head style:last'));
+				} else {
+					$('<style ' + commons.data.name + ' type="text/css">' + styles.css() + '</style>').insertBefore($('head *:first'));
+
+					var html = '';
+					for (var name in styles.colors) {
+						var _colors = styles.colors[name];
+						if (_colors) {
+							_colors = $.extend([], styles.colors.default, _colors);
+							html += '<style ' + name + ' type="text/css">' + styles.cssColor(name, _colors[0], _colors[1], _colors[2], _colors[3], _colors[4], _colors[5], _colors[6]) + '</style>';
 						}
 					}
-				};
+					if (html) {
+						$(html).insertAfter($('head style[' + commons.data.name + ']'));
+					}
+				}
+			},
+			loadLastStyle: function loadLastStyle() {
+				$('head').append('<style>' + styles.renderCss() + '</style>');
+			},
+			resize: function resize(selector, fun) {
+				var id = commons.data.resize.get(selector);
+				if (id != undefined) {
+					clearInterval(id);
+				}
+				if (fun && fun instanceof Function) {
+					var hisize = new Map();
+					id = setInterval(function (e) {
+						$(selector).each(function (index, item) {
+							var thisize = [item.clientHeight, item.clientWidth];
+							if (hisize.get(item)) {
+								var his = hisize.get(item);
+								if (his[0] != thisize[0] || his[1] != thisize[1]) {
+									fun(item);
+								}
+							}
+							hisize.set(item, thisize);
+						});
+					}, 250);
+					commons.data.resize.set(selector, id);
+				}
 			},
 			run: function run() {
 				commons.methods.rewriteRender();
 				commons.methods.listenClose();
+				commons.methods.loadCss();
+				commons.methods.loadLastStyle();
 				commons.methods.autoInit();
+				commons.methods.resize('.xm-select:not(.xm-select-height)', function (dom) {
+					commons.methods.handlerDataTable(dom, dom.clientHeight + 'px');
+				});
 			}
 		}
 	},
 	    styles = {
-		hiddenInput: {
-			display: 'none'
+		colors: { //name, spanBgColor, spanColor, iBgColor, iColor, borderColor, tBgColor, tColor
+			default: ['#F0F2F5', '#909399', '#C0C4CC', '#FFFFFF', '#F0F2F5', '#5FB878', '#FFFFFF'],
+			primary: ['#009688', '#FFFFFF', '#009688', '#FFFFFF', '#009688', '#009688', '#FFFFFF'],
+			normal: ['#1E9FFF', '#FFFFFF', '#1E9FFF', '#FFFFFF', '#1E9FFF', '#1E9FFF', '#FFFFFF'],
+			warm: ['#FFB800', '#FFFFFF', '#FFB800', '#FFFFFF', '#FFB800', '#FFB800', '#FFFFFF'],
+			danger: ['#FF5722', '#FFFFFF', '#FF5722', '#FFFFFF', '#FF5722', '#FF5722', '#FFFFFF']
 		},
-		input: {
-			lineHeight: "normal",
-			height: "auto",
-			padding: "4px 10px",
-			overflow: "hidden",
-			minHeight: "38px",
-			left: 0,
-			zIndex: 99,
-			position: "relative",
-			background: "none"
+		css: function css() {
+			return '\n\t\t\t\t\tselect[xm-select] + div .layui-select-title > input{display: none!important;}\n\t\t\t\t\tselect[xm-select] + div .layui-select-title > div.xm-select{\n\t\t\t\t\t\tline-height: normal;\n\t\t\t\t\t\theight: auto;\n\t\t\t\t\t\tpadding: 4px 10px;\n\t\t\t\t\t\toverflow: hidden;\n\t\t\t\t\t\tmin-height: 38px;\n\t\t\t\t\t\tleft: 0px;\n\t\t\t\t\t\tz-index: 99;\n\t\t\t\t\t\tposition: relative;\n\t\t\t\t\t\tbackground: none;\n\t\t\t\t\t\tpadding-right: 20px;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty){\n\t\t\t\t\t\tpadding: 2px 5px;\n\t\t\t\t\t\tbackground: #f0f2f5;\n\t\t\t\t\t\tborder-radius: 2px;\n\t\t\t\t\t\tcolor: #909399;\n\t\t\t\t\t\tdisplay: block;\n\t\t\t\t\t\tline-height: 18px;\n\t\t\t\t\t\theight: 18px;\n\t\t\t\t\t\tmargin: 2px 5px 2px 0px;\n\t\t\t\t\t\tfloat: left;\n\t\t\t\t\t\tcursor: initial;\n\t\t\t\t\t\tuser-select: none;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty) i{\n\t\t\t\t\t\tbackground-color: #c0c4cc;\n\t\t\t\t\t\tcolor: #ffffff;\n\t\t\t\t\t\tmargin-left: 8px;\n\t\t\t\t\t\tborder-radius: 20px;\n\t\t\t\t\t\tfont-size: 12px;\n\t\t\t\t\t\tcursor: initial;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty) i:hover{\n\t\t\t\t\t\tbackground-color: #909399;\n\t\t\t\t\t\tcursor: pointer;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select] + div .layui-select-title > div.xm-select > span.xm-select-empty{\n\t\t\t\t\t\tdisplay: inline-block;\n\t\t\t\t\t\theight: 28px;\n\t\t\t\t\t\tline-height: 28px;\n\t\t\t\t\t\tcolor: #999999\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select] + div dl dd.xm-select-dd-search{\n\t\t\t\t\t\tbackground-color: #FFFFFF;\n\t\t\t\t\t\tpadding-bottom: 5px;\n\t\t\t\t\t\tmargin-right: 30px;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select] + div dl dd.xm-select-dd-search > input{\n\t\t\t\t\t\tcursor: text;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select] + div dl dd.xm-select-dd-search > span{\n\t\t\t\t\t\tposition: absolute;\n\t\t\t\t\t    right: 8px;\n\t\t\t\t\t    top: 5px;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select] + div dl dd.xm-select-dd-search > span > i{\n\t\t\t\t\t\tfont-size: 22px;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select] + div dl dd.xm-select-dd-search > span > i:hover{\n\t\t\t\t\t\tcolor: red;\n\t\t\t\t\t\topacity:.8;\n\t\t\t\t\t\tfilter:alpha(opacity=80);\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select] + div dl p.xm-select-search-empty{\n\t\t\t\t\t\tmargin: 10px 0;\n\t\t\t\t\t    text-align: center;\n\t\t\t\t\t    color: #999;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-type=\'1\'] + div dl dd.xm-select-this,select[xm-select]:not([xm-select-type]) + div dl dd.xm-select-this{\n\t\t\t\t\t\tbackground-color: #5FB878;\n\t\t\t\t\t\tcolor: #FFF;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-type=\'1\'] + div dl dd.layui-disabled,select[xm-select]:not([xm-select-type]) + div dl dd.layui-disabled{\n\t\t\t\t\t\tbackground-color: #FFFFFF;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-type=\'2\'] + div dl dd.layui-disabled i{\n\t\t\t\t\t\tborder-color: #C2C2C2;\n\t\t\t\t\t\tcolor: #FFFFFF;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-type=\'2\'] + div dl dd.xm-select-this.layui-disabled i{\n\t\t\t\t\t\tbackground-color: #D2D2D2;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-type=\'2\'] + div dl dd.xm-select-this:not(.layui-disabled) i{\n\t\t\t\t\t\tbackground-color: #5FB878;\n\t\t\t\t\t\tborder-color: #5FB878;\n\t\t\t\t\t\tcolor: #FFF;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-type=\'3\'] + div dl dd.xm-select-this:not(.layui-disabled){\n\t\t\t\t\t\tcolor: #5FB878;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-type=\'3\'] + div dl dd.xm-select-this i{\n\t\t\t\t\t\tposition: absolute;\n\t\t\t\t\t\tright: 10px;\n\t\t\t\t\t}\n\t\t\t\t\t\n\t\t\t\t';
 		},
-		inputLabel: {
-			padding: "2px 5px",
-			background: "#f0f2f5",
-			borderRadius: "2px",
-			color: "#909399",
-			display: "block",
-			lineHeight: "20px",
-			height: "20px",
-			margin: "2px 5px 2px 0",
-			float: "left",
-			cursor: "initial",
-			userSelect: "none"
+		cssColor: function cssColor(name, spanBgColor, spanColor, iBgColor, iColor, borderColor, tBgColor, tColor) {
+			return '\n\t\t\t\t\tselect[xm-select][xm-select-skin=\'' + name + '\'] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty){\n\t\t\t\t\t\tbackground: ' + spanBgColor + ';\n\t\t\t\t\t\tcolor: ' + spanColor + ';\n\t\t\t\t\t\tborder: 1px solid ' + borderColor + '\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-skin=\'' + name + '\'] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty) i{\n\t\t\t\t\t\tbackground: ' + iBgColor + ';\n\t\t\t\t\t\tcolor: ' + iColor + ';\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-skin=\'' + name + '\'] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty) i:hover{\n\t\t\t\t\t\topacity:.8;\n\t\t\t\t\t\tfilter:alpha(opacity=80);\n\t\t\t\t\t\tcursor: pointer;\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-skin=\'' + name + '\'][xm-select-type=\'1\'] + div dl dd.xm-select-this:not(.layui-disabled),select[xm-select][xm-select-skin=\'' + name + '\']:not([xm-select-type]) + div dl dd.xm-select-this:not(.layui-disabled){\n\t\t\t\t\t\tbackground-color: ' + tBgColor + ';\n\t\t\t\t\t\tcolor: ' + tColor + ';\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-skin=\'' + name + '\'][xm-select-type=\'2\'] + div dl dd.xm-select-this:not(.layui-disabled) i{\n\t\t\t\t\t\tbackground-color: ' + tBgColor + ';\n\t\t\t\t\t\tborder-color: ' + tBgColor + ';\n\t\t\t\t\t\tcolor: ' + tColor + ';\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-skin=\'' + name + '\'][xm-select-type=\'3\'] + div dl dd.xm-select-this:not(.layui-disabled){\n\t\t\t\t\t\tcolor: ' + tBgColor + ';\n\t\t\t\t\t}\n\t\t\t\t\tselect[xm-select][xm-select-type=\'3\'] + div dl dd.xm-select-this i{\n\t\t\t\t\t\tposition: absolute;\n\t\t\t\t\t\tright: 10px;\n\t\t\t\t\t}\n\t\t\t\t';
 		},
-		inputLabelClose: {
-			backgroundColor: "#c0c4cc",
-			color: "#fff",
-			marginLeft: "8px",
-			borderRadius: "20px",
-			fontSize: "12px"
-		},
-		inputLabelCloseHover: {
-			backgroundColor: "#909399",
-			cursor: "pointer"
-		},
-		inputLabelCloseUnHover: {
-			backgroundColor: "#c0c4cc",
-			cursor: "initial"
-		},
-		inputEmpty: {
-			display: "inline-block",
-			height: "28px",
-			lineHeight: "28px",
-			color: "#999"
-		},
-		typeYes: {
-			position: "absolute",
-			right: "10px"
-		},
-		typeSelectedColor: {
-			color: "#5FB878"
-		},
-		typeUnSelectedColor: {
-			color: "inherit"
+		renderCss: function renderCss() {
+			return '\n\t\t\t\t\tselect[xm-select] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty){\n\t\t\t\t\t\tbox-sizing: content-box;\n\t\t\t\t\t}\n\t\t\t\t\t.xm-select-parent .layui-form-select dl dd.layui-this{\n\t\t\t\t\t    background-color: inherit;\n\t\t\t\t\t    color: inherit;\n\t\t\t\t\t}\n\t\t\t\t\t.xm-select-parent .layui-form-select dl dd.layui-this.layui-select-tips {\n\t\t\t\t\t\tbackground-color: #FFFFFF;\n\t\t\t\t\t    color: #999999;\n\t\t\t\t\t}\n\t\t\t\t\t.xm-select-parent .layui-form-selected dl {\n\t\t\t\t\t    display: none;\n\t\t\t\t\t}\n\t\t\t\t\t.xm-select-show:{\n\t\t\t\t\t\tdisplay: block;\n\t\t\t\t\t}\n\t\t\t\t\t.xm-select-hidn:{\n\t\t\t\t\t\tdisplay: none;\n\t\t\t\t\t}\n\t\t\t\t';
 		}
 	};
 	commons.methods.run();

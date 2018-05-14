@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 3.0.6
+ * version: 3.0.9
  * https://faysunshine.com/layui/template/formSelects-v3/formSelects-v3.js
  */
 (function(layui, window, factory) {
@@ -26,7 +26,7 @@
 			value: (name, type = 'all', vals) => {
 				if(type instanceof Array) {
 					vals = type;
-					type = 1;
+					type = 'all';
 				}
 				if(name && vals && vals instanceof Array) {
 					let options = commons.data.confs.get(name);
@@ -40,6 +40,10 @@
 				if(!arr) {
 					return vals;
 				}
+				arr = arr.map((val) => {
+					val.num = val.num ? val.num : 1; 
+					return val;
+				});
 				if(type == 'val') {
 					return arr.map((val) => {
 						return val.val;
@@ -64,22 +68,31 @@
 			},
 			render: (options) => {
 				if(options) {
-					if(commons.data.confs.get(options.name)){
+					if(commons.data.confs.get(options.name)) {
 						options = commons.methods.cloneOptions(options, commons.data.confs.get(options.name));
 						commons.methods.init(options);
+					}else{
+						let dom = commons.methods.getDom(options, true);
+						if(dom.length){
+							let hisOptions = commons.methods.cloneOptions(commons.methods.getOptions(dom), commons.data.DEFAULT_OPTIONS);
+							options = commons.methods.cloneOptions(options, hisOptions);
+							commons.methods.init(options);
+						}
 					}
 				} else {
 					commons.methods.autoInit();
 				}
 			},
 			delete: (name, abs) => {
-				if(name && commons.data.confs.get(name)){
-					let dom = commons.methods.getDom({name: name});
-					if(dom.parent().hasClass(commons.data.pclass)){
-						if(abs){
+				if(name && commons.data.confs.get(name)) {
+					let dom = commons.methods.getDom({
+						name: name
+					});
+					if(dom.parent().hasClass(commons.data.pclass)) {
+						if(abs) {
 							dom.removeAttr(commons.data.name);
 						}
-						dom.css('display', 'initial');
+						dom.removeAttr('style');
 						dom.parent()[0].outerHTML = dom[0].outerHTML;
 					}
 					commons.data.confs.delete(name);
@@ -87,6 +100,26 @@
 						commons.data.temps[item].delete(name);
 					}
 					commons.data.values.delete(name);
+				}
+			},
+			style: (name, colors) => {
+				if(name) {
+					if(!colors) {
+						commons.methods.loadCss(name, null);
+					} else if(colors instanceof Array) {
+						commons.methods.loadCss(name, colors);
+					} else {
+						let arr = [
+							colors.labelBgColor,
+							colors.labelColor,
+							colors.labelIconBgColor,
+							colors.labelIconColor,
+							colors.labelLabelBorderColor,
+							colors.thisBgColor,
+							colors.thisColor,
+						];
+						commons.methods.loadCss(name, arr);
+					}
 				}
 			}
 		},
@@ -100,7 +133,7 @@
 					type: 1, //显示模式, 1:layui-this, 2:checkbox, 3:icon
 					icon: {
 						class: 'layui-icon-ok',
-						text: '&#xe605;',
+						text: '&#xe618;',
 					},
 					max: null,
 					maxTips: null,
@@ -116,42 +149,44 @@
 					disabled: 'disabled',
 				},
 				confs: new Map(),
-				times: new Map(),
 				temps: {
 					dom: new Map(),
 					div: new Map(),
 				},
+				resize: new Map(),
 				values: new Map(),
+				times: new Map(),
 			},
 			methods: {
-				init: (options) => {
-					commons.data.times.set(options.name, Date.now());
-					options = commons.methods.cloneOptions(options);
+				init: (options, clone) => {
+					if(!clone){
+						options = commons.methods.cloneOptions(options);
+					}
 					//原始dom添加一个filter
-					let [filter, dom] = [`xm-${options.name}`, commons.methods.getDom(options)];
+					let [filter, dom] = [`xm-${options.name}`, commons.methods.getDom(options, true)];
 					if(dom.next().hasClass('layui-form-select')) {
 						dom.next().remove();
 					}
-					if(options.data && options.data.arr){
+					if(options.data && options.data.arr) {
 						let os = $.extend({}, commons.data.DEFAULT_RENDER, options.data);
 						let html = `<option value=""></option>`;
-						for(let i in os.arr){
+						for(let i in os.arr) {
 							let db = os.arr[i];
-							if(db.arr && db.arr instanceof Array){
+							if(db.arr && db.arr instanceof Array) {
 								html += `<optgroup label="${db.name}">`;
-								for(let j in db.arr){
+								for(let j in db.arr) {
 									let gdb = db.arr[j];
 									html += `<option value="${gdb[os.val]}" ${gdb[os.selected] ? 'selected="selected"':''} ${gdb[os.disabled] ? 'disabled="disabled"':''}>${gdb[os.name]}</option>`;
 								}
-								html += `</optgroup>`;							
-							}else{
+								html += `</optgroup>`;
+							} else {
 								html += `<option value="${db[os.val]}" ${db[os.selected] ? 'selected="selected"':''} ${db[os.disabled] ? 'disabled="disabled"':''}>${db[os.name]}</option>`;
 							}
 						}
 						dom.html(html);
 					}
 					//判断dom中是否包含了空的option, 如果不包含, 添加
-					if(!dom.find('option[value=""]').length){
+					if(!dom.find('option[value=""]').length) {
 						$(`<option value=""></option>`).insertBefore(dom.find('option:first'));
 					}
 					if(dom.parent().hasClass(commons.data.pclass)) {
@@ -160,6 +195,8 @@
 						dom.wrap(`<div class="layui-form ${commons.data.pclass}" lay-filter="${filter}"></div>`);
 					}
 					dom.attr('lay-filter', filter);
+					options.type ? dom.attr('xm-select-type', options.type) : dom.removeAttr('xm-select-type');
+					options.max ? dom.attr('xm-select-max', options.max) : dom.removeAttr('xm-select-max');
 					commons.methods.formRender('select', filter, true);
 					//1.去掉layui的原始渲染
 					commons.methods.getDom(options).next().addClass(commons.data.vclass)
@@ -188,9 +225,6 @@
 					vals.forEach((val) => {
 						let tips = `fsw="${options.name}"`;
 						let [$label, $close] = [$(`<span ${tips} value='${val.val}'><font ${tips}>${val.name}</font></span>`), $(`<i ${tips} class="layui-icon">&#x1006;</i>`)];
-						$label.css(styles.inputLabel);
-						$close.css(styles.inputLabelClose);
-						$close.hover(() => void $close.css(styles.inputLabelCloseHover), () => void $close.css(styles.inputLabelCloseUnHover));
 						$label.append($close);
 						ipt.append($label);
 					});
@@ -207,8 +241,8 @@
 						let [tips, ipt] = [`fsw="${options.name}"`, commons.methods.getIpt(options)];
 						if(!ipt.find('.xm-select-empty').length) {
 							let tips = options.tips ? options.tips : ipt.prev().attr('placeholder');
-							let span = $(`<span ${tips} class="xm-select-empty">${tips}</span>`);
-							span.css(styles.inputEmpty);
+							let cls = `fsw="${options.name}"`;
+							let span = $(`<span ${cls} class="xm-select-empty">${tips}</span>`);
 							ipt.append(span);
 						}
 					}
@@ -226,9 +260,11 @@
 							commons.methods.typeHandler(options, dd, false);
 						}
 					} else {
-						commons.methods.remove(vals, val);
-						commons.methods.delLabel(options, [val]);
-						commons.methods.typeHandler(options, dd, isAdd);
+						if(!dd.hasClass('layui-disabled')) {
+							commons.methods.remove(vals, val);
+							commons.methods.delLabel(options, [val]);
+							commons.methods.typeHandler(options, dd, isAdd);
+						}
 
 					}
 					commons.methods.retop(options);
@@ -243,7 +279,7 @@
 							$target.text('');
 							$target.append(`
 								<span lay-filter="${filter}">
-									<input type="checkbox" name="" title="${text}" lay-skin="primary" ${dis}> 	
+									<input type="checkbox" title="${text}" lay-skin="primary" ${dis}> 	
 								</span>
 							`);
 						});
@@ -263,11 +299,8 @@
 							let span = $(`
 								<span><i class="layui-icon ${options.icon.class}">${options.icon.text}</i></span>	
 							`);
-							span.css(styles.typeYes);
-							dd.css(styles.typeSelectedColor);
 							dd.append(span);
 						} else {
-							dd.css(styles.typeUnSelectedColor);
 							dd.find('span').remove();
 						}
 					} else if(options.type == 2) { //checkbox
@@ -276,77 +309,131 @@
 						} else {
 							dd.find('.layui-form-checkbox').removeClass('layui-form-checked');
 						}
-					} else {
-						if(isAdd) {
-							dd.css({
-								backgroundColor: '#5FB878',
-								color: '#FFF',
-							})
-						} else {
-							dd.css({
-								backgroundColor: 'inherit',
-								color: 'inherit',
-							})
-						}
 					}
+					isAdd ? dd.addClass(`${commons.data.name}-this`) : dd.removeClass(`${commons.data.name}-this`);
+					dd.removeClass('layui-this');
 					commons.methods.showPlaceholder(options);
 				},
 				on: (options, filter) => {
 					form.on(`select(${filter})`, (data) => {
+						if(options.radio){
+							commons.methods.getDiv(options).find('dl').removeClass('xm-select-show').addClass('xm-select-hidn').css('display', 'none');
+							let selected, val;
+							if(data.value){
+								val = {
+									name: commons.methods.getDom(options).find(`option[value='${data.value}']`).text(),
+									val: data.value
+								};
+								selected = commons.methods.indexOf(commons.methods.getValues(options), val) == -1;
+								if(selected){
+									let hisVal = select3.value(options.name)[0];
+									if(hisVal){
+										commons.methods.valHandler(options, hisVal, false, false);
+										commons.methods.setValues(options, []);
+									}
+								}
+								commons.methods.valHandler(options, val, selected, false);
+							}else{
+								selected = false;
+								val = select3.value(options.name)[0];
+								if(val){
+									commons.methods.valHandler(options, val, selected, false);
+									commons.methods.setValues(options, []);
+								}
+							}
+							if(val && options.on && options.on instanceof Function) {
+								options.on(data, select3.value(options.name), val, selected);
+							}
+							return ;
+						}
+						if(commons.methods.getDiv(options).hasClass('layui-form-selectup') || commons.methods.getDiv(options).find('dl').css('top').startsWith('-')){
+							setTimeout(() => {
+								commons.methods.getDiv(options).addClass('layui-form-selectup')
+							}, 50);
+						}
+						
+						if(options.repeat){
+							if(data.value){
+								let ipt = commons.methods.getIpt(options);
+								if(options.delete){
+									let val = {
+										name: commons.methods.getDom(options).find(`option[value='${data.value}']`).text(),
+										val: data.value
+									};
+									commons.methods.valHandler(options, val, false);
+									ipt.parent().next().find(`dd[lay-value='${data.value}'] .layui-form-checkbox > i`).html('&#xe605;');
+									options.delete = false;
+									if(options.on && options.on instanceof Function) {
+										options.on(data, select3.value(options.name), val, false);
+									}
+									return ;
+								}else{
+									let val;
+									let vals = commons.methods.getValues(options);
+									for(let i in vals){
+										if(vals[i].val == data.value){
+											val = vals[i];
+											break;
+										}
+									}
+									if(val){
+										val.num = (val.num ? val.num : 1) + 1;
+									}else{
+										val = {
+											name: commons.methods.getDom(options).find(`option[value='${data.value}']`).text(),
+											val: data.value,
+											num: 1,
+										};
+									}
+									if(val.num == 1){
+										commons.methods.valHandler(options, val, true);
+									}else{
+										//更改label
+										let font = ipt.find(`span[value='${data.value}'] font`);
+										let text = font.text().split('【')[0];
+										font.text(`${text}【${val.num}】`).css('margin-right', '-9px');
+										ipt.parent().next().find(`dd[lay-value='${data.value}'] .layui-form-checkbox > i`).html(val.num > 99 ? '&#xe65f;' : val.num);
+										commons.methods.retop(options);
+									}
+									if(options.on && options.on instanceof Function) {
+										options.on(data, select3.value(options.name), val, true);
+									}
+								}
+								
+								
+								setTimeout(() => {
+									commons.methods.getDiv(options).addClass('layui-form-selected').find('dl dd.layui-this').removeClass('layui-this');
+								}, 3);
+								return ;
+							}
+						}
 						if(data.value) {
 							let val = {
 								name: commons.methods.getDom(options).find(`option[value='${data.value}']`).text(),
 								val: data.value
 							};
-							commons.methods.removeDefaultClass(options);
 							let selected = commons.methods.indexOf(commons.methods.getValues(options), val) == -1;
 							commons.methods.valHandler(options, val, selected, true);
-							
-							if(options.on && options.on instanceof Function){
+
+							if(options.on && options.on instanceof Function) {
 								options.on(data, select3.value(options.name), val, selected);
 							}
+
+							setTimeout(() => {
+								commons.methods.getDiv(options).addClass('layui-form-selected').find('dl dd.layui-this').removeClass('layui-this');
+							}, 3);
 						} else {
-							let vals = commons.methods.getValues(options);
-							while(vals.length) {
-								commons.methods.valHandler(options, vals[0], false, true);
+							if(commons.methods.getDom(options).attr('xm-select-search') == undefined) {
+								commons.methods.removeAll(options);
+								setTimeout(() => {
+									commons.methods.getDiv(options).addClass('layui-form-selected');
+								}, 3);
 							}
 						}
-						let up = div.hasClass('layui-form-selectup');
-						setTimeout(() => {
-							let div = commons.methods.getDiv(options);
-							div.find('dl').css('display', 'block');
-							div.addClass('layui-form-selected');
-							if(up){
-								div.addClass('layui-form-selectup');
-							}
-						}, 10);
-					});
-					let div = commons.methods.getDiv(options);
-					let inputSelector = `body:not(select[${commons.data.name}=${options.name}] + div)`
-					$(document).off('click', inputSelector).on('click', inputSelector, (e) => {
-						setTimeout(() => {
-							if(e.target.getAttribute('fsw') == options.name) {
-								if($(e.target).hasClass('xm-select-empty')) {
-									if(div.find('dl').css('display') != 'block') {
-										div.addClass('layui-form-selected');
-									} else {
-										div.removeClass('layui-form-selected');
-									}
-								} else if(e.target.hasAttribute('fsw') && !$(e.target).is('i')) {
-									div.addClass('layui-form-selected');
-								}
-							}
-							let show = div.hasClass('layui-form-selected') ? 'block' : 'none';
-							if(show == 'block'){
-								commons.methods.retop(options);
-							}
-							div.find('dl').css('display', show);
-							div.find('dl dd.layui-this').removeClass('layui-this');
-						}, 10);
 					});
 				},
 				maxTips: (options, val) => {
-					if(options.maxTips && options.maxTips instanceof Function){
+					if(options.maxTips && options.maxTips instanceof Function) {
 						options.maxTips(select3.value(options.name), val, options.max);
 						return;
 					}
@@ -361,53 +448,113 @@
 				},
 				indexOf: (arr, val) => {
 					for(let i = 0; i < arr.length; i++) {
-						if(arr[i].val == val || arr[i] == val || JSON.stringify(arr[i]) == JSON.stringify(val)) {
+						if(arr[i].val == val || arr[i].val == (val ? val.val : val) || arr[i] == val || JSON.stringify(arr[i]) == JSON.stringify(val)) {
 							return i;
 						}
 					}
 					return -1;
 				},
 				remove: (arr, val) => {
-					let index = commons.methods.indexOf(arr, val);
+					let index = commons.methods.indexOf(arr, val ? val.val : val);
 					if(index > -1) {
 						arr.splice(index, 1);
 						return true;
 					}
 					return false;
 				},
-				removeDefaultClass: (options) => {
+				removeAll: (options) => {
 					let div = commons.methods.getDiv(options);
+					let vals = div.find('dl dd.xm-select-this:not(.layui-disabled)');
+					vals.each((index, item) => {
+						options.delete = true;
+						item.click();
+					});
+					return vals.length;
+				},
+				removeDefaultClass: (options) => {
+					let [dom, div] = [commons.methods.getDom(options), commons.methods.getDiv(options)];
+					div.find('dl').addClass('xm-select-hidn');
 					div.find('dl dd.layui-this').removeClass('layui-this');
-					let text = '清空已选择' + (options.max ? `. 当前配置: 最多选择 ${options.max} 个` : '');
-					if(div.find('dl dd.layui-select-tips').length) {
-						div.find('dl dd.layui-select-tips').text(text);
-					} else {
-						$(`<dd lay-value="" class="layui-select-tips">${text}</dd>`).insertBefore(div.find('dl dd:first'));
+					div.find('dl').append('<dt style="display:none;">x<dt/>')
+					let text = options.radio ? '请选择' : '清空已选择' + (options.max ? `. 当前配置: 最多选择 ${options.max} 个` : '');
+					let html = `<span>${text}</span>`;
+					let that = div.find('dl dd.layui-select-tips');
+					if(dom.attr('xm-select-search') != undefined) {
+						let icon = '&#xe640;';
+						html = `<input class="layui-input xm-select-input-search" placeholder="关键字搜索"><span><i title="${text}" xm-select-clear="${options.name}" class="layui-icon">${icon}</i></span>`;
+						that.addClass('xm-select-dd-search');
+						that.off('click');
+					}
+					commons.methods.handlerDataTable(dom, '38px');
+					that.html(html);
+				},
+				handlerDataTable: (dom, height) => {
+					if(dom.length == undefined){
+						dom = $(dom);
+					}
+					if(dom.parents('div.layui-table-cell').length) {
+						let index = dom.parents('tr').attr('data-index');
+						dom.parents('.layui-table-box').find(`tbody tr[data-index='${index}'] div.layui-table-cell`).css({
+							height: height,
+							lineHeight: height,
+							overflow: 'unset',
+						});
 					}
 				},
 				overrideInput: (options) => {
-					let _div = commons.methods.getDiv(options)
+					let [_div, _dom] = [commons.methods.getDiv(options), commons.methods.getDom(options)];
 					let [$input, $orinput] = [_div.find('.layui-select-title input:first'), $(`<div class="layui-input ${commons.data.name}"></div>`)];
-					$input.css(styles.hiddenInput);
-					$orinput.css(styles.input);
 					$orinput.insertAfter($input);
-					if($input.parents(`.layui-form-pane`).length) {
+					if($input.parents(`.layui-form-pane`).length && $input.parents('.layui-form-item[pane]').length) {
 						$orinput.css('border', 'none');
+					}
+					if(options.height){
+						$orinput.addClass('.xm-select-height').css('height', options.height);
+					}
+					if(_dom.attr('disabled') != undefined){
+						$orinput.append($(
+							`<div style="
+							    width: 100%;
+							    height: 100%;
+							    display: block;
+							    position: absolute;
+							    left: 0;
+							    top: 0;
+							"></div>`
+						).addClass('layui-disabled'));
 					}
 				},
 				retop: (options) => {
 					let div = commons.methods.getIpt(options);
-					let dl = div.parent('.layui-select-title').next();
-					if(dl.parent().hasClass('layui-form-selectup')) {
-						div.parent('.layui-select-title').next().css({
-							top: 'auto',
-							bottom: div[0].offsetTop + div.height() + 14 + 'px'
-						});
-					} else {
-						div.parent('.layui-select-title').next().css({
-							top: div[0].offsetTop + div.height() + 14 + 'px',
-							bottom: 'auto'
-						});
+					if(div.length) {
+						let dl = div.parent('.layui-select-title').next();
+						let up = dl.parent().hasClass('layui-form-selectup') || dl.css('top').startsWith('-');
+						let time = commons.data.times.get(options.name);
+						if(time){
+							if(Date.now() - time.time < 100 || options.delete){
+								up = time.up;
+								options.delete = false;
+							}else{
+								time.up = up;
+							}
+							time.time = Date.now();
+						}else{
+							commons.data.times.set(options.name, {
+								time: Date.now(),
+								up: up
+							});
+						}
+						if(up) {
+							div.parent('.layui-select-title').next().css({
+								top: 'auto',
+								bottom: div[0].offsetTop + div.height() + 14 + 'px'
+							});
+						} else {
+							div.parent('.layui-select-title').next().css({
+								top: div[0].offsetTop + div.height() + 14 + 'px',
+								bottom: 'auto'
+							});
+						}
 					}
 				},
 				getElementTop: (element) => {
@@ -419,8 +566,11 @@
 					}　　　　
 					return actualTop;
 				},
-				getDom: (options) => {
+				getDom: (options, isNew) => {
 					let [_dom, _name] = [commons.data.temps.dom, options.name];
+					if(isNew){
+						_dom.set(_name, $(`select[${commons.data.name}='${_name}']`));
+					}
 					if(!_dom.has(_name)) {
 						_dom.set(_name, $(`select[${commons.data.name}='${_name}']`));
 					}
@@ -443,14 +593,29 @@
 							return $(target).attr(`value`);
 						}).toArray()
 					);
-					return vals.map((val) => {
-						return {
-							name: _dom.find(`option[value='${val}']`).text(),
-							val: val + "",
-						}
-					}).filter((val) => {
-						return val.name && val.val;
-					});
+					let result;
+					if(options.radio){
+						let one = vals.map((val) => {
+							let opt = _dom.find(`option[value='${val}']`);
+							return {
+								name: opt.attr('disabled') != undefined ? null : opt.text(),
+								val: val + "",
+							}
+						}).filter((val) => {
+							return val.name && val.val;
+						})[0];
+						result = one ? [one] : [];
+					}else{
+						result = vals.map((val) => {
+							return {
+								name: _dom.find(`option[value='${val}']`).text(),
+								val: val + "",
+							}
+						}).filter((val) => {
+							return val.name && val.val;
+						});
+					}
+					return result;
 				},
 				getValues: (options) => {
 					let [_arr, _name] = [commons.data.values, options.name];
@@ -470,46 +635,179 @@
 						max: sel.attr(`${commons.data.name}-max`),
 						icon: sel.attr(`${commons.data.name}-icon`),
 						tips: sel.attr(`${commons.data.name}-placeholder`),
+						height: sel.attr(`${commons.data.name}-height`),
+						radio: sel.attr(`${commons.data.name}-radio`) != undefined,
+						repeat: sel.attr(`${commons.data.name}-repeat`) != undefined,
 					}
 				},
 				cloneOptions: (options, hisOptions) => {
-					if(!hisOptions){
+					if(!hisOptions) {
 						hisOptions = commons.data.DEFAULT_OPTIONS;
 					}
-					if(options.icon && typeof options.icon == 'string'){
+					if(options.icon && typeof options.icon == 'string') {
 						let icon = options.icon;
-						if(icon.startsWith('layui')){
+						if(icon.startsWith('layui')) {
 							options.icon = {
 								class: icon,
 								text: '',
 							};
-						}else{
+						} else {
 							options.icon = {
 								class: '',
 								text: icon,
 							};
 						}
+					} else {
+						let v = layui.v.split('.');
+						if(v[0] < 2 || v[1] <= 2) {
+							options.icon = {
+								class: '',
+								text: hisOptions.icon.text,
+							};
+						} else {
+							options.icon = {
+								class: hisOptions.icon.class,
+								text: '',
+							};
+						}
 					}
-					return $.extend(true, {}, hisOptions, options);
+					return $.extend({}, hisOptions, options);
 				},
-				autoInit: () => {
+				autoInit: (repeat) => {
 					$(`select[${commons.data.name}]`).each((index, target) => {
 						let sel = $(target);
 						sel.css('display', 'none');
-						commons.methods.init(commons.methods.getOptions(sel));
+						let options = commons.methods.getOptions(sel);
+						if(!repeat) {
+							let hisOptions = commons.data.confs.get(options.name);
+							options.init = select3.value(options.name, 'val');
+							commons.methods.init(commons.methods.cloneOptions(options, hisOptions), true);
+						} else {
+							commons.methods.init(options);
+						}
 					})
 				},
+				listenCloseHandler: (e, that, block) => {
+					if(block.length) {
+						let [div, dl] = [block.find('.layui-form-select'), block.find('dl')];
+						let name = block.find('select').attr('xm-select');
+						
+						if(that.hasClass('layui-disabled')){
+							return ;
+						}
+						
+						if(that.attr('xm-select-clear') != undefined) {
+							if(that.is('i')) {
+								let options = commons.data.confs.get($(e.target).attr('xm-select-clear'));
+								if(options) {
+									let length = commons.methods.removeAll(options);
+									if(options.radio && length){
+										return;
+									}
+								}
+								div.addClass('layui-form-selected');
+								dl.find('.xm-select-input-search').focus();
+								return;
+							}
+						}
+						
+						if(that.hasClass('xm-select-dd-search') || that.hasClass('xm-select-input-search')){
+							div.addClass('layui-form-selected');
+							dl.find('.xm-select-input-search').focus();
+							return ;
+						}
+						
+						$(`.xm-select-parent > select:not([xm-select='${name}']) + div > dl`).removeClass('xm-select-show').addClass('xm-select-hidn').css('display', 'none');
+						
+						if(that.attr('fsw') != undefined) {
+							if(that.is('i')) {
+								let [sel, span] = [$(e.target).parents('.layui-form-select').prev(), $(e.target).parent()];
+								let val = {
+									name: span.find('font').text(),
+									val: span.attr('value'),
+								};
+								let options = commons.methods.getOptions(sel);
+								options = commons.data.confs.get(options.name);
+								options.delete = true;
+								commons.methods.getDiv(options).find(`dl dd[lay-value='${val.val}']`).click();
+								commons.methods.valHandler(commons.methods.getOptions(sel), val, false);
+								setTimeout(() => {
+									if(dl.hasClass('xm-select-show')) {
+										div.addClass('layui-form-selected');
+										dl.find('.xm-select-input-search').focus();
+									} else {
+										div.removeClass('layui-form-selected');
+									}
+								}, 3);
+								return;
+							}
+						}
+						
+						if(block.find('select').attr('xm-select-radio') != undefined){
+							setTimeout(() => {
+								if(dl.hasClass('xm-select-show')) {
+									div.removeClass('layui-form-selected');
+									dl.removeClass('xm-select-show').addClass('xm-select-hidn').css('display', 'none');
+								} else {
+									div.addClass('layui-form-selected');
+									dl.removeClass('xm-select-hidn').addClass('xm-select-show').css('display', 'block');
+									dl.find('.xm-select-input-search').focus();
+								}
+							}, 3);
+							return ;
+						}
+
+						if(dl.hasClass('xm-select-show')) {
+							if(that.hasClass('xm-select') || that.hasClass('xm-select-empty')) {
+								dl.removeClass('xm-select-show').addClass('xm-select-hidn').css('display', 'none');
+								div.removeClass('layui-form-selected');
+							} else {
+								div.addClass('layui-form-selected');
+								dl.find('.xm-select-input-search').focus();
+							}
+							return;
+						}
+						dl.removeClass('xm-select-hidn').addClass('xm-select-show').css('display', 'block');
+						div.addClass('layui-form-selected');
+						dl.find('.xm-select-input-search').focus();
+					} else {
+						$('.xm-select-parent > .layui-form-select > dl.xm-select-show').removeClass('xm-select-show').addClass('xm-select-hidn').css('display', 'none');
+					}
+				},
 				listenClose: () => {
-					$(document).on('click', 'i[fsw]', (e) => {
-						let [sel, span]= [$(e.target).parents('.layui-form-select').prev(), $(e.target).parent()];
-						let val = {
-							name: span.find('font').text(),
-							val: span.attr('value'),
-						};
-						let options = commons.methods.getOptions(sel);
-						commons.methods.getDiv(options).find(`dl dd[lay-value='${val.val}']`).click();
-						commons.methods.valHandler(commons.methods.getOptions(sel), val, false);
+					$(document).on('click', (e) => {
+						let that = $(e.target);
+						let block = that.parents('.xm-select-parent');
+						setTimeout(() => {
+							commons.methods.listenCloseHandler(e, that, block);
+							commons.methods.retop({name: block.find('select[xm-select]').attr('xm-select')});
+							$('.xm-select-parent input.xm-select-input-search').each((index, item) => {
+								let that = $(item);
+								if(that.parents('dl').hasClass('xm-select-hidn')) {
+									that.val('');
+									that.parents('dl').find('.layui-hide').removeClass('layui-hide');
+									that.parents('dl').find('p').remove();
+								}
+							});
+						}, 10);
 					});
+					$(document).on({
+						'input propertychange': (e) => {
+							let that = $(e.target);
+							let dl = that.parents('dl');
+							that.parents('dl').find('p').remove();
+							dl.find('.layui-hide').removeClass('layui-hide');
+							dl.find(`dd:not(.layui-select-tips):not(:contains('${that.val()}'))`).addClass('layui-hide');
+							if(!dl.find(`dd:not(.layui-select-tips):not(.layui-hide)`).length) {
+								dl.append(`<p class="xm-select-search-empty">无匹配项</p>`)
+							}
+							dl.find('dt').each((index, item) => {
+								if(!$(item).nextUntil('dt', ':not(.layui-hide)').length) {
+									$(item).addClass('layui-hide');
+								}
+							});
+						}
+					}, '.xm-select-parent input.xm-select-input-search');
 				},
 				formRender: null,
 				rewriteRender: () => {
@@ -519,82 +817,249 @@
 						if(filter) {
 							let sel = $(`[lay-filter=${filter}]`).find(`select[${commons.data.name}]`);
 							if(sel.length) {
-								if(repeat){
+								if(repeat) {
 									commons.methods.init(commons.methods.getOptions(sel));
 								}
 							}
+							return;
+						}
+						commons.methods.autoInit(repeat);
+					}
+				},
+				loadCss: (skin, cs) => {
+					if(skin) {
+						if(skin == 'default') {
+							return;
+						}
+						let sn;
+						if($(`style[skin]`).length) {
+							sn = $(`style[skin]`);
 						} else {
-							if(type == 'select') {
-								commons.methods.autoInit();
+							sn = $(`<style ${skin} type="text/css"></style>`);
+						}
+						let df = styles.colors[skin] ? styles.colors[skin] : styles.colors.default;
+						let colors = $.extend([], df, cs);
+						sn.html(styles.cssColor(skin, colors[0], colors[1], colors[2], colors[3], colors[4], colors[5], colors[6]));
+						sn.insertAfter($(`head style:last`));
+					} else {
+						$(`<style ${commons.data.name} type="text/css">${styles.css()}</style>`).insertBefore($('head *:first'))
+
+						let html = '';
+						for(let name in styles.colors) {
+							let colors = styles.colors[name];
+							if(colors) {
+								colors = $.extend([], styles.colors.default, colors);
+								html += `<style ${name} type="text/css">${styles.cssColor(name, colors[0], colors[1], colors[2], colors[3], colors[4], colors[5], colors[6])}</style>`;
 							}
 						}
+						if(html) {
+							$(html).insertAfter($(`head style[${commons.data.name}]`))
+						}
+					}
+				},
+				loadLastStyle: () => {
+					$('head').append(`<style>${styles.renderCss()}</style>`)
+				},
+				resize: (selector, fun) => {
+					let id = commons.data.resize.get(selector);
+					if(id != undefined){
+						clearInterval(id);
+					}
+					if(fun && fun instanceof Function){
+						let hisize = new Map();
+						id = setInterval((e) => {
+							$(selector).each((index, item) => {
+								let thisize = [item.clientHeight, item.clientWidth];
+								if(hisize.get(item)){
+									let his = hisize.get(item);
+									if(his[0] != thisize[0] || his[1] != thisize[1]){
+										fun(item);
+									}
+								}
+								hisize.set(item, thisize);
+							});
+						}, 250);
+						commons.data.resize.set(selector, id);
 					}
 				},
 				run: () => {
 					commons.methods.rewriteRender();
 					commons.methods.listenClose();
+					commons.methods.loadCss();
+					commons.methods.loadLastStyle();
 					commons.methods.autoInit();
+					commons.methods.resize('.xm-select:not(.xm-select-height)', (dom) => {
+						commons.methods.handlerDataTable(dom, `${dom.clientHeight}px`);
+					});
 				}
 			}
 		},
 		styles = {
-			hiddenInput: {
-				display: 'none',
+			colors: { //name, spanBgColor, spanColor, iBgColor, iColor, borderColor, tBgColor, tColor
+				default: ['#F0F2F5', '#909399', '#C0C4CC', '#FFFFFF', '#F0F2F5', '#5FB878', '#FFFFFF'],
+				primary: ['#009688', '#FFFFFF', '#009688', '#FFFFFF', '#009688', '#009688', '#FFFFFF'],
+				normal: ['#1E9FFF', '#FFFFFF', '#1E9FFF', '#FFFFFF', '#1E9FFF', '#1E9FFF', '#FFFFFF'],
+				warm: ['#FFB800', '#FFFFFF', '#FFB800', '#FFFFFF', '#FFB800', '#FFB800', '#FFFFFF'],
+				danger: ['#FF5722', '#FFFFFF', '#FF5722', '#FFFFFF', '#FF5722', '#FF5722', '#FFFFFF'],
 			},
-			input: {
-				lineHeight: "normal",
-				height: "auto",
-				padding: "4px 10px",
-				overflow: "hidden",
-				minHeight: "38px",
-				left: 0,
-				zIndex: 99,
-				position: "relative",
-				background: "none",
+			css: () => {
+				return `
+					select[xm-select] + div .layui-select-title > input{display: none!important;}
+					select[xm-select] + div .layui-select-title > div.xm-select{
+						line-height: normal;
+						height: auto;
+						padding: 4px 10px;
+						overflow: hidden;
+						min-height: 38px;
+						left: 0px;
+						z-index: 99;
+						position: relative;
+						background: none;
+						padding-right: 20px;
+					}
+					select[xm-select] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty){
+						padding: 2px 5px;
+						background: #f0f2f5;
+						border-radius: 2px;
+						color: #909399;
+						display: block;
+						line-height: 18px;
+						height: 18px;
+						margin: 2px 5px 2px 0px;
+						float: left;
+						cursor: initial;
+						user-select: none;
+					}
+					select[xm-select] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty) i{
+						background-color: #c0c4cc;
+						color: #ffffff;
+						margin-left: 8px;
+						border-radius: 20px;
+						font-size: 12px;
+						cursor: initial;
+					}
+					select[xm-select] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty) i:hover{
+						background-color: #909399;
+						cursor: pointer;
+					}
+					select[xm-select] + div .layui-select-title > div.xm-select > span.xm-select-empty{
+						display: inline-block;
+						height: 28px;
+						line-height: 28px;
+						color: #999999
+					}
+					select[xm-select] + div dl dd.xm-select-dd-search{
+						background-color: #FFFFFF;
+						padding-bottom: 5px;
+						margin-right: 30px;
+					}
+					select[xm-select] + div dl dd.xm-select-dd-search > input{
+						cursor: text;
+					}
+					select[xm-select] + div dl dd.xm-select-dd-search > span{
+						position: absolute;
+					    right: 8px;
+					    top: 5px;
+					}
+					select[xm-select] + div dl dd.xm-select-dd-search > span > i{
+						font-size: 22px;
+					}
+					select[xm-select] + div dl dd.xm-select-dd-search > span > i:hover{
+						color: red;
+						opacity:.8;
+						filter:alpha(opacity=80);
+					}
+					select[xm-select] + div dl p.xm-select-search-empty{
+						margin: 10px 0;
+					    text-align: center;
+					    color: #999;
+					}
+					select[xm-select][xm-select-type='1'] + div dl dd.xm-select-this,select[xm-select]:not([xm-select-type]) + div dl dd.xm-select-this{
+						background-color: #5FB878;
+						color: #FFF;
+					}
+					select[xm-select][xm-select-type='1'] + div dl dd.layui-disabled,select[xm-select]:not([xm-select-type]) + div dl dd.layui-disabled{
+						background-color: #FFFFFF;
+					}
+					select[xm-select][xm-select-type='2'] + div dl dd.layui-disabled i{
+						border-color: #C2C2C2;
+						color: #FFFFFF;
+					}
+					select[xm-select][xm-select-type='2'] + div dl dd.xm-select-this.layui-disabled i{
+						background-color: #D2D2D2;
+					}
+					select[xm-select][xm-select-type='2'] + div dl dd.xm-select-this:not(.layui-disabled) i{
+						background-color: #5FB878;
+						border-color: #5FB878;
+						color: #FFF;
+					}
+					select[xm-select][xm-select-type='3'] + div dl dd.xm-select-this:not(.layui-disabled){
+						color: #5FB878;
+					}
+					select[xm-select][xm-select-type='3'] + div dl dd.xm-select-this i{
+						position: absolute;
+						right: 10px;
+					}
+					
+				`;
 			},
-			inputLabel: {
-				padding: "2px 5px",
-				background: "#f0f2f5",
-				borderRadius: "2px",
-				color: "#909399",
-				display: "block",
-				lineHeight: "20px",
-				height: "20px",
-				margin: "2px 5px 2px 0",
-				float: "left",
-				cursor: "initial",
-				userSelect: "none",
+			cssColor: (name, spanBgColor, spanColor, iBgColor, iColor, borderColor, tBgColor, tColor) => {
+				return `
+					select[xm-select][xm-select-skin='${name}'] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty){
+						background: ${spanBgColor};
+						color: ${spanColor};
+						border: 1px solid ${borderColor}
+					}
+					select[xm-select][xm-select-skin='${name}'] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty) i{
+						background: ${iBgColor};
+						color: ${iColor};
+					}
+					select[xm-select][xm-select-skin='${name}'] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty) i:hover{
+						opacity:.8;
+						filter:alpha(opacity=80);
+						cursor: pointer;
+					}
+					select[xm-select][xm-select-skin='${name}'][xm-select-type='1'] + div dl dd.xm-select-this:not(.layui-disabled),select[xm-select][xm-select-skin='${name}']:not([xm-select-type]) + div dl dd.xm-select-this:not(.layui-disabled){
+						background-color: ${tBgColor};
+						color: ${tColor};
+					}
+					select[xm-select][xm-select-skin='${name}'][xm-select-type='2'] + div dl dd.xm-select-this:not(.layui-disabled) i{
+						background-color: ${tBgColor};
+						border-color: ${tBgColor};
+						color: ${tColor};
+					}
+					select[xm-select][xm-select-skin='${name}'][xm-select-type='3'] + div dl dd.xm-select-this:not(.layui-disabled){
+						color: ${tBgColor};
+					}
+					select[xm-select][xm-select-type='3'] + div dl dd.xm-select-this i{
+						position: absolute;
+						right: 10px;
+					}
+				`;
 			},
-			inputLabelClose: {
-				backgroundColor: "#c0c4cc",
-				color: "#fff",
-				marginLeft: "8px",
-				borderRadius: "20px",
-				fontSize: "12px",
-			},
-			inputLabelCloseHover: {
-				backgroundColor: "#909399",
-				cursor: "pointer",
-			},
-			inputLabelCloseUnHover: {
-				backgroundColor: "#c0c4cc",
-				cursor: "initial",
-			},
-			inputEmpty: {
-				display: "inline-block",
-				height: "28px",
-				lineHeight: "28px",
-				color: "#999",
-			},
-			typeYes: {
-				position: "absolute",
-				right: "10px",
-			},
-			typeSelectedColor: {
-				color: "#5FB878",
-			},
-			typeUnSelectedColor: {
-				color: "inherit",
+			renderCss: () => {
+				return `
+					select[xm-select] + div .layui-select-title > div.xm-select > span:not(.xm-select-empty){
+						box-sizing: content-box;
+					}
+					.xm-select-parent .layui-form-select dl dd.layui-this{
+					    background-color: inherit;
+					    color: inherit;
+					}
+					.xm-select-parent .layui-form-select dl dd.layui-this.layui-select-tips {
+						background-color: #FFFFFF;
+					    color: #999999;
+					}
+					.xm-select-parent .layui-form-selected dl {
+					    display: none;
+					}
+					.xm-select-show:{
+						display: block;
+					}
+					.xm-select-hidn:{
+						display: none;
+					}
+				`;
 			}
 		}
 	commons.methods.run();
