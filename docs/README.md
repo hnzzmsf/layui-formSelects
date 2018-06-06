@@ -17,6 +17,8 @@ Fly社区交流贴: [http://fly.layui.com/jie/26337/](http://fly.layui.com/jie/2
 
 欢迎点击右上角`Star`一下
 
+[文档地址](https://hnzzmsf.github.io/layui-formSelects)
+
 > 下载与使用
 
 
