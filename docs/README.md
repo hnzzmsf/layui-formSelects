@@ -88,5 +88,25 @@ Fly社区交流贴: [http://fly.layui.com/jie/26337/](http://fly.layui.com/jie/2
 </html>
 ```
 
+效果如下:
+<html>
+	<div style="max-width: 400px; margin: 20px;">
+		<select xm-select="select-id" >
+			<option value="">请选择</option>
+			<option value="1">北京</option>
+			<option value="2" selected="selected">上海</option>
+			<option value="3">广州</option>
+			<option value="4" selected="selected">深圳</option>
+		</select>
+	</div>
+</html>
+
+哈哈, 是不是很霸气呢, 用起来很简单, 在原有的select上加一个属性`xm-select`, "select-id" 就是这个多选的ID啦, 保证唯一, 之后你会用到它
+
+你可以直接拷贝上面的代码, 运行查看效果
+
 [在线运行](http://runjs.cn/code/hytdpb85)
 
+<script type="text/javascript">
+	formSelects.render();
+</script>

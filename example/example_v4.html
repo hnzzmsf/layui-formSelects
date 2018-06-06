@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html>
+	<script>
+		var _hmt = _hmt || [];
+		(function() {
+			var hm = document.createElement("script");
+			hm.src = "https://hm.baidu.com/hm.js?bf515042093c3de99a0ba28c661b07b4";
+			var s = document.getElementsByTagName("script")[0];
+			s.parentNode.insertBefore(hm, s);
+		})();
+	</script>
+	<head>
+		<meta charset="UTF-8" />
+		<title>formSelects 基于Layui的多选解决方案</title>
+		<link rel="stylesheet" type="text/css" href="../UI/layui-v2.3.0-rc1/layui/css/layui.css" />
+		<link href="../UI/SyntaxHighlighter-3.0.83/shCore.css" rel="stylesheet">
+		<link href="../UI/SyntaxHighlighter-3.0.83/shThemeEclipse.css" rel="stylesheet">
+		<style type="text/css">
+			.syntaxhighlighter {overflow-y: hidden !important;}
+			.syntaxhighlighter .toolbar{background: none !important;}
+			.syntaxhighlighter .toolbar a {display: none !important;}
+			.layui-colla-content{padding: 0 10px;}
+			/*.syntaxhighlighter .toolbar a{display: none !important;}*/
+			.chat{font-size: 16px; color: #4f4f4f;  font-weight: 400; line-height: 26px; margin: 0 0 30px; text-align: justify;}
+			.chat > a{color: #01AAED;}
+			.chat > span{margin-right: 20px; -webkit-user-select: text; display: inline-block;}	
+			.title{margin-bottom: 20px; line-height: 60px; padding-bottom: 10px; color: #393D49; border-bottom: 1px solid #eee; font-size: 28px; font-weight: 300;}	
+			.layui-elem-quote{padding: 5px 15px; color: #393D49; font-size: 18px; border-width: 0px 0px 0px 5px;}
+			.sun-menu{-webkit-user-select: none;}
+			.layui-table, .layui-collapse, .example{margin-bottom: 30px;}
+			.example h3{margin: 15px 0 10px;font-weight: 400; color: #1f2f3d;font-size: 16px;}
+			.example p{font-size: 14px; color: #5e6d82; line-height: 1.5em;margin: 15px 0 10px;}
+			.example > div{padding: 20px; border: 1px solid #ebebeb; border-radius: 3px;transition: .2s;}
+			.example-show-code{margin-left: 30px; height: 36px; line-height: 36px;}
+			.example-btn{margin-left: 30px; height: 36px; line-height: 36px;}
+			.layui-layer-content{max-height: 600px;}
+		</style>
+	</head>
+
+	<body style="padding: 20px;">
+		
+		<div class="title">formSelects-v4.js 基于Layui的多选解决方案 → 先行测试版</div>
+		
+		<blockquote class="layui-elem-quote layui-quote-nm" id="start">1、闲谈杂趣</blockquote>
+		<div class="chat">
+			<a href="https://faysunshine.com/layui/template/index.html?0-3" target="_blank">v3传送门</a>&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="https://faysunshine.com/layui/site/template/doc.html?formSelects" target="_blank">v3文档</a><br />
+			其实思考了很久, 还是放弃了v3, 因为开发v3的时候很粗暴, 按照编程角度来看就是硬撸, 也怪自己实力有限, 所以反思了一下, 尝试着继续前行...
+		</div>
+		<div>
+		
+		<blockquote class="layui-elem-quote layui-quote-nm" id="concat">2、交流学习</blockquote>
+		<div class="chat">
+			<span>QQ号: 707200833</span>
+			<span>QQ群: 769620939</span>
+			<span><a target="_blank" class="qqicon" href="//shang.qq.com/wpa/qunwpa?idkey=9f9d4de074f2cb4d13afb3f04b874742a5f400eac2c0648fcfd20afb5413fb0a"><img border="0" src="../UI/group.png" alt="技术交流群" title="技术交流群"></a></span>
+		</div>
+		
+		<blockquote class="layui-elem-quote layui-quote-nm" id="download">3、下载与使用</blockquote>
+		<div class="chat">
+			下载地址: <a href="../dist/formSelects-v4.js" download="../dist/formSelects-v4.js">formSelects-v4.js</a>&nbsp;&nbsp;&nbsp;&nbsp;
+					<a href="../dist/layui-formSelects.zip" download="../dist/layui-formSelects.zip">离线文档</a><br />
+			使用方式: 
+			<div class="layui-collapse">
+				<div class="layui-colla-item">
+					<div class="layui-colla-content layui-show" sid="use" style="border-top-width: 0;"></div>
+				</div>
+			</div>
+		</div>
+		
+		<blockquote class="layui-elem-quote layui-quote-nm" id="options">4、基本参数</blockquote>
+		<table class="layui-table">
+		  	<colgroup>
+			    <col width="250">
+			    <col width="400">
+			    <col>
+		  	</colgroup>
+		  	<thead>
+		    	<tr>
+			      	<th>属性名</th>
+			      	<th>说明</th>
+			      	<th>示例</th>
+		    	</tr> 
+		  	</thead>
+		  	<tbody>
+		    	<tr>
+		      		<td>xm-select</td>
+		      		<td>多选核心, 标记不同的多选, 多选ID</td>
+		      		<td>xm-select="id"</td>
+		    	</tr>
+		    	<tr>
+		      		<td>xm-select-max</td>
+		      		<td>多选最多选择数量</td>
+		      		<td>xm-select-max="3"</td>
+		    	</tr>
+		    	<tr>
+		      		<td>xm-select-skin</td>
+		      		<td>皮肤</td>
+		      		<td>xm-select-skin=" default | primary | normal | warm | danger "</td>
+		    	</tr>
+		    	<tr>
+		      		<td>xm-select-search</td>
+		      		<td>本地搜索 &amp; 远程搜索</td>
+		      		<td>xm-select-search, xm-select-search="/search", 值为空时已有条目过滤搜索, 有值时开启远程搜索</td>
+		    	</tr>
+		    	<tr>
+		      		<td>xm-select-create</td>
+		      		<td>条目不存在时创建, 标记性属性</td>
+		      		<td>xm-select-create</td>
+		    	</tr>
+		    	<tr>
+		      		<td>xm-select-direction</td>
+		      		<td>下拉方向</td>
+		      		<td>xm-select-direction="auto|up|down", 自动, 上, 下, 默认自动模式</td>
+		    	</tr>
+		    	<tr>
+		      		<td>xm-select-height</td>
+		      		<td>标记select高度是否固定</td>
+		      		<td>xm-select-height="36px", 高度不再随数据变化而变化</td>
+		    	</tr>
+		    	<tr>
+		      		<td>xm-select-radio</td>
+		      		<td>单选模式</td>
+		      		<td>xm-select-radio, 最多只能选择一个</td>
+		    	</tr>
+		  </tbody>
+		</table>
+		
+		<blockquote class="layui-elem-quote layui-quote-nm" id="methods">5、基本方法</blockquote>
+		<div class="layui-collapse">
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-value" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1) value">value</h2>
+			    <div class="layui-colla-content layui-show" sid="value"></div>
+		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-on" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2) on">on</h2>
+			    <div class="layui-colla-content layui-show" sid="on"></div>
+		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-maxTips" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3) maxTips">maxTips</h2>
+			    <div class="layui-colla-content layui-show" sid="maxTips"></div>
+		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-filter" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4) filter">filter</h2>
+			    <div class="layui-colla-content layui-show" sid="filter"></div>
+		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-config" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5) config">config</h2>
+			    <div class="layui-colla-content layui-show" sid="config"></div>
+		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-render" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6) render">render</h2>
+			    <div class="layui-colla-content layui-show" sid="render"></div>
+		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-disabled" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7) disabled">disabled</h2>
+			    <div class="layui-colla-content layui-show" sid="disabled"></div>
+		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-undisabled" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8) undisabled">undisabled</h2>
+			    <div class="layui-colla-content layui-show" sid="undisabled"></div>
+		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-data" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9) data">data</h2>
+			    <div class="layui-colla-content layui-show" sid="data"></div>
+		  	</div>
+		</div>
+		
+		<blockquote class="layui-elem-quote layui-quote-nm" id="examples">6、基础示例</blockquote>
+		<div class="example">
+			<h3 id="select_default" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1) 基础多选">基础多选</h3>
+			<p>适用性较广的基础多选，用 Tag 展示已选项</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select1">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_pane" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2) pane模式">pane模式</h3>
+			<p>layui pane模式</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form layui-form-pane">
+						<div class="layui-form-item" pane>
+							<label class="layui-form-label">多选框</label>
+							<div class="layui-input-block">
+								<select name="city" xm-select="select2">
+									<option value="1" disabled="disabled">北京</option>
+									<option value="2" selected="selected" disabled="disabled">上海</option>
+									<option value="3">广州</option>
+									<option value="4" selected="selected">深圳</option>
+									<option value="5">天津</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_group" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3) 分组多选">分组多选</h3>
+			<p>基于layui的分组多选</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select3">
+						<optgroup label="分组1">
+							<option value="1" disabled="disabled">北京</option>
+							<option value="2" selected="selected">上海</option>
+						</optgroup>
+						<optgroup label="分组2">
+							<option value="3">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5">天津</option>
+						</optgroup>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_tips" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4) 自定义tips">自定义tips</h3>
+			<p>写一个空的option放在第一个</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select4">
+						<option value="">啦啦, 我是自定义的</option>
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_max" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5) 多选上限">多选上限</h3>
+			<p>xm-select-max="3", 超过3个后, 默认闪烁红框提示</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select5" xm-select-max="3">
+						<option value="">啦啦, 我是自定义的</option>
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>当然, 如果你初始化值就多于max值, 那是可以设置成功滴, 取消了就选不回来了</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select5_2" xm-select-max="3">
+						<option value="">啦啦, 我是自定义的</option>
+						<option value="1" disabled="disabled" selected="selected">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3" selected="selected">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_skin" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6) 多选皮肤">多选皮肤</h3>
+			<p>xm-select-skin="default"</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select6_1" xm-select-skin="default">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>xm-select-skin="primary", 这个墨绿style已经被内置成为了经典皮肤, 只因他诞生于layui的经典颜色</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select6_2" xm-select-skin="primary">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>xm-select-skin="normal"</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select6_3" xm-select-skin="normal">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>xm-select-skin="warm"</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select6_4" xm-select-skin="warm">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>xm-select-skin="danger"</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select6_5" xm-select-skin="danger">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_search_local" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7) 本地搜索">本地搜索</h3>
+			<p>xm-select-search, 搜索已存在的option</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select7_1" xm-select-search>
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>分组中的搜索</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select7_2" xm-select-search>
+						<optgroup label="分组1">
+							<option value="1" disabled="disabled">北京</option>
+							<option value="2" selected="selected">上海</option>
+						</optgroup>
+						<optgroup label="分组2">
+							<option value="3">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5">天津</option>
+						</optgroup>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_search_server" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8) 远程搜索">远程搜索</h3>
+			<p>xm-select-search="/search", 指定一个url, 将开启远程搜索模式</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select8" xm-select-max="1" xm-select-search="http://yapi.demo.qunar.com/mock/9813/layui/search">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+				<p>远程搜索response结构, 其中name, value可以自定义, 请查看<a href="#methods-config">method config</a></p>
+				<p>code为0时, 表示正常, 不为0时则提示msg信息</p>
+<pre class="brush: js">
+{
+    "code": 0,
+    "msg": "success",
+    "data": [
+        {"name":"北京","value":1,"selected":"","disabled":""},
+        {"name":"上海","value":2,"selected":"","disabled":""},
+        {"name":"广州","value":3,"selected":"selected","disabled":""},
+        {"name":"深圳","value":4,"selected":"","disabled":"disabled"},
+        {"name":"天津","value":5,"selected":"","disabled":""}
+    ]
+}
+</pre>
+			</div>
+			<p>当然, 远程搜索也是可以分组的</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select8_2" xm-select-search="http://yapi.demo.qunar.com/mock/9813/layui/group">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+<pre class="brush: js">
+{
+    "code": 0,
+    "msg": "success",
+    "data": [
+    	{"name": "分组-1", "type": "optgroup"},
+        {"name":"北京","value":1,"selected":"","disabled":""},
+        {"name":"上海","value":2,"selected":"","disabled":""},
+        {"name": "分组-2", "type": "optgroup"},
+        {"name":"广州","value":3,"selected":"selected","disabled":""},
+        {"name":"深圳","value":4,"selected":"","disabled":"disabled"},
+        {"name":"天津","value":5,"selected":"","disabled":""}
+    ]
+}
+</pre>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_create" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9) 创建条目">创建条目</h3>
+			<p>xm-select-create, 不存在时会创建, 选中后长久保留, value为Date.now()生成</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select9" xm-select-search xm-select-create>
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_direction" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10) 下拉方向">下拉方向</h3>
+			<p>方式一: xm-select-direction="auto|up|down", 自动, 上, 下, 默认自动模式</p>
+			<p>方式二: 使用formSelects.config配置</p>
+<pre class="brush: js">
+//配置某一个多选的方向
+layui.formSelects.config('select1', {direction: 'up'});
+
+//配置所有多选的方向
+layui.formSelects.config({direction: 'up'});
+</pre>
+			<p>我是朝上的</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select10_1" xm-select-direction="up">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>我是朝下的</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select10_2" xm-select-direction="down">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>其他的都是自动处理的哈, 当然没有朝左朝右的</p>
+			<p>我是一个动态的</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select10_3" xm-select-direction="down">
+						<option value="1" disabled="disabled">北京</option>
+						<option value="2" selected="selected">上海</option>
+						<option value="3">广州</option>
+						<option value="4" selected="selected">深圳</option>
+						<option value="5">天津</option>
+					</select>
+				</div>
+				<button class="layui-btn layui-btn-normal example-btn" onclick="formSelects.config('select10_3', {direction: 'up'});">点我朝上</button>
+				<button class="layui-btn layui-btn-normal example-btn" onclick="formSelects.config('select10_3', {direction: 'down'});">点我朝下</button>
+			</div>
+		</div>
+		
+		<div class="example">
+			<h3 id="select_height" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11) 固定高度">固定高度</h3>
+			<p>xm-select-height="36px", 多选的高度是随便选项的变化而变化的, 当然你也可以固定一个高度, 从此高度将不再变化</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select11" xm-select-height="36px">
+							<option value="1" selected="selected">北京</option>
+							<option value="2" selected="selected">上海</option>
+							<option value="3" selected="selected">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5" selected="selected">天津</option>
+							<option value="6" selected="selected">杭州</option>
+						</select>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		
+		<div class="example">
+			<h3 id="select_disabled" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12) 禁用select">禁用select</h3>
+			<p>disabled="disabled", 多选的高度是随便选项的变化而变化的, 当然你也可以固定一个高度, 从此高度将不再变化</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select12" disabled="disabled">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3" selected="selected">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5" selected="selected">天津</option>
+							<option value="6" selected="selected">杭州</option>
+						</select>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>动态操作select的启用与禁用</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select12_2" disabled="disabled">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3" selected="selected">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5" selected="selected">天津</option>
+							<option value="6" selected="selected">杭州</option>
+						</select>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-btn" onclick="formSelects.undisabled('select12_2')">点我启用</button>
+				<button class="layui-btn layui-btn-normal example-btn" onclick="formSelects.disabled('select12_2')">点我禁用</button>
+				<button class="layui-btn layui-btn-normal example-btn" onclick="formSelects.undisabled()">全部启用</button>
+				<button class="layui-btn layui-btn-normal example-btn" onclick="formSelects.disabled()">全部禁用</button>
+			</div>
+		</div>
+		
+		<div class="example">
+			<h3 id="select_radio" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13) 单选模式">单选模式</h3>
+			<p>xm-select-radio, 单选模式</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select13" xm-select-radio>
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3" selected="selected">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5" selected="selected">天津</option>
+							<option value="6" selected="selected" >杭州</option>
+						</select>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		
+		<div class="example">
+			<h3 id="select_on" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;14) 表单操作">表单操作</h3>
+			<p>支持layui原生表单验证, lay-verify="xxx"</p>
+			<div class="layui-form">
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select14" lay-verify="select14">
+							<option value="">选择3项以上通过验证</option>
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3">广州</option>
+							<option value="4">深圳</option>
+							<option value="5">天津</option>
+							<option value="6">杭州</option>
+						</select>
+					</div>
+				</div>
+				<button class="layui-btn example-btn" lay-submit lay-filter="select14">验证提交</button>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>支持表单提交自动赋值, 只需要在select加上name属性即可, 点击提交可查看url的变化</p>
+			<div>
+				<form class="layui-form" action="">
+					<div style="width: 400px; display: inline-block; vertical-align: top;">
+						<div class="layui-form">
+							<select name="city" xm-select="select14_2">
+								<option value="1" selected="selected">北京</option>
+								<option value="2" selected="selected">上海</option>
+								<option value="3">广州</option>
+								<option value="4">深圳</option>
+								<option value="5">天津</option>
+								<option value="6">杭州</option>
+							</select>
+						</div>
+					</div>
+					<button class="layui-btn layui-btn-normal example-btn" type="submit">提交表单</button>
+					<button class="layui-btn layui-btn-normal example-show-code" type="button">查看代码</button>
+				</form>
+			</div>
+			<p>支持reset操作, 选择几项数据, 然后点击重置</p>
+			<div>
+				<form class="layui-form">
+					<div style="width: 400px; display: inline-block; vertical-align: top;">
+						<div class="layui-form">
+							<select name="city" xm-select="select14_3">
+								<option value="">默认提示</option>
+								<option value="1" selected="selected">北京</option>
+								<option value="2">上海</option>
+								<option value="3">广州</option>
+								<option value="4">深圳</option>
+								<option value="5">天津</option>
+								<option value="6">杭州</option>
+							</select>
+						</div>
+					</div>
+					<button class="layui-btn layui-btn-normal example-btn" type="reset">重置表单</button>
+					<button class="layui-btn layui-btn-normal example-show-code" type="button">查看代码</button>
+				</form>
+			</div>
+		</div>
+		
+		<div class="example">
+			<h3 id="select_linkage" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;15) 多选联动">多选联动</h3>
+			<p>多选联动, 联动需要使用data来赋值, 先给一个空select标记多选, <b>记得value不能重复哦</b></p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select15"></select>
+						<script type="text/xxx">
+							layui.formSelects.data('select15', 'local', {
+							    arr: [
+							        {
+							        	"name": "北京", 
+							        	"value": 1, 
+							        	"children": [
+											{"name": "北京市1", "value": 12, "children": [
+												{"name": "朝阳区1", "value": 13, "children": []},
+												{"name": "朝阳区2", "value": 14, "children": []},
+												{"name": "朝阳区3", "value": 15, "children": []},
+												{"name": "朝阳区4", "value": 16, "children": []},
+											]},
+											{"name": "北京市2", "value": 17, "children": []},
+											{"name": "北京市3", "value": 18, "children": []},
+											{"name": "北京市4", "value": 19, "children": []},
+							        	]
+									},
+									{
+							        	"name": "天津", 
+							        	"value": 2, 
+							        	"children": [
+											{"name": "天津市1", "value": 51, "children": []},
+							        	]
+									},
+							    ],
+							    linkage: true
+							});
+							
+							//如果有需要默认值的小伙伴请使用formSelects.value
+							formSelects.value('select15', ['1/12/13', '1/12/14'])
+						</script>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>多选联动, 使用远程数据实现省市区三级联动</p>
+			<p>宽度是可以自定义的, linkageWidth: 130, 默认100</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select15_2"></select>
+						<script type="text/xxx">
+							formSelects.config('select15_2', {
+								success: function(id, url, val, result){
+									console.log("success回调: " + url);
+								},
+								error: function(id, url, val, err){
+									console.log("err回调: " + url);
+								}
+							});
+							
+							layui.formSelects.data('select15', 'local', {
+								url: 'http://yapi.demo.qunar.com/mock/9813/layui/citys',
+							    linkage: true,
+							    linkageWidth: 130
+							});
+							
+							//如果有需要默认值的小伙伴请使用formSelects.value
+							formSelects.value('select15', ['1/12/13', '1/12/14'])
+						</script>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		
+		<!--<blockquote class="layui-elem-quote layui-quote-nm" id="examples2">7、进阶示例</blockquote>
+		<div class="example">
+			<h3 id="select_on" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1) 监听select选择">监听select选择</h3>
+			<p>适用性较广的基础多选，用 Tag 展示已选项</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select10">
+							<option value="1" disabled="disabled">北京</option>
+							<option value="2" selected="selected">上海</option>
+							<option value="3">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5">天津</option>
+						</select>
+						<script type="text/html">//此处为了方便展示, 替换了type类型, 正常使用时请注意
+							var formSelects = layui.formSelects;
+							formSelects.on('select10', function(id, vals, val, isAdd, isDisabled){
+								//id: 			点击select的id
+								//vals:			当前select已选中的值
+								//val:			当前select点击的值
+								//isAdd:		当前操作选中or取消
+								//isDisabled:	当前选项是否是disabled
+								
+								//如果return ture, 那么将取消本次操作
+								return true;	
+							});
+						</script>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>-->
+		
+		<blockquote class="layui-elem-quote layui-quote-nm" id="over">结尾</blockquote>
+		<div class="chat">
+			2018-05-28, formSelects-v4, 静悄悄的, 愿它能够茁壮成长...<br />
+			2018-05-07, formSelects-v3, 高速开发与更新, 功能越来越多了, 代码越来越看不懂了...<br />
+			2018-04-20, formSelects-v2, 粗暴的升级了v1...<br />
+			2017-08-29, formSelects-v1, 一个简简单单的layui多选...
+		</div>
+		<div style="height: 300px;"></div>
+
+<script type="syntaxhighlighter" xid="use" class="brush: js"><![CDATA[
+//1.下载formSelects-v4.1
+
+//2.模块化使用
+&lt;script src="layui.js" type="text/javascript" charset="utf-8">&lt;/script>
+&lt;script type="text/javascript">
+	//全局定义一次, 加载formSelects
+	layui.config({
+		base: '../src/'	//此处路径请自行处理, 可以使用绝对路径
+	}).extend({
+		formSelects: 'formSelects-v4'
+	});
+	//加载模块
+	layui.use(['jquery', 'formSelects'], function(){
+		var formSelects = layui.formSelects;
+		
+	});
+&lt;/script>
+
+//3.非模块化使用
+&lt;script src="layui.all.js" type="text/javascript" charset="utf-8">&lt;/script>
+&lt;script src="formSelects-v4.js" type="text/javascript" charset="utf-8">&lt;/script>
+&lt;script type="text/javascript">
+	var formSelects = layui.formSelects;
+	
+&lt;/script>
+]]></script>
+
+<script type="syntaxhighlighter" xid="value" class="brush: js"><![CDATA[
+/**
+ * 1.获取选中数据
+ *
+ * formSelects.value(ID, TYPE);
+ *
+ * @param ID 	xm-select的值
+ * @param TYPE 	all | val | valStr | name | nameStr
+ */
+var formSelects = layui.formSelects;
+formSelects.value('select1');				// [{"name":"上海","val":"2"},{"name":"深圳","val":"4"}]
+formSelects.value('select1', 'all');		// [{"name":"上海","val":"2"},{"name":"深圳","val":"4"}]
+formSelects.value('select1', 'val');		// ["2","4"]
+formSelects.value('select1', 'valStr');		// 2,4
+formSelects.value('select1', 'name');		// ["上海","深圳"]
+formSelects.value('select1', 'nameStr');	// 上海,深圳
+
+
+/**
+ * 2.设置select的选中值
+ *
+ * formSelects.value(ID, ARR);
+ *
+ * @param ID 	xm-select的值
+ * @param ARR 	value数组
+ */
+var formSelects = layui.formSelects;
+formSelects.value('select1', [2, 4]);		// 选中value为2和4的option → 上海,深圳
+
+
+/**
+ * 3.追加或删除select的选中值
+ *
+ * formSelects.value(ID, ARR, isAppend);
+ *
+ * @param ID 	xm-select的值
+ * @param ARR 	value数组
+ */
+var formSelects = layui.formSelects;
+formSelects.value('select1', [2, 4], true);	// 追加value为2和4的option, 如果该值已选中则跳过, 该值未选中则选中
+formSelects.value('select1', [2, 4], false);// 删除value为2和4的option, 如果该值没有选中则跳过, 该值被选中则取消选中
+]]></script>
+
+<script type="syntaxhighlighter" xid="on" class="brush: js"><![CDATA[
+/**
+ * 1.监听select的选中与取消
+ *
+ * formSelects.on(ID, Function);
+ *
+ * @param ID 		xm-select的值
+ * @param Function 	自定义处理方法
+ */
+var formSelects = layui.formSelects;
+formSelects.on('select1', function(id, vals, val, isAdd, isDisabled){
+	//id: 			点击select的id
+	//vals:			当前select已选中的值
+	//val:			当前select点击的值
+	//isAdd:		当前操作选中or取消
+	//isDisabled:	当前选项是否是disabled
+	
+	//如果return ture, 那么将取消本次操作
+	return true;	
+});
+
+//以下两种方式则配置所有的多选select
+formSelects.on(function(id, vals, val, isAdd, isDisabled){
+	...
+});
+formSelects.on(null, function(id, vals, val, isAdd, isDisabled){
+	...
+});
+]]></script>
+
+<script type="syntaxhighlighter" xid="maxTips" class="brush: js"><![CDATA[
+/**
+ * 1.多选select超出最大值的提示, 默认闪烁红色边框
+ *
+ * formSelects.maxTips(ID, Function);
+ *
+ * @param ID 		xm-select的值
+ * @param Function 	自定义处理方法
+ */
+var formSelects = layui.formSelects;
+formSelects.maxTips('select1', function(id, vals, val, max){
+	//id: 	点击select的id
+	//vals:	当前select已选中的值
+	//val:	当前select点击的值
+	//max:	当天多选最大值
+	alert("选超了...");
+});
+
+//以下两种方式则配置所有的多选select
+formSelects.maxTips(function(id, vals, val, max){
+	...
+});
+formSelects.maxTips(null, function(id, vals, val, max){
+	...
+});
+]]></script>
+
+<script type="syntaxhighlighter" xid="filter" class="brush: js"><![CDATA[
+/**
+ * 1.自定义本地搜索过滤方式, 默认匹配文本是否包含
+ *
+ * formSelects.filter(ID, Function);
+ *
+ * @param ID 		xm-select的值
+ * @param Function 	自定义处理方法
+ */
+var formSelects = layui.formSelects;
+formSelects.filter('select1', function(id, inputVal, val, isDisabled){
+	//id: 			点击select的id
+	//inputVal:		当前input搜索框中的数值
+	//val:			格式: {"name":"上海","val":"2"}
+	//isDisabled:	当前options是否被禁用
+	
+	//return true时该选项被过滤, 隐藏不显示
+	return true;
+});
+
+//以下两种方式则配置所有的多选select
+formSelects.filter(function(id, inputVal, val, isDisabled){
+	...
+});
+formSelects.filter(null, function(id, inputVal, val, isDisabled){
+	...
+});
+]]></script>
+
+<script type="syntaxhighlighter" xid="config" class="brush: js"><![CDATA[
+/**
+ * 1.配置远程搜索, 请求头, 请求参数, 请求类型等
+ *
+ * formSelects.config(ID, Options, isJson);
+ *
+ * @param ID 		xm-select的值
+ * @param Options 	配置项
+ * @param isJson 	是否传输json数据, true将添加请求头 Content-Type: application/json; charset=UTF-8
+ */
+var formSelects = layui.formSelects;
+formSelects.config('select1', {
+	type: 'get',				//请求方式: post, get, put, delete...
+	header: {},					//自定义请求头
+	data: {},					//自定义除搜索内容外的其他数据
+	searchUrl: '',				//搜索地址, 默认使用xm-select-search的值, 此参数优先级高
+	searchName: 'keyword',		//自定义搜索内容的key值
+	keyName: 'name',			//自定义返回数据中name的key, 默认 name
+	keyVal: 'value',			//自定义返回数据中value的key, 默认 value
+	keySel: 'selected',			//自定义返回数据中selected的key, 默认 selected
+	keyDis: 'disabled',			//自定义返回数据中disabled的key, 默认 disabled
+	delay: 500,					//搜索延迟时间, 默认停止输入500ms后开始搜索
+	direction: 'auto',			//多选下拉方向, auto|up|down
+	success: function(id, url, searchVal, result){		//使用远程方式的success回调
+		console.log(id);		//组件ID xm-select
+		console.log(url);		//URL
+		console.log(searchVal);	//搜索的value
+		console.log(result);	//返回的结果
+	},
+	error: function(id, url, searchVal, err){			//使用远程方式的error回调
+		//同上
+		console.log(err);	//err对象
+	}
+}, true);
+
+//以下两种方式则配置所有的多选select
+formSelects.config('select1', {
+	...
+}, false);
+formSelects.config(null, {
+	...
+}, false);
+]]></script>
+
+<script type="syntaxhighlighter" xid="render" class="brush: js"><![CDATA[
+/**
+ * 1.重新渲染, 如果已经是多选则重置为初始值, 如果是初始select则渲染为多选 
+ *
+ * formSelects.render(ID);
+ *
+ * @param ID 		xm-select的值
+ */
+var formSelects = layui.formSelects;
+formSelects.render('select1');
+
+//以下方式则重新渲染所有的已存在多选
+formSelects.render();
+]]></script>
+
+<script type="syntaxhighlighter" xid="disabled" class="brush: js"><![CDATA[
+/**
+ * 1.禁用多选
+ *
+ * formSelects.disabled(ID);
+ *
+ * @param ID 		xm-select的值
+ */
+var formSelects = layui.formSelects;
+formSelects.disabled('select1');
+
+//以下方式则禁用所有的已存在多选
+formSelects.disabled();
+]]></script>
+
+<script type="syntaxhighlighter" xid="undisabled" class="brush: js"><![CDATA[
+/**
+ * 1.启用多选, 启用被禁用的多选
+ *
+ * formSelects.undisabled(ID);
+ *
+ * @param ID 		xm-select的值
+ */
+var formSelects = layui.formSelects;
+formSelects.undisabled('select1');
+
+//以下方式则启用所有的已存在多选
+formSelects.undisabled();
+]]></script>
+
+<script type="syntaxhighlighter" xid="data" class="brush: js"><![CDATA[
+/**
+ * 1.多选数据赋值
+ *
+ * formSelects.data(ID, type, config);
+ *
+ * @param ID 			xm-select的值
+ * @param type 			'local' | 'server', 本地数据或者远程数据
+ * @param config 		配置项
+ * 			arr				本地数据数组
+ * 			url				远程数据链接
+ * 			keyword			远程数据搜索内容, 其他附加数据可以使用 formSelects.config设置
+ * 			linkage			是否为联动多选
+ * 			linkageWidth	是否为联动多选
+ */
+
+//以下代码可以在console中运行测试, 结果查看基础示例第一个
+var formSelects = layui.formSelects;
+
+//local模式
+formSelects.data('select1', 'local', {
+	arr: [
+		{"name": "分组-1", "type": "optgroup"},
+        {"name": "北京", "value": 1},
+        {"name": "上海", "value": 2},
+        {"name": "分组-2", "type": "optgroup"},
+        {"name": "广州", "value": 3},
+        {"name": "深圳", "value": 4},
+        {"name": "天津", "value": 5}
+	]
+});
+
+//server模式
+formSelects.data('select1', 'server', {
+    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data',
+    keyword: '水果'
+});
+//server返回数据与远程搜索数据结构一致
+{
+	"code":0,
+	"msg":"success",
+	"data":[
+		{"name":"北京","value":1,"selected":"","disabled":""},
+		{"name":"上海","value":2,"selected":"","disabled":""},
+		{"name":"广州","value":3,"selected":"selected","disabled":""},
+		{"name":"深圳","value":4,"selected":"","disabled":"disabled"},
+		{"name":"天津","value":5,"selected":"","disabled":""}
+	]
+}
+
+]]></script>
+
+		<script src="../UI/jquery-v3.2.1.js" type="text/javascript" charset="utf-8"></script>
+		<!--<script src="../UI/layui-v2.3.0-rc1/layui/layui.js" type="text/javascript" charset="utf-8"></script>-->
+		<script type="text/javascript">
+			if (!Array.prototype.map) {
+			    Array.prototype.map = function(callback, thisArg) {
+			        var T, A, k, 
+			        	O = Object(this),
+			        	len = O.length >>> 0;
+			        if (thisArg) {
+			            T = thisArg;
+			        }
+			        A = new Array(len);
+			        k = 0;
+			        while(k < len) {
+			            var kValue, mappedValue;
+			            if (k in O) {
+			                kValue = O[ k ];
+			                mappedValue = callback.call(T, kValue, k, O);
+			                A[ k ] = mappedValue;
+			            }
+			            k++;
+			        }
+			        return A;
+			    };
+			}
+			var htmls = {};
+			$('.example > div > div > select').each(function(index, item){
+				var html = item.outerHTML.split('\n');
+				var last = html[html.length - 1];
+				var space = last.substr(0, last.indexOf('<'));
+				htmls[item.getAttribute('xm-select')] = item.outerHTML.split('\n').map(function(item){
+					return item.replace(space, '');
+				}).join('\n');
+			});
+			$('.example > div > div > .layui-form,.example > div > form > div > .layui-form').each(function(index, item){
+				var html = item.outerHTML.split('\n');
+				var last = html[html.length - 1];
+				var space = last.substr(0, last.indexOf('<'));
+				$(item).find('.layui-form-select').remove()
+				htmls[$(item).find('select[xm-select]').attr('xm-select')] = item.outerHTML.split('\n').map(function(item){
+					return item.replace(space, '');
+				}).join('\n');
+			});
+		</script>
+		<script src="../UI/SyntaxHighlighter-3.0.83/shCore.js"></script>
+		<script src="../UI/SyntaxHighlighter-3.0.83/shBrushJScript.js"></script>
+		<script src="../UI/layui-v2.3.0-rc1/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../dist/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			SyntaxHighlighter.defaults["quick-code"] = false;
+			SyntaxHighlighter.defaults["gutter"] = false;
+			SyntaxHighlighter.all();
+			
+			var formSelects = layui.formSelects;
+			
+			//生成目录结构
+			layui.use(['layer'], function(){
+				var layer = layui.layer;
+				var content = '<ul class="sun-menu" style="overflow: auto;">';
+				$('body *[id]').each(function(index, item){
+					item = $(item);
+					content += '<li><a href="#'+item.attr("id")+'">'+(item.attr('title') ? item.attr('title') : item.html())+'</a></li>'
+				});
+				content += '</ul>';
+				layer.open({
+					title: '目录',
+					offset: 'rt',
+					btn: [],
+					shade: 0,
+					move: false,
+					content: content,
+					success: function(layero, index) {
+						layer.style(index, {
+							top: 50,
+							minWidth: 0,
+							width: 'auto',
+							left: 'auto',
+							right: 10
+						});
+					}
+				});
+			})
+			
+			//填充内容
+			$('body script[xid]').each(function(index, item){
+				var id = item.getAttribute('xid');
+				$('body [sid="'+id+'"]').html(item.outerHTML);
+				$(item).remove();
+			});
+			
+			//查看代码
+			$(document).on('click', '.example-show-code', function(e){
+				var that = $(e.target);
+				var select = htmls[that.parent().find('[xid]').attr('xid')];
+				if(that.text().indexOf('查看') != -1){
+					var pre = $('<script type="syntaxhighlighter" xid="config" class="brush: js">&lt;/script>');
+					pre.html(select);
+					that.after(pre);
+					SyntaxHighlighter.highlight();
+					that.text('隐藏代码');
+				}else{
+					that.next().remove();
+					that.text('查看代码');
+				}
+			});
+			
+			setTimeout(function(){
+				SyntaxHighlighter.highlight();
+			}, 200);
+			
+			//示例操作
+			layui.use('form', function(){
+				var form = layui.form;
+				
+				form.verify({
+					select14: function(value, item){
+						let count = value ? value.split(",").length : 0;
+						if(count < 3){
+							return '当前value: '+value+', 只选择了'+count+'项.'
+						}
+						alert('验证通过!');
+					},
+				});
+				form.on('submit(select14)', function(data){
+				  	return false;
+				});
+				
+			});
+			
+			formSelects.data('select15', 'local', {
+			    arr: [
+			        {
+			        	"name": "北京", 
+			        	"value": 1, 
+			        	"children": [
+							{"name": "北京市1", "value": 12, "children": [
+								{"name": "朝阳区1", "value": 13, "children": []},
+								{"name": "朝阳区2", "value": 14, "children": []},
+								{"name": "朝阳区3", "value": 15, "children": []},
+								{"name": "朝阳区4", "value": 16, "children": []},
+							]},
+							{"name": "北京市2", "value": 17, "children": []},
+							{"name": "北京市3", "value": 18, "children": []},
+							{"name": "北京市4", "value": 19, "children": []},
+			        	]
+					},
+					{
+			        	"name": "天津", 
+			        	"value": 2, 
+			        	"children": [
+							{"name": "天津市1", "value": 51, "children": []},
+			        	]
+					},
+			    ],
+			    linkage: true
+			});
+			
+			formSelects.config({
+				success: function(id, url, val, result){
+					console.log("success回调: " + url);
+				},
+				error: function(id, url, val, err){
+					console.log("err回调: " + url);
+				}
+			});
+			formSelects.data('select15_2', 'server', {
+			    url: 'http://yapi.demo.qunar.com/mock/9813/layui/citys',
+			    linkage: true,
+			    linkageWidth: 130,
+			});
+			
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,392 @@
+.xm-select-parent *{margin: 0; padding: 0; font-family: "Helvetica Neue", Helvetica, "PingFang SC", 微软雅黑, Tahoma, Arial, sans-serif;}
+.xm-select-parent .xm-select-title{
+	position: relative;
+}
+.xm-select-parent .xm-input{
+	cursor: pointer;
+	border-radius: 2px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #E6E6E6;
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	background-color: #FFF;
+	height: 38px;
+	line-height: 1.3;
+	padding-left: 10px;
+	outline: none;
+}
+.xm-select-parent .xm-select-sj{
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border-style: dashed;
+	border-color: transparent;
+	overflow: hidden;
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	margin-top: -3px;
+	cursor: pointer;
+	border-width: 6px;
+	border-top-color: #C2C2C2;
+	border-top-style: solid;
+	transition: all .3s;
+	-webkit-transition: all .3s;
+}
+.xm-select-parent .xm-form-selected .xm-select-sj{
+	margin-top: -9px;
+	transform: rotate(180deg);
+}
+.xm-select-parent .xm-form-select dl{
+	display: none;
+    position: absolute;
+    left: 0;
+    top: 42px;
+    padding: 5px 0;
+    z-index: 999;
+    min-width: 100%;
+    border: 1px solid #d2d2d2;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: #fff;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.12);
+    box-sizing: border-box;
+    animation-fill-mode: both;
+	-webkit-animation-name: layui-upbit; 
+	animation-name: layui-upbit;
+	-webkit-animation-duration: 0.3s; 
+	animation-duration: 0.3s; 
+	-webkit-animation-fill-mode: both; 
+	animation-fill-mode: both;
+}
+@-webkit-keyframes layui-upbit{ 
+  from {-webkit-transform: translate3d(0, 30px, 0); opacity: 0.3;}
+  to {-webkit-transform: translate3d(0, 0, 0);  opacity: 1;}
+}
+@keyframes layui-upbit{
+  from {transform: translate3d(0, 30px, 0);  opacity: 0.3;}
+  to {transform: translate3d(0, 0, 0);  opacity: 1;}
+}
+
+.xm-select-parent .xm-form-selected dl{
+	display: block;
+}
+
+
+.xm-select-parent .xm-form-select dl dd, .xm-select-parent .xm-form-select dl dt{
+	padding: 0 10px;
+	line-height: 36px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.xm-select-parent .xm-form-select dl dd{
+	cursor: pointer;
+}
+.xm-select-parent .xm-form-select dl dd:hover{background-color: #f2f2f2;}
+.xm-select-parent .xm-form-select dl dt{font-size: 12px; color: #999;}
+.layui-select-disabled .xm-dis-disabled{border-color: #eee !important;}
+.xm-select-parent .xm-form-select dl .xm-select-tips{
+	padding-left: 10px!important;
+	color: #999999;
+	font-size: 14px;
+}
+.xm-unselect{
+	-moz-user-select: none; -webkit-user-select: none; -ms-user-select: none;
+}
+
+.xm-form-checkbox{position: relative; display: inline-block; vertical-align: middle; height: 30px; line-height: 30px; margin-right: 10px; padding-right: 30px; background-color: #fff; cursor: pointer; font-size: 0;  -webkit-transition: .1s linear; transition: .1s linear; box-sizing: border-box;}
+.xm-form-checkbox:hover{}
+.xm-form-checkbox *{display: inline-block; vertical-align: middle;}
+.xm-form-checkbox span{padding: 0 10px; height: 100%; font-size: 14px; border-radius: 2px 0 0 2px; background-color: #d2d2d2; color: #fff; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+.xm-form-checkbox:hover span{background-color: #c2c2c2;}
+.xm-form-checkbox i{position: absolute; right: 0; top: 0; width: 30px; height: 28px; border: 1px solid #d2d2d2; border-left: none; border-radius: 0 2px 2px 0; color: #fff; font-size: 20px; text-align: center;}
+.xm-form-checkbox:hover i{border-color: #c2c2c2; color: #c2c2c2;}
+.xm-form-checkbox[lay-skin="primary"]{height: auto!important; line-height: normal!important; border: none!important; margin-right: 0; padding-right: 0; background: none;}
+.xm-form-checkbox[lay-skin="primary"] span{float: right; padding-right: 15px; line-height: 18px; background: none; color: #666;}
+.xm-form-checkbox[lay-skin="primary"] i{position: relative; top: 0; width: 16px; height: 16px; line-height: 16px; border: 1px solid #d2d2d2; font-size: 12px; border-radius: 2px; background-color: #fff; -webkit-transition: .1s linear; transition: .1s linear;}
+.xm-form-checkbox[lay-skin="primary"]:hover i{border-color: #5FB878; color: #fff;}
+
+.xm-icon-yes{
+    width:30px;
+    height:30px;
+    border-radius:4px;
+    background-color: rgb(0,150,136);
+    position: relative;
+}
+.xm-icon-yes:after {
+    content: ''; display: inline-block; border: 2px solid #fff;
+    border-top-width: 0; border-right-width: 0; width: 10px; height: 6px;
+    transform: rotate(-50deg);-webkit-transform: rotate(-50deg); position: absolute; top: 2px; left: 3px;
+}
+
+.xm-dis-disabled,.xm-dis-disabled:hover{color: #d2d2d2 !important; cursor: not-allowed !important;}
+.xm-form-select dl dd.xm-dis-disabled{background-color: #fff!important;}
+.xm-form-select dl dd.xm-dis-disabled span{color: #C2C2C2;}
+.xm-form-select dl dd.xm-dis-disabled .xm-icon-yes{border-color: #C2C2C2;}
+
+
+
+.xm-select-parent {
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+}
+
+.xm-select-parent .xm-select {
+	line-height: normal;
+	height: auto;
+	padding: 4px 10px 1px 10px;
+	overflow: hidden;
+	min-height: 36px;
+	left: 0px;
+	z-index: 99;
+	position: absolute;
+	background: none;
+	padding-right: 20px;
+}
+
+.xm-select-parent .xm-select:hover {
+	border-color: #C0C4CC;
+}
+
+.xm-select-parent .xm-select .xm-select-label {
+	display: inline-block;
+	margin: 0;
+	vertical-align: middle;
+}
+
+.xm-select-parent .xm-select-title div.xm-select-label>span {
+	padding: 2px 5px;
+	background-color: #009688;
+	border-radius: 2px;
+	color: #FFFFFF;
+	display: inline-block;
+	line-height: 18px;
+	height: 18px;
+	margin: 2px 5px 2px 0px;
+	cursor: initial;
+	user-select: none;
+	font-size: 14px;
+}
+
+.xm-select-parent .xm-select-title div.xm-select-label>span i {
+	margin-left: 8px;
+	border-radius: 20px;
+	font-size: 18px;
+	cursor: pointer;
+	vertical-align: middle;
+}
+
+.xm-select-parent .xm-select .xm-select-input {
+	border: none;
+	height: 28px;
+	background-color: transparent;
+	padding: 0;
+	vertical-align: middle;
+	display: inline-block;
+	width: 50px;
+}
+
+.xm-select-parent .xm-select--suffix {}
+
+.xm-select-parent .xm-select--suffix input {
+	border: none;
+}
+
+.xm-select-parent dl dd.xm-dis-disabled.xm-select-this i {
+	border-color: #C2C2C2;
+	background-color: #C2C2C2;
+	color: #FFFFFF;
+}
+
+.xm-select-parent dl dd.xm-select-this i {
+	background-color: #009688;
+	border-color: #009688;
+}
+
+.xm-form-selected .xm-select,
+.xm-form-selected .xm-select:hover {
+	border-color: #009688!important;
+}
+
+.layui-form-pane .xm-select,
+.layui-form-pane .xm-select:hover {
+	border: none!important;
+	top: 2px;
+}
+
+.layui-form-pane .xm-select-title {
+	border-left: 1px solid #e6e6e6!important;
+}
+
+.xm-select--suffix+div {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.xm-select-dis .xm-select--suffix+div {
+	z-index: 100;
+	cursor: no-drop!important;
+}
+
+.xm-select-disabled {}
+
+.xm-select-disabled,
+.xm-select-disabled:hover {
+	color: #d2d2d2!important;
+	cursor: not-allowed!important;
+	background-color: #fff;
+}
+
+.layui-select-none {
+	display: none;
+}
+
+.layui-select-none:hover {
+	background-color: #FFF!important;
+}
+
+.xm-select-empty {
+	display: block;
+}
+
+
+/*color*/
+
+div[xm-select-skin] .xm-select-title div.xm-select-label>span i:hover {
+	opacity: .8;
+	filter: alpha(opacity=80);
+	cursor: pointer;
+}
+
+
+/*default*/
+
+div[xm-select-skin='default'] .xm-select-title div.xm-select-label>span {
+	background-color: #F0F2F5;
+	color: #909399;
+	border: 1px solid #F0F2F5;
+}
+
+div[xm-select-skin='default'] .xm-select-title div.xm-select-label>span i {
+	background-color: #C0C4CC;
+	color: #FFFFFF;
+}
+
+div[xm-select-skin='default'] dl dd.xm-select-this:not(.xm-dis-disabled) i {
+	background-color: #5FB878;
+	border-color: #5FB878;
+	color: #FFFFFF;
+}
+
+div[xm-select-skin='default'].xm-form-selected .xm-select,
+div[xm-select-skin='default'].xm-form-selected .xm-select:hover {
+	border-color: #C0C4CC !important;
+}
+
+
+/*primary*/
+
+div[xm-select-skin='primary'] .xm-select-title div.xm-select-label>span {
+	background-color: #009688;
+	color: #FFFFFF;
+	border: 1px solid #009688;
+}
+
+div[xm-select-skin='primary'] .xm-select-title div.xm-select-label>span i {
+	background-color: #009688;
+	color: #FFFFFF;
+}
+
+div[xm-select-skin='primary'] dl dd.xm-select-this:not(.xm-dis-disabled) i {
+	background-color: #009688;
+	border-color: #009688;
+	color: #FFFFFF;
+}
+
+div[xm-select-skin='primary'].xm-form-selected .xm-select,
+div[xm-select-skin='primary'].xm-form-selected .xm-select:hover {
+	border-color: #1E9FFF !important;
+}
+
+
+/*normal*/
+
+div[xm-select-skin='normal'] .xm-select-title div.xm-select-label>span {
+	background-color: #1E9FFF;
+	color: #FFFFFF;
+	border: 1px solid #1E9FFF;
+}
+
+div[xm-select-skin='normal'] .xm-select-title div.xm-select-label>span i {
+	background-color: #1E9FFF;
+	color: #FFFFFF;
+}
+
+div[xm-select-skin='normal'] dl dd.xm-select-this:not(.xm-dis-disabled) i {
+	background-color: #1E9FFF;
+	border-color: #1E9FFF;
+	color: #FFFFFF;
+}
+
+div[xm-select-skin='normal'].xm-form-selected .xm-select,
+div[xm-select-skin='normal'].xm-form-selected .xm-select:hover {
+	border-color: #1E9FFF !important;
+}
+
+
+/*warm*/
+
+div[xm-select-skin='warm'] .xm-select-title div.xm-select-label>span {
+	background-color: #FFB800;
+	color: #FFFFFF;
+	border: 1px solid #FFB800;
+}
+
+div[xm-select-skin='warm'] .xm-select-title div.xm-select-label>span i {
+	background-color: #FFB800;
+	color: #FFFFFF;
+}
+
+div[xm-select-skin='warm'] dl dd.xm-select-this:not(.xm-dis-disabled) i {
+	background-color: #FFB800;
+	border-color: #FFB800;
+	color: #FFFFFF;
+}
+
+div[xm-select-skin='warm'].xm-form-selected .xm-select,
+div[xm-select-skin='warm'].xm-form-selected .xm-select:hover {
+	border-color: #FFB800 !important;
+}
+
+
+/*danger*/
+
+div[xm-select-skin='danger'] .xm-select-title div.xm-select-label>span {
+	background-color: #FF5722;
+	color: #FFFFFF;
+	border: 1px solid #FF5722;
+}
+
+div[xm-select-skin='danger'] .xm-select-title div.xm-select-label>span i {
+	background-color: #FF5722;
+	color: #FFFFFF;
+}
+
+div[xm-select-skin='danger'] dl dd.xm-select-this:not(.xm-dis-disabled) i {
+	background-color: #FF5722;
+	border-color: #FF5722;
+	color: #FFFFFF;
+}
+
+div[xm-select-skin='danger'].xm-form-selected .xm-select,
+div[xm-select-skin='danger'].xm-form-selected .xm-select:hover {
+	border-color: #FFB800 !important;
+}
