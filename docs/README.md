@@ -109,6 +109,3 @@ Fly社区交流贴: [http://fly.layui.com/jie/26337/](http://fly.layui.com/jie/2
 
 [在线运行](http://runjs.cn/code/hytdpb85)
 
-<script type="text/javascript">
-	formSelects.render();
-</script>

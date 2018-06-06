@@ -27,6 +27,19 @@ xm-select="id"
 </html>
 ```
 
+效果如下:
+<html>
+	<div style="max-width: 400px; margin: 20px;">
+		<select xm-select="select-demo1" >
+			<option value="">请选择</option>
+			<option value="1">北京</option>
+			<option value="2" selected="selected">上海</option>
+			<option value="3">广州</option>
+			<option value="4" selected="selected">深圳</option>
+		</select>
+	</div>
+</html>
+
 [在线运行](http://runjs.cn/code/hytdpb85)
 
 ## xm-select-max
@@ -57,6 +70,19 @@ xm-select-max="3"
 	</body>
 </html>
 ```
+
+效果如下:
+<html>
+	<div style="max-width: 400px; margin: 20px;">
+		<select xm-select="select-demo2" xm-select-max="3">
+			<option value="">请选择</option>
+			<option value="1">北京</option>
+			<option value="2" selected="selected">上海</option>
+			<option value="3">广州</option>
+			<option value="4" selected="selected">深圳</option>
+		</select>
+	</div>
+</html>
 
 [在线运行](http://runjs.cn/code/d1wleqww)
 
@@ -102,10 +128,6 @@ xm-select-height="36px", 高度不再随数据变化而变化
 
 xm-select-radio, 最多只能选择一个
 
-
-<script type="text/javascript">
-	formSelects.render();
-</script>
 
 
 
