@@ -1,4 +1,8 @@
 
+[文档地址](https://hnzzmsf.github.io/layui-formSelects)
+
+[演示地址](sun.faysunshine.com/layui/formSelects-v4/example/example_v4.html)
+
 ## formSelects
 
 > 一起聊聊
@@ -17,7 +21,7 @@ Fly社区交流贴: [http://fly.layui.com/jie/26337/](http://fly.layui.com/jie/2
 
 欢迎点击右上角`Star`一下
 
-[文档地址](https://hnzzmsf.github.io/layui-formSelects)
+
 
 > 下载与使用
 
@@ -58,9 +62,6 @@ Fly社区交流贴: [http://fly.layui.com/jie/26337/](http://fly.layui.com/jie/2
 <script src="//sandbox.runjs.cn/uploads/rs/96/wiqefzh7/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
 ```
 
-可以点击右上角获取源码使用
-
-也可以直接download, [formSelects-v4.js](http://sandbox.runjs.cn/uploads/rs/96/wiqefzh7/formSelects-v4.js)
 
 ## 快速开始
 
@@ -92,3 +93,9 @@ Fly社区交流贴: [http://fly.layui.com/jie/26337/](http://fly.layui.com/jie/2
 
 [在线运行](http://runjs.cn/code/hytdpb85)
 
+
+## 联系我们
+
+QQ号: 707200833
+
+QQ群: 769620939

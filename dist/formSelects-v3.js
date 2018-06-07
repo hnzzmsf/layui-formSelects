@@ -5,7 +5,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 3.0.9
+ * version: 3.0.9.0607
  * https://faysunshine.com/layui/template/formSelects-v3/formSelects-v3.js
  */
 (function (layui, window, factory) {
@@ -17,16 +17,38 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		define(factory);
 	} else if (window.layui && layui.define) {
 		//layui加载
-		if (layui.form && layui.jquery) {
-			window.formSelects = factory();
-		}
-		layui.define(function (exports) {
-			exports('formSelects', window.formSelects ? window.formSelects : factory());
+		layui.define(['jquery', 'form'], function (exports) {
+			exports('formSelects', factory());
 		});
 	} else {
 		window.formSelects = factory();
 	}
 })(layui, window, function () {
+	//针对IE的一些处理
+	if (window.Map == undefined) {
+		var _Map = function _Map() {
+			this.value = {};
+		};
+
+		_Map.prototype.set = function (key, val) {
+			this.value[key] = val;
+		};
+
+		_Map.prototype.get = function (key) {
+			return this.value[key];
+		};
+
+		_Map.prototype.has = function (key) {
+			return this.value.hasOwnProperty(key);
+		};
+
+		_Map.prototype.delete = function (key) {
+			delete this.value[key];
+		};
+
+		window.Map = _Map;
+	}
+
 	var $ = layui.jquery || $,
 	    form = layui.form,
 	    select3 = {
@@ -34,15 +56,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'all';
 			var vals = arguments[2];
 
-			if (type instanceof Array) {
+			if (Array.isArray(type)) {
 				vals = type;
 				type = 'all';
 			}
-			if (name && vals && vals instanceof Array) {
+			if (name && vals && Array.isArray(vals)) {
 				var options = commons.data.confs.get(name);
 				if (options) {
-					options.init = vals;
-					commons.methods.init(options);
+					var dl = commons.methods.getDiv(options).find('dl');
+					if (!options.repeat) {
+						vals = new Set(vals);
+					}
+					var on = options.on;
+					options.on = null;
+					commons.methods.removeAll(options);
+					options.delete = false;
+					vals.forEach(function (val) {
+						dl.find('dd:not(.layui-disabled)[lay-value=\'' + val + '\']').click();
+					});
+					options.on = on;
 				}
 				return;
 			}
@@ -50,10 +82,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			if (!arr) {
 				return vals;
 			}
-			arr = arr.map(function (val) {
-				val.num = val.num ? val.num : 1;
-				return val;
-			});
 			if (type == 'val') {
 				return arr.map(function (val) {
 					return val.val;
@@ -116,7 +144,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			if (name) {
 				if (!colors) {
 					commons.methods.loadCss(name, null);
-				} else if (colors instanceof Array) {
+				} else if (Array.isArray(colors)) {
 					commons.methods.loadCss(name, colors);
 				} else {
 					var arr = [colors.labelBgColor, colors.labelColor, colors.labelIconBgColor, colors.labelIconColor, colors.labelLabelBorderColor, colors.thisBgColor, colors.thisColor];
@@ -177,7 +205,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					var html = '<option value=""></option>';
 					for (var i in os.arr) {
 						var db = os.arr[i];
-						if (db.arr && db.arr instanceof Array) {
+						if (db.arr && Array.isArray(db.arr)) {
 							html += '<optgroup label="' + db.name + '">';
 							for (var j in db.arr) {
 								var gdb = db.arr[j];
@@ -240,7 +268,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			delLabel: function delLabel(options, vals) {
 				var ipt = commons.methods.getIpt(options);
 				vals.forEach(function (val) {
-					ipt.find('span[value=\'' + val.val + '\']').remove();
+					ipt.find('span[value=\'' + val.val + '\']:first').remove();
 				});
 			},
 			showPlaceholder: function showPlaceholder(options) {
@@ -274,7 +302,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					if (!dd.hasClass('layui-disabled')) {
 						commons.methods.remove(vals, val);
 						commons.methods.delLabel(options, [val]);
-						commons.methods.typeHandler(options, dd, isAdd);
+						if (commons.methods.indexOf(vals, val) == -1) {
+							commons.methods.typeHandler(options, dd, isAdd);
+						}
 					}
 				}
 				commons.methods.retop(options);
@@ -354,7 +384,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						}
 						return;
 					}
-					if (commons.methods.getDiv(options).hasClass('layui-form-selectup') || commons.methods.getDiv(options).find('dl').css('top').startsWith('-')) {
+					if (commons.methods.getDiv(options).hasClass('layui-form-selectup') || commons.methods.getDiv(options).find('dl').css('top').indexOf('-') == 0) {
 						setTimeout(function () {
 							commons.methods.getDiv(options).addClass('layui-form-selectup');
 						}, 50);
@@ -364,50 +394,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						if (data.value) {
 							var ipt = commons.methods.getIpt(options);
 							if (options.delete) {
-								var _val = {
+								var arr = select3.value(options.name);
+								var _val = arr[commons.methods.indexOf(arr, data.value)];
+								if (_val) {
+									commons.methods.valHandler(options, _val, false);
+									ipt.parent().next().find('dd[lay-value=\'' + data.value + '\'] .layui-form-checkbox > i').html('&#xe605;');
+									if (options.on && options.on instanceof Function) {
+										options.on(data, select3.value(options.name), _val, false);
+									}
+								}
+								options.delete = false;
+								return;
+							} else {
+								var vals = commons.methods.getValues(options);
+								var _val2 = {
 									name: commons.methods.getDom(options).find('option[value=\'' + data.value + '\']').text(),
 									val: data.value
 								};
-								commons.methods.valHandler(options, _val, false);
-								ipt.parent().next().find('dd[lay-value=\'' + data.value + '\'] .layui-form-checkbox > i').html('&#xe605;');
-								options.delete = false;
-								if (options.on && options.on instanceof Function) {
-									options.on(data, select3.value(options.name), _val, false);
-								}
-								return;
-							} else {
-								var _val2 = void 0;
-								var vals = commons.methods.getValues(options);
-								for (var i in vals) {
-									if (vals[i].val == data.value) {
-										_val2 = vals[i];
-										break;
-									}
-								}
-								if (_val2) {
-									_val2.num = (_val2.num ? _val2.num : 1) + 1;
-								} else {
-									_val2 = {
-										name: commons.methods.getDom(options).find('option[value=\'' + data.value + '\']').text(),
-										val: data.value,
-										num: 1
-									};
-								}
-								if (_val2.num == 1) {
-									commons.methods.valHandler(options, _val2, true);
-								} else {
-									//更改label
-									var font = ipt.find('span[value=\'' + data.value + '\'] font');
-									var text = font.text().split('【')[0];
-									font.text(text + '\u3010' + _val2.num + '\u3011').css('margin-right', '-9px');
-									ipt.parent().next().find('dd[lay-value=\'' + data.value + '\'] .layui-form-checkbox > i').html(_val2.num > 99 ? '&#xe65f;' : _val2.num);
-									commons.methods.retop(options);
-								}
+								commons.methods.valHandler(options, _val2, true);
 								if (options.on && options.on instanceof Function) {
 									options.on(data, select3.value(options.name), _val2, true);
 								}
 							}
-
 							setTimeout(function () {
 								commons.methods.getDiv(options).addClass('layui-form-selected').find('dl dd.layui-this').removeClass('layui-this');
 							}, 3);
@@ -471,10 +479,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			},
 			removeAll: function removeAll(options) {
 				var div = commons.methods.getDiv(options);
-				var vals = div.find('dl dd.xm-select-this:not(.layui-disabled)');
+				var vals = div.find('.xm-select > span');
 				vals.each(function (index, item) {
 					options.delete = true;
-					item.click();
+					div.find('dl dd.xm-select-this:not(.layui-disabled)[lay-value=\'' + item.getAttribute('value') + '\']').click();
 				});
 				return vals.length;
 			},
@@ -534,7 +542,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				var div = commons.methods.getIpt(options);
 				if (div.length) {
 					var dl = div.parent('.layui-select-title').next();
-					var up = dl.parent().hasClass('layui-form-selectup') || dl.css('top').startsWith('-');
+					var up = dl.parent().hasClass('layui-form-selectup') || dl.css('top').indexOf('-') == 0;
 					var time = commons.data.times.get(options.name);
 					if (time) {
 						if (Date.now() - time.time < 100 || options.delete) {
@@ -662,7 +670,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				}
 				if (options.icon && typeof options.icon == 'string') {
 					var icon = options.icon;
-					if (icon.startsWith('layui')) {
+					if (icon.indexOf('layui') == 0) {
 						options.icon = {
 							class: icon,
 							text: ''
@@ -752,7 +760,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 							_options = commons.data.confs.get(_options.name);
 							_options.delete = true;
 							commons.methods.getDiv(_options).find('dl dd[lay-value=\'' + val.val + '\']').click();
-							commons.methods.valHandler(commons.methods.getOptions(sel), val, false);
 							setTimeout(function () {
 								if (dl.hasClass('xm-select-show')) {
 									div.addClass('layui-form-selected');

@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0606
+ * version: 4.0.0.0607
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function(layui, window, factory) {
@@ -10,7 +10,7 @@
 	} else if(typeof define === 'function' && define.amd) { // 支持 AMD
 		define(factory);
 	} else if(window.layui && layui.define) { //layui加载
-		layui.define(function(exports) {
+		layui.define(['jquery'], function(exports) {
 			exports('formSelects', factory());
 		});
 	} else {
@@ -97,6 +97,7 @@
 				clearid: -1,
 				direction: 'auto',
 				height: null,
+				isEmpty: false,
 			};
 			this.select = null;
 			this.values = [];
@@ -111,6 +112,7 @@
 		this.on();
 		this.initVal();
 		this.onreset();
+		this.listening();
 	};
 	
 	Common.prototype.appender = function(){//针对IE做的一些拓展
@@ -201,21 +203,20 @@
 			//构造渲染div
 			let dinfo = this.renderSelect(placeholder, select); 
 			let heightStyle = height ? `style="height: ${height};"` : '';
-			let inputHtml =  height ? `
-				<div class="${LABEL}" style="margin-right: 50px;">
-				</div>
-				<input type="text" fsw class="${FORM_INPUT} ${INPUT}" ${isSearch ? '' : 'style="display: none;"'} autocomplete="off" debounce="0" style="position: absolute;right: 10px;top: 3px;"/>
-			` : `
-				<div class="${LABEL}">
-					<input type="text" fsw class="${FORM_INPUT} ${INPUT}" ${isSearch ? '' : 'style="display: none;"'} autocomplete="off" debounce="0" />
-				</div>
-			`;
-			let reElem = $(`
-				<div class="${FORM_SELECT}" ${SKIN}="${skin}">
+			let inputHtml =  height ? [
+				`<div class="${LABEL}" style="margin-right: 50px;"></div>`,
+				`<input type="text" fsw class="${FORM_INPUT} ${INPUT}" ${isSearch ? '' : 'style="display: none;"'} autocomplete="off" debounce="0" style="position: absolute;right: 10px;top: 3px;"/>`
+			] : [
+				`<div class="${LABEL}">`,
+					`<input type="text" fsw class="${FORM_INPUT} ${INPUT}" ${isSearch ? '' : 'style="display: none;"'} autocomplete="off" debounce="0" />`,
+				`</div>`
+			];
+			let reElem =
+				$(`<div class="${FORM_SELECT}" ${SKIN}="${skin}">
 					<input type="hidden" class="${HIDE_INPUT}" value="" name="${formname}" lay-verify="${layverify}"/>
 					<div class="${FORM_TITLE} ${disabled ? DIS : ''}">
 						<div class="${FORM_INPUT} ${NAME}" ${heightStyle}>
-							${inputHtml}
+							${inputHtml.join('')}
 							<i class="${SANJIAO}"></i>
 						</div>
 						<div class="${TDIV}">
@@ -224,8 +225,7 @@
 						<div></div>
 					</div>
 					<dl xid="${id}" class="${DL} ${isRadio ? RADIO:''}">${dinfo}</dl>
-				</div>
-			`);
+				</div>`);
 			othis.after(reElem);
 			fs.select = othis.remove();//去掉layui.form.render
 			fs.values = value;
@@ -292,14 +292,24 @@
 					}
 				});
 				if(searchUrl){//触发第一次请求事件
-					let obj_caller = reElem.find(`.${INPUT}`)[0];
-					if(document.createEventObject) {
-					    obj_caller.fireEvent("onchange");
-					} else {
-					    var evt = document.createEvent("HTMLEvents");
-					    evt.initEvent("input", false, true);
-					    obj_caller.dispatchEvent(evt);
-					}
+					this.triggerSearch(reElem, true);
+				}
+			}
+		});
+	}
+	
+	Common.prototype.triggerSearch = function(div, isCall){
+		(div ? [div] : $(`.${FORM_SELECT}`).toArray()).forEach((reElem, index) => {
+			reElem = $(reElem);
+			let id = reElem.find('dl').attr('xid')
+			if((id && data[id] && data[id].config.isEmpty) || isCall){
+				let obj_caller = reElem.find(`.${INPUT}`)[0];
+				if(document.createEventObject) {
+				    obj_caller.fireEvent("onchange");
+				} else {
+				    var evt = document.createEvent("HTMLEvents");
+				    evt.initEvent("input", false, true);
+				    obj_caller.dispatchEvent(evt);
 				}
 			}
 		});
@@ -314,6 +324,7 @@
 		let ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
 		let ajaxData = $.extend(true, {}, ajaxConfig.data);
 		ajaxData[ajaxConfig.searchName] = inputValue;
+		ajaxData['_'] = Date.now();
 		$.ajax({
 			type: ajaxConfig.type,
 			headers: ajaxConfig.header,
@@ -341,6 +352,7 @@
 					spans.forEach((item, idx) => {
 						data[id].values.push(item);
 					});
+					data[id].config.isEmpty = res.data.length == 0;
 				}
 				ajaxConfig.success && ajaxConfig.success instanceof Function && ajaxConfig.success(id, searchUrl, inputValue, res);
 			},
@@ -353,7 +365,7 @@
 	}
 	
 	Common.prototype.renderData = function(id, dataArr, linkage, linkageWidth){
-		if(linkage){//TODO 渲染多级联动
+		if(linkage){//渲染多级联动
 			let result = [],
 				index = 0,
 				temp = {"0": dataArr},
@@ -393,9 +405,11 @@
 			html.push('<div style="clear: both; height: 288px;"></div>');
 			html.push('</div>');
 			reElem.find('dl').html(html.join(''));
-			reElem.find(`.${INPUT}`).css('display', 'none');//TODO 联动暂时不支持搜索
+			reElem.find(`.${INPUT}`).css('display', 'none');//联动暂时不支持搜索
 			return;
 		}
+		
+		
 		let reElem = $(`.${PNAME} dl[xid=${id}]`).parents(`.${FORM_SELECT}`);
 		let ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
 		let pcInput = reElem.find(`.${TDIV} input`);
@@ -491,7 +505,7 @@
 			});
 		}
 		arr.push('<dt style="display:none;"> </dt>');
-		arr.push(`<dd class="${FORM_SELECT_TIPS} ${FORM_NONE} ${arr.length === 1 ? FORM_EMPTY:''}">没有选项</dd>`);
+		arr.push(`<dd class="${FORM_SELECT_TIPS} ${FORM_NONE} ${arr.length === 2 ? FORM_EMPTY:''}">没有选项</dd>`);
 		return arr.join('');
 	}
 	
@@ -504,6 +518,7 @@
 				$(`.${INPUT}`).val('');
 				$(`.${PNAME} dl .layui-hide`).removeClass('layui-hide');
 				$(`.${PNAME} dl dd.${TEMP}`).remove();
+				this.triggerSearch();
 			}
 			$(`.${PNAME} .${FORM_SELECTED}`).removeClass(FORM_SELECTED);
 		});
@@ -570,7 +585,7 @@
 		});
 		$(target ? target : document).find(`dl.${DL}`).off('click').on('click', (e) => {
 			let othis = $(e.target);
-			if(othis.is(`.${LINKAGE}`) || othis.parents(`.${LINKAGE}`)[0]){//TODO linkage的处理
+			if(othis.is(`.${LINKAGE}`) || othis.parents(`.${LINKAGE}`)[0]){//linkage的处理
 				othis = othis.is('li') ? othis : othis.parents('li');
 				let group = othis.parents('.xm-select-linkage-group'),
 					id = othis.parents('dl').attr('xid');
@@ -871,6 +886,11 @@
 			top.find(`.${INPUT}`).val('');
 			top.find(`dl .layui-hide`).removeClass('layui-hide');
 			top.find(`dl dd.${TEMP}`).remove();
+			//计算ajax数据是否为空, 然后重新请求数据
+			let id = top.find('dl').attr('xid');
+			if(id && data[id] && data[id].config.isEmpty){
+				this.triggerSearch(top);
+			}
 		}
 	}
 	
@@ -973,6 +993,25 @@
 			`</style>`
 		);
 		($('head link:last')[0] && $('head link:last').after(cssStyle)) || $('head').append(cssStyle);
+	}
+	
+	Common.prototype.listening = function(){//TODO 用于监听dom结构变化, 如果出现新的为渲染select, 则自动进行渲染
+		let flag = false;
+		$(document).on('DOMSubtreeModified', (e) => {
+			if(flag){//避免递归渲染
+				return ;
+			}
+			flag = true;
+			//渲染select
+			$(`select[${NAME}]`).each((index, select) => {
+				let sid = select.getAttribute(NAME);
+				common.init(select);
+				common.one($(`dl[xid=${sid}]`).parents(`.${PNAME}`));
+				common.initVal(sid);
+			});
+			
+			flag = false;
+		});
 	}
 
 	
@@ -1114,6 +1153,8 @@
 				dl.find(`.${CREATE_LONG}`).remove();
 				//清空INPUT
 				dl.prev().find(`.${INPUT}`).val('');
+				//触发search
+				common.triggerSearch(dl.parents(`.${FORM_SELECT}`), true);
 				//移除hidn
 				dl.find(`.layui-hide`).removeClass('layui-hide');
 				//重新赋值
