@@ -55,7 +55,14 @@
 					if(options) {
 						let dl = commons.methods.getDiv(options).find('dl');
 						if(!options.repeat){
-							vals = new Set(vals);
+							let map = {}, newVals =[];
+							vals.forEach((val) => {
+								if(!map[val]){
+									newVals.push(val);
+									map[val] = 1;
+								}
+							});
+							vals = newVals;
 						}
 						let on = options.on;
 						options.on = null;

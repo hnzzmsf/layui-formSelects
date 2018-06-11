@@ -65,7 +65,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				if (options) {
 					var dl = commons.methods.getDiv(options).find('dl');
 					if (!options.repeat) {
-						vals = new Set(vals);
+						var map = {},
+						    newVals = [];
+						vals.forEach(function (val) {
+							if (!map[val]) {
+								newVals.push(val);
+								map[val] = 1;
+							}
+						});
+						vals = newVals;
 					}
 					var on = options.on;
 					options.on = null;

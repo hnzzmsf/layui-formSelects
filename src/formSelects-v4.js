@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0607
+ * version: 4.0.0.0611
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function(layui, window, factory) {
@@ -298,6 +298,10 @@
 		});
 	}
 	
+	Common.prototype.isArray = function(obj){
+		return Object.prototype.toString.call(obj) == "[object Array]";
+	}
+	
 	Common.prototype.triggerSearch = function(div, isCall){
 		(div ? [div] : $(`.${FORM_SELECT}`).toArray()).forEach((reElem, index) => {
 			reElem = $(reElem);
@@ -484,7 +488,7 @@
 		let arr = [];
 //		arr.push(`<dd lay-value="" class="layui-select-tips">各种复杂的地方操作</dd>`);
 		arr.push(`<dd lay-value="" class="${FORM_SELECT_TIPS}">${tips}</dd>`);
-		if(Array.isArray(select)){
+		if(this.isArray(select)){
 			$(select).each((index, item) => {
 				if(item.type === 'optgroup') {
 					arr.push(`<dt>${item.name}</dt>`);
@@ -990,14 +994,18 @@
 			`.xm-span-hide{display: none!important;}.xm-select-radio .xm-icon-yes{border-radius: 20px!important;}.xm-select-radio .xm-icon-yes:after{border-radius: 20px;background-color: #fff;width: 6px;height:6px;border: none;top: 5px;left: 5px;}`+
 			`.xm-select-parent .layui-form-danger+.xm-select-title .xm-select{border-color: #FF5722 !important;}`+
 			`.xm-select-linkage li{padding: 10px 0px; cursor: pointer;}.xm-select-linkage li span{padding-left: 20px; padding-right: 30px; display: inline-block; height: 20px; overflow: hidden; text-overflow: ellipsis;}.xm-select-linkage li.xm-select-this span{border-left: 5px solid #009688; color: #009688; padding-left: 15px;}.xm-select-linkage-group{position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow-x: hidden; overflow-y: auto;}.xm-select-linkage-group li:hover{border-left: 1px solid #009688;}.xm-select-linkage-group li:hover span{padding-left: 19px;}.xm-select-linkage-group li.xm-select-this:hover span{padding-left: 15px;border-left-width: 4px;}.xm-select-linkage-group1{background-color: #EFEFEF; left: 0;}.xm-select-linkage-group1 li.xm-select-active{background-color: #F5F5F5;}.xm-select-linkage-group2{background-color: #F5F5F5; left: 100px;}.xm-select-linkage-group2 li.xm-select-active{background-color: #FAFAFA;}.xm-select-linkage-group3{background-color: #FAFAFA; left: 200px;}.xm-select-linkage-group3 li.xm-select-active{background-color: #FFFFFF;}.xm-select-linkage-group4{background-color: #FFFFFF; left: 300px;}.xm-select-linkage-hide{display: none;}.xm-select-linkage-show{display: block;}div[xm-select-skin='default'] .xm-select-linkage li.xm-select-this span{border-left-color: #5FB878; color: #5FB878;}div[xm-select-skin='default'] .xm-select-linkage-group li:hover{border-left-color: #5FB878;}div[xm-select-skin='primary'] .xm-select-linkage li.xm-select-this span{border-left-color: #1E9FFF; color: #1E9FFF;}div[xm-select-skin='primary'] .xm-select-linkage-group li:hover{border-left-color: #1E9FFF;}div[xm-select-skin='normal'] .xm-select-linkage li.xm-select-this span{border-left-color: #1E9FFF; color: #1E9FFF;}div[xm-select-skin='normal'] .xm-select-linkage-group li:hover{border-left-color: #1E9FFF;}div[xm-select-skin='warm'] .xm-select-linkage li.xm-select-this span{border-left-color: #FFB800; color: #FFB800;}div[xm-select-skin='warm'] .xm-select-linkage-group li:hover{border-left-color: #FFB800;}div[xm-select-skin='danger'] .xm-select-linkage li.xm-select-this span{border-left-color: #FF5722; color: #FF5722;}div[xm-select-skin='danger'] .xm-select-linkage-group li:hover{border-left-color: #FF5722;}`+
+			//不知道为什么出现了紧凑型的效果
+			`.xm-form-checkbox[lay-skin=primary] i{top: 9px}.xm-select-parent .xm-form-select dl dd{height: 36px;}.xm-form-checkbox[lay-skin=primary] span{line-height: 36px;}`+
 			`</style>`
+			
 		);
 		($('head link:last')[0] && $('head link:last').after(cssStyle)) || $('head').append(cssStyle);
 	}
 	
 	Common.prototype.listening = function(){//TODO 用于监听dom结构变化, 如果出现新的为渲染select, 则自动进行渲染
 		let flag = false;
-		$(document).on('DOMSubtreeModified', (e) => {
+		let index = 0;
+		$(document).on('DOMNodeInserted', (e) => {
 			if(flag){//避免递归渲染
 				return ;
 			}
@@ -1052,7 +1060,7 @@
 			}
 			return arr;
 		}
-		if(Array.isArray(type)) {
+		if(common.isArray(type)) {
 			let dl = $(`[xid=${id}]`),
 				temp = {},
 				dd,
@@ -1191,6 +1199,8 @@
 		if(!id || !type || !config){
 			return ;
 		}
+		//检测该id是否尚未渲染
+		!data[id] && this.render(id);
 		this.value(id, []);
 		if(type == 'local'){
 			common.renderData(id, config.arr, config.linkage == true, config.linkageWidth ? config.linkageWidth : '100');
