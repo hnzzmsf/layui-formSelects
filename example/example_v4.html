@@ -1522,7 +1522,7 @@ formSelects.data('select15', 'server', {
 		<script src="../UI/SyntaxHighlighter-3.0.83/shCore.js"></script>
 		<script src="../UI/SyntaxHighlighter-3.0.83/shBrushJScript.js"></script>
 		<script src="../UI/layui-v2.3.0-rc1/layui/layui.js" type="text/javascript" charset="utf-8"></script>
-		<script src="../src/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../dist/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../UI/js-pinyin.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
 			SyntaxHighlighter.defaults["quick-code"] = false;
@@ -1608,7 +1608,7 @@ formSelects.data('select15', 'server', {
 				
 				form.verify({
 					select14: function(value, item){
-						let count = value ? value.split(",").length : 0;
+						var count = value ? value.split(",").length : 0;
 						if(count < 3){
 							return '当前value: '+value+', 只选择了'+count+'项.'
 						}
