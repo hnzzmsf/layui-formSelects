@@ -5,7 +5,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0611
+ * version: 4.0.0.0613
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function (layui, window, factory) {
@@ -24,7 +24,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function () {
-	var v = '4.0.0',
+	var v = '4.0.0.0613',
 	    NAME = 'xm-select',
 	    PNAME = 'xm-select-parent',
 	    INPUT = 'xm-select-input',
@@ -72,8 +72,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		keyVal: 'value',
 		keySel: 'selected',
 		keyDis: 'disabled',
+		keyChildren: 'children',
 		dataType: '',
 		delay: 500,
+		beforeSuccess: null,
 		success: null,
 		error: null
 	},
@@ -87,7 +89,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			name: null, //xm-select="xxx"
 			max: null,
 			maxTips: function maxTips(vals, val, max) {
-				var ipt = $('[xid=' + _this.config.name + ']').prev().find('.' + NAME);
+				var ipt = $('[xid="' + _this.config.name + '"]').prev().find('.' + NAME);
 				if (ipt.parents('.layui-form-item[pane]').length) {
 					ipt = ipt.parents('.layui-form-item[pane]');
 				}
@@ -244,14 +246,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					//过滤一下tips
 					_this2.changePlaceHolder($(input));
 
+					var ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
+					searchUrl = ajaxConfig.searchUrl || searchUrl;
 					//如果开启了远程搜索
 					if (searchUrl) {
-						var ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
 						clearTimeout(fs.clearid);
 						fs.clearid = setTimeout(function () {
 							reElem.find('dl > *:not(.' + FORM_SELECT_TIPS + ')').remove();
 							reElem.find('dd.' + FORM_NONE).addClass(FORM_EMPTY).text('请求中');
-							_this2.ajax(id, ajaxConfig.searchUrl || searchUrl, inputValue);
+							_this2.ajax(id, searchUrl, inputValue);
 						}, ajaxConfig.delay);
 					} else {
 						reElem.find('dl .layui-hide').removeClass('layui-hide');
@@ -314,7 +317,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	Common.prototype.ajax = function (id, searchUrl, inputValue, isLinkage, linkageWidth) {
 		var _this3 = this;
 
-		var reElem = $('.' + PNAME + ' dl[xid=' + id + ']').parents('.' + FORM_SELECT);
+		var reElem = $('.' + PNAME + ' dl[xid="' + id + '"]').parents('.' + FORM_SELECT);
 		if (!reElem[0] || !searchUrl) {
 			return;
 		}
@@ -332,6 +335,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				if (typeof res == 'string') {
 					res = JSON.parse(res);
 				}
+				ajaxConfig.beforeSuccess && ajaxConfig.beforeSuccess instanceof Function && (res = ajaxConfig.beforeSuccess(id, searchUrl, inputValue, res));
+				if (_this3.isArray(res)) {
+					res = {
+						code: 0,
+						msg: "",
+						data: res
+					};
+				}
 				if (res.code != 0) {
 					reElem.find('dd.' + FORM_NONE).addClass(FORM_EMPTY).text(res.msg);
 				} else {
@@ -345,7 +356,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					});
 					_this3.renderData(id, res.data, isLinkage, linkageWidth);
 					data[id].values.forEach(function (item, index) {
-						reElem.find('dl dd[lay-value=' + item.val + ']').addClass(THIS);
+						reElem.find('dl dd[lay-value="' + item.val + '"]').addClass(THIS);
 					});
 					spans.forEach(function (item, idx) {
 						data[id].values.push(item);
@@ -385,8 +396,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 								val: item[ajaxConfig.keyVal]
 							};
 							group.push(val);
-							if (item.children && item.children.length) {
-								temp[val.val] = item.children;
+							var children = item[ajaxConfig.keyChildren];
+							if (children && children.length) {
+								temp[val.val] = children;
 							}
 						});
 					});
@@ -396,7 +408,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					_loop();
 				} while (Object.getOwnPropertyNames(temp).length);
 
-				var reElem = $('.' + PNAME + ' dl[xid=' + id + ']').parents('.' + FORM_SELECT);
+				var reElem = $('.' + PNAME + ' dl[xid="' + id + '"]').parents('.' + FORM_SELECT);
 				var html = ['<div class="xm-select-linkage">'];
 
 				$.each(result, function (idx, arr) {
@@ -421,7 +433,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 		}
 
-		var reElem = $('.' + PNAME + ' dl[xid=' + id + ']').parents('.' + FORM_SELECT);
+		var reElem = $('.' + PNAME + ' dl[xid="' + id + '"]').parents('.' + FORM_SELECT);
 		var ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
 		var pcInput = reElem.find('.' + TDIV + ' input');
 
@@ -447,7 +459,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		var dl = reElem.find('dl[xid]');
 		values.forEach(function (item, index) {
 			_this4.addLabel(id, label, item);
-			dl.find('dd[lay-value=' + item.val + ']').addClass(THIS);
+			dl.find('dd[lay-value="' + item.val + '"]').addClass(THIS);
 		});
 		data[id].values = values;
 		this.commonHanler(id, label);
@@ -456,7 +468,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	Common.prototype.create = function (id, isCreate, inputValue) {
 		if (isCreate && inputValue) {
 			var fs = data[id],
-			    dl = $('[xid=' + id + ']'),
+			    dl = $('[xid="' + id + '"]'),
 			    tips = dl.find('dd.' + FORM_SELECT_TIPS + ':first'),
 			    tdd = null,
 			    temp = dl.find('dd.' + TEMP);
@@ -581,7 +593,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				return false;
 			}
 			//如果点击的是x按钮
-			if (othis.is('i[fsw=' + NAME + ']')) {
+			if (othis.is('i[fsw="' + NAME + '"]')) {
 				var val = {
 					name: othis.prev().text(),
 					val: othis.parent().attr("value")
@@ -612,7 +624,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				_group.nextAll('.xm-select-linkage-group').addClass('xm-select-linkage-hide');
 				var nextGroup = _group.next('.xm-select-linkage-group');
 				nextGroup.find('li').addClass('xm-select-linkage-hide');
-				nextGroup.find('li[pid=' + othis.attr('value') + ']').removeClass('xm-select-linkage-hide');
+				nextGroup.find('li[pid="' + othis.attr('value') + '"]').removeClass('xm-select-linkage-hide');
 				//如果没有下一个group, 或没有对应的值
 				if (!nextGroup[0] || nextGroup.find('li:not(.xm-select-linkage-hide)').length == 0) {
 					var vals = [],
@@ -630,7 +642,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
        ) : (
        	!othis.parent('.xm-select-linkage-group').next().find(`li[pid="${othis.attr('value')}"].xm-select-this`).length && othis.removeClass('xm-select-this')
        );*/
-						};othis = othis.parents('.xm-select-linkage-group').prev().find('li[value=' + othis.attr('pid') + ']');
+						};othis = othis.parents('.xm-select-linkage-group').prev().find('li[value="' + othis.attr('pid') + '"]');
 					} while (othis.length);
 					vals.reverse();
 					var val = {
@@ -707,7 +719,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	Common.prototype.valToName = function (id, val) {
 		var dl = $('dl[xid="' + id + '"]');
-		var vs = val.split('/');
+		var vs = (val + "").split('/');
 		var names = [];
 		$.each(vs, function (idx, item) {
 			var name = dl.find('.xm-select-linkage-group' + (idx + 1) + ' li[value="' + item + '"] span').text();
@@ -744,7 +756,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 		$.each(target, function (key, val) {
 			var values = val.values,
-			    div = $('dl[xid=' + key + ']').parent(),
+			    div = $('dl[xid="' + key + '"]').parent(),
 			    label = div.find('.' + LABEL),
 			    dl = div.find('dl');
 			dl.find('dd.' + THIS).removeClass(THIS);
@@ -752,7 +764,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			var _vals = values.concat([]);
 			_vals.concat([]).forEach(function (item, index) {
 				_this8.addLabel(key, label, item);
-				dl.find('dd[lay-value=' + item.val + ']').addClass(THIS);
+				dl.find('dd[lay-value="' + item.val + '"]').addClass(THIS);
 			});
 			if (val.config.radio) {
 				_vals.length && values.push(_vals[_vals.length - 1]);
@@ -762,7 +774,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	Common.prototype.handlerLabel = function (id, dd, isAdd, oval, notOn) {
-		var div = $('[xid=' + id + ']').prev().find('.' + LABEL),
+		var div = $('[xid="' + id + '"]').prev().find('.' + LABEL),
 		    val = dd && {
 			name: dd.find('span').text(),
 			val: dd.attr('lay-value')
@@ -808,7 +820,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		var fs = data[id];
 		if (fs.config.radio) {
 			fs.values.length = 0;
-			$('dl[xid=' + id + ']').find('dd.' + THIS + ':not([lay-value="' + val.val + '"])').removeClass(THIS);
+			$('dl[xid="' + id + '"]').find('dd.' + THIS + ':not([lay-value="' + val.val + '"])').removeClass(THIS);
 			div.find('span').remove();
 		}
 		//如果是固定高度
@@ -950,7 +962,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	Common.prototype.removeAll = function (id) {
 		var _this10 = this;
 
-		var dl = $('[xid=' + id + ']');
+		var dl = $('[xid="' + id + '"]');
 		if (dl.find('.xm-select-linkage')[0]) {
 			//针对多级联动的处理
 			data[id].values.concat([]).forEach(function (item, idx) {
@@ -992,7 +1004,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				    temp = {};
 				common.removeAll(id);
 				data[id].config.init.forEach(function (val, idx) {
-					if (val && (!temp[val] || data[id].config.repeat) && (dd = dl.find('dd[lay-value=' + val.val + ']'))[0]) {
+					if (val && (!temp[val] || data[id].config.repeat) && (dd = dl.find('dd[lay-value="' + val.val + '"]'))[0]) {
 						common.handlerLabel(id, dd, true);
 						temp[val] = 1;
 					}
@@ -1004,7 +1016,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	Common.prototype.loadingCss = function () {
 		var cssStyle = $('<style type="text/css">' + '.xm-select-parent *{;margin:0;padding:0;font-family:"Helvetica Neue",Helvetica,"PingFang SC",\u5FAE\u8F6F\u96C5\u9ED1,Tahoma,Arial,sans-serif}.xm-select-parent .xm-select-title{position:relative;min-height: 38px;}.xm-select-parent .xm-input{cursor:pointer;border-radius:2px;border-width:1px;border-style:solid;border-color:#E6E6E6;display:block;width:100%;box-sizing:border-box;background-color:#FFF;height:38px;line-height:1.3;padding-left:10px;outline:0}.xm-select-parent .xm-select-sj{display:inline-block;width:0;height:0;border-style:dashed;border-color:transparent;overflow:hidden;position:absolute;right:10px;top:50%;margin-top:-3px;cursor:pointer;border-width:6px;border-top-color:#C2C2C2;border-top-style:solid;transition:all .3s;-webkit-transition:all .3s}.xm-select-parent .xm-form-selected .xm-select-sj{margin-top:-9px;transform:rotate(180deg)}.xm-select-parent .xm-form-select dl{display:none;position:absolute;left:0;top:42px;padding:5px 0;z-index:999;min-width:100%;border:1px solid #d2d2d2;max-height:300px;overflow-y:auto;background-color:#fff;border-radius:2px;box-shadow:0 2px 4px rgba(0,0,0,.12);box-sizing:border-box;animation-fill-mode:both;-webkit-animation-name:layui-upbit;animation-name:layui-upbit;-webkit-animation-duration:.3s;animation-duration:.3s;-webkit-animation-fill-mode:both;animation-fill-mode:both}@-webkit-keyframes layui-upbit{from{-webkit-transform:translate3d(0,30px,0);opacity:.3}to{-webkit-transform:translate3d(0,0,0);opacity:1}}@keyframes layui-upbit{from{transform:translate3d(0,30px,0);opacity:.3}to{transform:translate3d(0,0,0);opacity:1}}.xm-select-parent .xm-form-selected dl{display:block}.xm-select-parent .xm-form-select dl dd,.xm-select-parent .xm-form-select dl dt{padding:0 10px;line-height:36px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xm-select-parent .xm-form-select dl dd{cursor:pointer}.xm-select-parent .xm-form-select dl dd:hover{background-color:#f2f2f2}.xm-select-parent .xm-form-select dl dt{font-size:12px;color:#999}.layui-select-disabled .xm-dis-disabled{border-color:#eee!important}.xm-select-parent .xm-form-select dl .xm-select-tips{padding-left:10px!important;color:#999;font-size:14px}.xm-unselect{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}.xm-form-checkbox{position:relative;display:inline-block;vertical-align:middle;height:30px;line-height:30px;margin-right:10px;padding-right:30px;background-color:#fff;cursor:pointer;font-size:0;-webkit-transition:.1s linear;transition:.1s linear;box-sizing:border-box}.xm-form-checkbox *{display:inline-block;vertical-align:middle}.xm-form-checkbox span{padding:0 10px;height:100%;font-size:14px;border-radius:2px 0 0 2px;background-color:#d2d2d2;color:#fff;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.xm-form-checkbox:hover span{background-color:#c2c2c2}.xm-form-checkbox i{position:absolute;right:0;top:0;width:30px;height:28px;border:1px solid #d2d2d2;border-left:none;border-radius:0 2px 2px 0;color:#fff;font-size:20px;text-align:center}.xm-form-checkbox:hover i{border-color:#c2c2c2;color:#c2c2c2}.xm-form-checkbox[lay-skin=primary]{height:auto!important;line-height:normal!important;border:none!important;margin-right:0;padding-right:0;background:0 0}.xm-form-checkbox[lay-skin=primary] span{float:right;padding-right:15px;line-height:18px;background:0 0;color:#666}.xm-form-checkbox[lay-skin=primary] i{position:relative;top:0;width:16px;height:16px;line-height:16px;border:1px solid #d2d2d2;font-size:12px;border-radius:2px;background-color:#fff;-webkit-transition:.1s linear;transition:.1s linear}.xm-form-checkbox[lay-skin=primary]:hover i{border-color:#5FB878;color:#fff}.xm-icon-yes{width:30px;height:30px;border-radius:4px;background-color:#009688;position:relative}.xm-icon-yes:after{content:\'\';display:inline-block;border:2px solid #fff;border-top-width:0;border-right-width:0;width:9px;height:5px;-webkit-transform:rotate(-50deg);transform: rotate(-50deg);position:absolute;top:2px;left:3px}.xm-dis-disabled,.xm-dis-disabled:hover{color:#d2d2d2!important;cursor:not-allowed!important}.xm-form-select dl dd.xm-dis-disabled{background-color:#fff!important}.xm-form-select dl dd.xm-dis-disabled span{color:#C2C2C2}.xm-form-select dl dd.xm-dis-disabled .xm-icon-yes{border-color:#C2C2C2}.xm-select-parent{position: relative;-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none}.xm-select-parent .xm-select{line-height:normal;height:auto;padding:4px 10px 1px 10px;overflow:hidden;min-height:36px;left:0;z-index:99;position:absolute;background:0 0;padding-right:20px}.xm-select-parent .xm-select:hover{border-color:#C0C4CC}.xm-select-parent .xm-select .xm-select-label{display:inline-block;margin:0;vertical-align:middle}.xm-select-parent .xm-select-title div.xm-select-label>span{position: relative;padding:2px 5px;background-color:#009688;border-radius:2px;color:#FFF;display:inline-block;line-height:18px;height:18px;margin:2px 5px 2px 0;cursor:initial;user-select:none;font-size:14px;padding-right: 25px;}.xm-select-parent .xm-select-title div.xm-select-label>span i{position: absolute; right: 5px; top: 2px;margin-left:8px;border-radius:20px;font-size:18px;cursor:pointer;display: inline-block;\theight: 14px;line-height: 15px;width: 12px;vertical-align: top;margin-top: 2px;}.xm-select-parent .xm-select .xm-select-input{border:none;height:28px;background-color:transparent;padding:0;vertical-align:middle;display:inline-block;width:50px}.xm-select-parent .xm-select--suffix input{border:none}.xm-select-parent dl dd.xm-dis-disabled.xm-select-this i{border-color:#C2C2C2;background-color:#C2C2C2;color:#FFF}.xm-select-parent dl dd.xm-select-this i{background-color:#009688;border-color:#009688}.xm-form-selected .xm-select,.xm-form-selected .xm-select:hover{border-color:#009688!important}.layui-form-pane .xm-select,.layui-form-pane .xm-select:hover{border:none!important;top:2px}.layui-form-pane .xm-select-title{border-left:1px solid #e6e6e6!important}.xm-select--suffix+div{position:absolute;top:0;left:0;bottom:0;right:0}.xm-select-dis .xm-select--suffix+div{z-index:100;cursor:no-drop!important;opacity: .2;background-color: #FFF;}.xm-select-disabled,.xm-select-disabled:hover{color:#d2d2d2!important;cursor:not-allowed!important;background-color:#fff}.xm-select-none{display:none;margin: 5px 0; text-align: center;}.xm-select-none:hover{background-color:#FFF!important}.xm-select-empty{display:block}div[xm-select-skin] .xm-select-title div.xm-select-label>span i:hover{opacity:.8;filter:alpha(opacity=80);cursor:pointer}div[xm-select-skin=default] .xm-select-title div.xm-select-label>span{background-color:#F0F2F5;color:#909399;border:1px solid #F0F2F5}div[xm-select-skin=default] .xm-select-title div.xm-select-label>span i{background-color:#C0C4CC;color:#FFF}div[xm-select-skin=default] dl dd.xm-select-this:not(.xm-dis-disabled) i{background-color:#5FB878;border-color:#5FB878;color:#FFF}div[xm-select-skin=default].xm-form-selected .xm-select,div[xm-select-skin=default].xm-form-selected .xm-select:hover{border-color:#C0C4CC!important}div[xm-select-skin=primary] .xm-select-title div.xm-select-label>span{background-color:#009688;color:#FFF;border:1px solid #009688}div[xm-select-skin=primary] .xm-select-title div.xm-select-label>span i{background-color:#009688;color:#FFF}div[xm-select-skin=primary] dl dd.xm-select-this:not(.xm-dis-disabled) i{background-color:#009688;border-color:#009688;color:#FFF}div[xm-select-skin=primary].xm-form-selected .xm-select,div[xm-select-skin=primary].xm-form-selected .xm-select:hover{border-color:#1E9FFF!important}div[xm-select-skin=normal] .xm-select-title div.xm-select-label>span{background-color:#1E9FFF;color:#FFF;border:1px solid #1E9FFF}div[xm-select-skin=normal] .xm-select-title div.xm-select-label>span i{background-color:#1E9FFF;color:#FFF}div[xm-select-skin=normal] dl dd.xm-select-this:not(.xm-dis-disabled) i{background-color:#1E9FFF;border-color:#1E9FFF;color:#FFF}div[xm-select-skin=normal].xm-form-selected .xm-select,div[xm-select-skin=normal].xm-form-selected .xm-select:hover{border-color:#1E9FFF!important}div[xm-select-skin=warm] .xm-select-title div.xm-select-label>span{background-color:#FFB800;color:#FFF;border:1px solid #FFB800}div[xm-select-skin=warm] .xm-select-title div.xm-select-label>span i{background-color:#FFB800;color:#FFF}div[xm-select-skin=warm] dl dd.xm-select-this:not(.xm-dis-disabled) i{background-color:#FFB800;border-color:#FFB800;color:#FFF}div[xm-select-skin=warm].xm-form-selected .xm-select,div[xm-select-skin=warm].xm-form-selected .xm-select:hover{border-color:#FFB800!important}div[xm-select-skin=danger] .xm-select-title div.xm-select-label>span{background-color:#FF5722;color:#FFF;border:1px solid #FF5722}div[xm-select-skin=danger] .xm-select-title div.xm-select-label>span i{background-color:#FF5722;color:#FFF}div[xm-select-skin=danger] dl dd.xm-select-this:not(.xm-dis-disabled) i{background-color:#FF5722;border-color:#FF5722;color:#FFF}div[xm-select-skin=danger].xm-form-selected .xm-select,div[xm-select-skin=danger].xm-form-selected .xm-select:hover{border-color:#FFB800!important}.css3{box-shadow:0 0;width:calc(100% + 2em);font-size:24px}blockquote,body,button,code,dd,div,dl,dt,fieldset,form,h1,h2,h3,h4,h5,h6,input,legend,li,ol,p,pre,td,textarea,th,ul{margin:0;padding:0}fieldset,img{border:0}:focus{outline:0}address,cite,code,ctoolion,dfn,em,optgroup,strong,th,var{font-style:normal;font-weight:400}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:400}abbr,acronym{border:0;font-variant:normal}button,input,optgroup,option,select,textarea{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit}code,kbd,samp,tt{font-size:100%}body{line-height:1.5}ol,ul{list-style:none}table{border-collapse:collapse;border-spacing:0}ctoolion,th{text-align:left}sub,sup{font-size:100%;vertical-align:baseline}:link,:visited,ins{text-decoration:none}blockquote,q{quotes:none}blockquote:after,blockquote:before,q:after,q:before{content:\'\';content:none}' + '.xm-span-hide{display: none!important;}.xm-select-radio .xm-icon-yes{border-radius: 20px!important;}.xm-select-radio .xm-icon-yes:after{border-radius: 20px;background-color: #fff;width: 6px;height:6px;border: none;top: 5px;left: 5px;}' + '.xm-select-parent .layui-form-danger+.xm-select-title .xm-select{border-color: #FF5722 !important;}' + '.xm-select-linkage li{padding: 10px 0px; cursor: pointer;}.xm-select-linkage li span{padding-left: 20px; padding-right: 30px; display: inline-block; height: 20px; overflow: hidden; text-overflow: ellipsis;}.xm-select-linkage li.xm-select-this span{border-left: 5px solid #009688; color: #009688; padding-left: 15px;}.xm-select-linkage-group{position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow-x: hidden; overflow-y: auto;}.xm-select-linkage-group li:hover{border-left: 1px solid #009688;}.xm-select-linkage-group li:hover span{padding-left: 19px;}.xm-select-linkage-group li.xm-select-this:hover span{padding-left: 15px;border-left-width: 4px;}.xm-select-linkage-group1{background-color: #EFEFEF; left: 0;}.xm-select-linkage-group1 li.xm-select-active{background-color: #F5F5F5;}.xm-select-linkage-group2{background-color: #F5F5F5; left: 100px;}.xm-select-linkage-group2 li.xm-select-active{background-color: #FAFAFA;}.xm-select-linkage-group3{background-color: #FAFAFA; left: 200px;}.xm-select-linkage-group3 li.xm-select-active{background-color: #FFFFFF;}.xm-select-linkage-group4{background-color: #FFFFFF; left: 300px;}.xm-select-linkage-hide{display: none;}.xm-select-linkage-show{display: block;}div[xm-select-skin=\'default\'] .xm-select-linkage li.xm-select-this span{border-left-color: #5FB878; color: #5FB878;}div[xm-select-skin=\'default\'] .xm-select-linkage-group li:hover{border-left-color: #5FB878;}div[xm-select-skin=\'primary\'] .xm-select-linkage li.xm-select-this span{border-left-color: #1E9FFF; color: #1E9FFF;}div[xm-select-skin=\'primary\'] .xm-select-linkage-group li:hover{border-left-color: #1E9FFF;}div[xm-select-skin=\'normal\'] .xm-select-linkage li.xm-select-this span{border-left-color: #1E9FFF; color: #1E9FFF;}div[xm-select-skin=\'normal\'] .xm-select-linkage-group li:hover{border-left-color: #1E9FFF;}div[xm-select-skin=\'warm\'] .xm-select-linkage li.xm-select-this span{border-left-color: #FFB800; color: #FFB800;}div[xm-select-skin=\'warm\'] .xm-select-linkage-group li:hover{border-left-color: #FFB800;}div[xm-select-skin=\'danger\'] .xm-select-linkage li.xm-select-this span{border-left-color: #FF5722; color: #FF5722;}div[xm-select-skin=\'danger\'] .xm-select-linkage-group li:hover{border-left-color: #FF5722;}' +
 		//不知道为什么出现了紧凑型的效果
-		'.xm-form-checkbox[lay-skin=primary] i{top: 9px}.xm-select-parent .xm-form-select dl dd{height: 36px;}.xm-form-checkbox[lay-skin=primary] span{line-height: 36px;}' + '</style>');
+		'.xm-form-checkbox[lay-skin=primary] i{top: 9px}.xm-select-parent .xm-form-select dl dd{height: 36px;}.xm-form-checkbox[lay-skin=primary] span{line-height: 36px;}' + '.xm-select-parent{text-align: left;} .xm-select-parent select{display:none;}' + '</style>');
 		$('head link:last')[0] && $('head link:last').after(cssStyle) || $('head').append(cssStyle);
 	};
 
@@ -1022,7 +1034,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			$('select[' + NAME + ']').each(function (index, select) {
 				var sid = select.getAttribute(NAME);
 				common.init(select);
-				common.one($('dl[xid=' + sid + ']').parents('.' + PNAME));
+				common.one($('dl[xid="' + sid + '"]').parents('.' + PNAME));
 				common.initVal(sid);
 			});
 
@@ -1068,7 +1080,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			return arr;
 		}
 		if (common.isArray(type)) {
-			var dl = $('[xid=' + id + ']'),
+			var dl = $('[xid="' + id + '"]'),
 			    temp = {},
 			    dd = void 0,
 			    isAdd = true;
@@ -1125,14 +1137,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	Select4.prototype.on = function (id, fun) {
 		common.bindEvent('on', id, fun);
+		return this;
 	};
 
 	Select4.prototype.filter = function (id, fun) {
 		common.bindEvent('filter', id, fun);
+		return this;
 	};
 
 	Select4.prototype.maxTips = function (id, fun) {
 		common.bindEvent('maxTips', id, fun);
+		return this;
 	};
 
 	Select4.prototype.config = function (id, config, isJson) {
@@ -1147,8 +1162,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				config.header['Content-Type'] = 'application/json; charset=UTF-8';
 				config.dataType = 'json';
 			}
-			id ? (ajaxs[id] = $.extend(true, {}, ajax, config), data[id] && (data[id].config.direction = config.direction)) : $.extend(true, ajax, config);
+			id ? (ajaxs[id] = $.extend(true, {}, ajax, config), data[id] && (data[id].config.direction = config.direction), config.searchUrl && data[id] && common.triggerSearch($('.' + PNAME + ' dl[xid="' + id + '"]').parents('.' + FORM_SELECT), true)) : $.extend(true, ajax, config);
 		}
+		return this;
 	};
 
 	Select4.prototype.render = function (id) {
@@ -1160,7 +1176,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		if (Object.getOwnPropertyNames(target).length) {
 			$.each(target, function (key, val) {
 				//恢复初始值
-				var dl = $('dl[xid=' + key + ']'),
+				var dl = $('dl[xid="' + key + '"]'),
 				    vals = [];
 				val.select.find('option[selected]').each(function (index, item) {
 					vals.push(item.value);
@@ -1180,9 +1196,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		($('select[' + NAME + '="' + id + '"]')[0] ? $('select[' + NAME + '="' + id + '"]') : $('select[' + NAME + ']')).each(function (index, select) {
 			var sid = select.getAttribute(NAME);
 			common.init(select);
-			common.one($('dl[xid=' + sid + ']').parents('.' + PNAME));
+			common.one($('dl[xid="' + sid + '"]').parents('.' + PNAME));
 			common.initVal(sid);
 		});
+		return this;
 	};
 
 	Select4.prototype.disabled = function (id) {
@@ -1190,8 +1207,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		id ? data[id] && (target[id] = data[id]) : target = data;
 
 		$.each(target, function (key, val) {
-			$('dl[xid=' + key + ']').prev().addClass(DIS);
+			$('dl[xid="' + key + '"]').prev().addClass(DIS);
 		});
+		return this;
 	};
 
 	Select4.prototype.undisabled = function (id) {
@@ -1199,25 +1217,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		id ? data[id] && (target[id] = data[id]) : target = data;
 
 		$.each(target, function (key, val) {
-			$('dl[xid=' + key + ']').prev().removeClass(DIS);
+			$('dl[xid="' + key + '"]').prev().removeClass(DIS);
 		});
+		return this;
 	};
 
 	Select4.prototype.data = function (id, type, config) {
 		if (!id || !type || !config) {
-			return;
+			return this;
 		}
 		//检测该id是否尚未渲染
-		!data[id] && this.render(id);
-		this.value(id, []);
+		!data[id] && this.render(id).value(id, []);
 		if (type == 'local') {
 			common.renderData(id, config.arr, config.linkage == true, config.linkageWidth ? config.linkageWidth : '100');
-			return;
-		}
-		if (type == 'server') {
+		} else if (type == 'server') {
 			common.ajax(id, config.url, config.keyword, config.linkage == true, config.linkageWidth ? config.linkageWidth : '100');
-			return;
 		}
+		return this;
 	};
 
 	return new Select4();

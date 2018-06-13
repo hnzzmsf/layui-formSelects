@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0611
+ * version: 4.0.0.0613
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function(layui, window, factory) {
@@ -17,7 +17,7 @@
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function() {
-	let v = '4.0.0',
+	let v = '4.0.0.0613',
 		NAME = 'xm-select',
 		PNAME = 'xm-select-parent',
 		INPUT = 'xm-select-input',
@@ -67,8 +67,10 @@
 			keyVal: 'value',
 			keySel: 'selected',
 			keyDis: 'disabled',
+			keyChildren: 'children',
 			dataType: '',
 			delay: 500,
+			beforeSuccess: null,
 			success: null,
 			error: null,
 		},
@@ -80,7 +82,7 @@
 				name: null, //xm-select="xxx"
 				max: null,
 				maxTips: (vals, val, max) => {
-					let ipt = $(`[xid=${this.config.name}]`).prev().find(`.${NAME}`);
+					let ipt = $(`[xid="${this.config.name}"]`).prev().find(`.${NAME}`);
 					if(ipt.parents('.layui-form-item[pane]').length) {
 						ipt = ipt.parents('.layui-form-item[pane]');
 					}
@@ -253,14 +255,15 @@
 					//过滤一下tips
 					this.changePlaceHolder($(input));
 					
+					let ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
+					searchUrl = ajaxConfig.searchUrl || searchUrl;
 					//如果开启了远程搜索
 					if(searchUrl){
-						let ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
 						clearTimeout(fs.clearid);
 						fs.clearid = setTimeout(() => {
 							reElem.find(`dl > *:not(.${FORM_SELECT_TIPS})`).remove();
 							reElem.find(`dd.${FORM_NONE}`).addClass(FORM_EMPTY).text('请求中');
-							this.ajax(id, ajaxConfig.searchUrl || searchUrl, inputValue);
+							this.ajax(id, searchUrl, inputValue);
 						}, ajaxConfig.delay);
 					}else{
 						reElem.find(`dl .layui-hide`).removeClass('layui-hide');
@@ -320,7 +323,7 @@
 	}
 	
 	Common.prototype.ajax = function(id, searchUrl, inputValue, isLinkage, linkageWidth){
-		let reElem = $(`.${PNAME} dl[xid=${id}]`).parents(`.${FORM_SELECT}`);
+		let reElem = $(`.${PNAME} dl[xid="${id}"]`).parents(`.${FORM_SELECT}`);
 		if(!reElem[0] || !searchUrl){
 			return ;
 		}
@@ -338,6 +341,14 @@
 				if(typeof res == 'string'){
 					res = JSON.parse(res);
 				}
+				ajaxConfig.beforeSuccess && ajaxConfig.beforeSuccess instanceof Function && (res = ajaxConfig.beforeSuccess(id, searchUrl, inputValue, res));
+				if(this.isArray(res)){
+					res = {
+						code: 0,
+						msg: "",
+						data: res,
+					}
+				}
 				if(res.code != 0){
 					reElem.find(`dd.${FORM_NONE}`).addClass(FORM_EMPTY).text(res.msg);
 				}else{
@@ -351,7 +362,7 @@
 					});
 					this.renderData(id, res.data, isLinkage, linkageWidth);
 					data[id].values.forEach((item, index) => {
-						reElem.find(`dl dd[lay-value=${item.val}]`).addClass(THIS);
+						reElem.find(`dl dd[lay-value="${item.val}"]`).addClass(THIS);
 					});
 					spans.forEach((item, idx) => {
 						data[id].values.push(item);
@@ -386,14 +397,15 @@
 							val: item[ajaxConfig.keyVal],
 						};
 						group.push(val);
-						if(item.children && item.children.length){
-							temp[val.val] = item.children;
+						let children = item[ajaxConfig.keyChildren];
+						if(children && children.length){
+							temp[val.val] = children;
 						}
 					});
 				});
 			}while(Object.getOwnPropertyNames(temp).length);
 			
-			let reElem = $(`.${PNAME} dl[xid=${id}]`).parents(`.${FORM_SELECT}`);
+			let reElem = $(`.${PNAME} dl[xid="${id}"]`).parents(`.${FORM_SELECT}`);
 			let html = ['<div class="xm-select-linkage">'];
 			
 			$.each(result, (idx, arr) => {
@@ -414,7 +426,7 @@
 		}
 		
 		
-		let reElem = $(`.${PNAME} dl[xid=${id}]`).parents(`.${FORM_SELECT}`);
+		let reElem = $(`.${PNAME} dl[xid="${id}"]`).parents(`.${FORM_SELECT}`);
 		let ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
 		let pcInput = reElem.find(`.${TDIV} input`);
 		
@@ -440,7 +452,7 @@
 		let dl = reElem.find('dl[xid]');
 		values.forEach((item, index) => {
 			this.addLabel(id, label, item);
-			dl.find(`dd[lay-value=${item.val}]`).addClass(THIS);
+			dl.find(`dd[lay-value="${item.val}"]`).addClass(THIS);
 		});
 		data[id].values = values;
 		this.commonHanler(id, label);
@@ -449,7 +461,7 @@
 	Common.prototype.create = function(id, isCreate, inputValue){
 		if(isCreate && inputValue){
 			let fs = data[id],
-				dl = $(`[xid=${id}]`),
+				dl = $(`[xid="${id}"]`),
 				tips=  dl.find(`dd.${FORM_SELECT_TIPS}:first`),
 				tdd = null,
 				temp = dl.find(`dd.${TEMP}`);
@@ -571,7 +583,7 @@
 				return false;
 			}
 			//如果点击的是x按钮
-			if(othis.is(`i[fsw=${NAME}]`)){
+			if(othis.is(`i[fsw="${NAME}"]`)){
 				let val = {
 					name: othis.prev().text(),
 					val: othis.parent().attr("value")
@@ -600,7 +612,7 @@
 				group.nextAll('.xm-select-linkage-group').addClass('xm-select-linkage-hide');
 				let nextGroup = group.next('.xm-select-linkage-group');
 				nextGroup.find('li').addClass('xm-select-linkage-hide');
-				nextGroup.find(`li[pid=${othis.attr('value')}]`).removeClass('xm-select-linkage-hide');
+				nextGroup.find(`li[pid="${othis.attr('value')}"]`).removeClass('xm-select-linkage-hide');
 				//如果没有下一个group, 或没有对应的值
 				if(!nextGroup[0] || nextGroup.find(`li:not(.xm-select-linkage-hide)`).length == 0){
 					let vals = [],
@@ -619,7 +631,7 @@
 						) : (
 							!othis.parent('.xm-select-linkage-group').next().find(`li[pid="${othis.attr('value')}"].xm-select-this`).length && othis.removeClass('xm-select-this')
 						);*/	
-						othis = othis.parents('.xm-select-linkage-group').prev().find(`li[value=${othis.attr('pid')}]`);			
+						othis = othis.parents('.xm-select-linkage-group').prev().find(`li[value="${othis.attr('pid')}"]`);			
 					}while(othis.length);
 					vals.reverse();
 					let val = {
@@ -690,7 +702,7 @@
 	
 	Common.prototype.valToName = function(id, val){
 		let dl = $(`dl[xid="${id}"]`);
-		let vs = val.split('/');
+		let vs = (val + "").split('/');
 		let names = [];
 		$.each(vs, (idx, item) => {
 			let name = dl.find(`.xm-select-linkage-group${idx + 1} li[value="${item}"] span`).text();
@@ -725,7 +737,7 @@
 		}
 		$.each(target, (key, val) => {
 			let values = val.values,		
-				div = $(`dl[xid=${key}]`).parent(),
+				div = $(`dl[xid="${key}"]`).parent(),
 				label = div.find(`.${LABEL}`),
 				dl = div.find('dl');
 			dl.find(`dd.${THIS}`).removeClass(THIS);
@@ -733,7 +745,7 @@
 			let _vals = values.concat([]);
 			_vals.concat([]).forEach((item, index) => {
 				this.addLabel(key, label, item);
-				dl.find(`dd[lay-value=${item.val}]`).addClass(THIS);
+				dl.find(`dd[lay-value="${item.val}"]`).addClass(THIS);
 			});
 			if(val.config.radio){
 				_vals.length && values.push(_vals[_vals.length - 1]);
@@ -743,7 +755,7 @@
 	}
 	
 	Common.prototype.handlerLabel = function(id, dd, isAdd, oval, notOn){
-		let div = $(`[xid=${id}]`).prev().find(`.${LABEL}`),
+		let div = $(`[xid="${id}"]`).prev().find(`.${LABEL}`),
 			val = dd && {
 				name: dd.find('span').text(),
 				val: dd.attr('lay-value')
@@ -806,7 +818,7 @@
 		let fs = data[id];
 		if(fs.config.radio){
 			fs.values.length = 0;
-			$(`dl[xid=${id}]`).find(`dd.${THIS}:not([lay-value="${val.val}"])`).removeClass(THIS);
+			$(`dl[xid="${id}"]`).find(`dd.${THIS}:not([lay-value="${val.val}"])`).removeClass(THIS);
 			div.find('span').remove();
 		}
 		//如果是固定高度
@@ -941,7 +953,7 @@
 	}
 	
 	Common.prototype.removeAll = function(id){
-		let dl = $(`[xid=${id}]`);
+		let dl = $(`[xid="${id}"]`);
 		if(dl.find('.xm-select-linkage')[0]){//针对多级联动的处理
 			data[id].values.concat([]).forEach((item, idx) => {
 				let vs = item.val.split('/');
@@ -978,7 +990,7 @@
 					temp = {};
 				common.removeAll(id);
 				data[id].config.init.forEach((val, idx) => {
-					if(val && (!temp[val] || data[id].config.repeat) && (dd = dl.find(`dd[lay-value=${val.val}]`))[0]){
+					if(val && (!temp[val] || data[id].config.repeat) && (dd = dl.find(`dd[lay-value="${val.val}"]`))[0]){
 						common.handlerLabel(id, dd, true);
 						temp[val] = 1;
 					}
@@ -996,6 +1008,7 @@
 			`.xm-select-linkage li{padding: 10px 0px; cursor: pointer;}.xm-select-linkage li span{padding-left: 20px; padding-right: 30px; display: inline-block; height: 20px; overflow: hidden; text-overflow: ellipsis;}.xm-select-linkage li.xm-select-this span{border-left: 5px solid #009688; color: #009688; padding-left: 15px;}.xm-select-linkage-group{position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow-x: hidden; overflow-y: auto;}.xm-select-linkage-group li:hover{border-left: 1px solid #009688;}.xm-select-linkage-group li:hover span{padding-left: 19px;}.xm-select-linkage-group li.xm-select-this:hover span{padding-left: 15px;border-left-width: 4px;}.xm-select-linkage-group1{background-color: #EFEFEF; left: 0;}.xm-select-linkage-group1 li.xm-select-active{background-color: #F5F5F5;}.xm-select-linkage-group2{background-color: #F5F5F5; left: 100px;}.xm-select-linkage-group2 li.xm-select-active{background-color: #FAFAFA;}.xm-select-linkage-group3{background-color: #FAFAFA; left: 200px;}.xm-select-linkage-group3 li.xm-select-active{background-color: #FFFFFF;}.xm-select-linkage-group4{background-color: #FFFFFF; left: 300px;}.xm-select-linkage-hide{display: none;}.xm-select-linkage-show{display: block;}div[xm-select-skin='default'] .xm-select-linkage li.xm-select-this span{border-left-color: #5FB878; color: #5FB878;}div[xm-select-skin='default'] .xm-select-linkage-group li:hover{border-left-color: #5FB878;}div[xm-select-skin='primary'] .xm-select-linkage li.xm-select-this span{border-left-color: #1E9FFF; color: #1E9FFF;}div[xm-select-skin='primary'] .xm-select-linkage-group li:hover{border-left-color: #1E9FFF;}div[xm-select-skin='normal'] .xm-select-linkage li.xm-select-this span{border-left-color: #1E9FFF; color: #1E9FFF;}div[xm-select-skin='normal'] .xm-select-linkage-group li:hover{border-left-color: #1E9FFF;}div[xm-select-skin='warm'] .xm-select-linkage li.xm-select-this span{border-left-color: #FFB800; color: #FFB800;}div[xm-select-skin='warm'] .xm-select-linkage-group li:hover{border-left-color: #FFB800;}div[xm-select-skin='danger'] .xm-select-linkage li.xm-select-this span{border-left-color: #FF5722; color: #FF5722;}div[xm-select-skin='danger'] .xm-select-linkage-group li:hover{border-left-color: #FF5722;}`+
 			//不知道为什么出现了紧凑型的效果
 			`.xm-form-checkbox[lay-skin=primary] i{top: 9px}.xm-select-parent .xm-form-select dl dd{height: 36px;}.xm-form-checkbox[lay-skin=primary] span{line-height: 36px;}`+
+			`.xm-select-parent{text-align: left;} .xm-select-parent select{display:none;}`+
 			`</style>`
 			
 		);
@@ -1014,7 +1027,7 @@
 			$(`select[${NAME}]`).each((index, select) => {
 				let sid = select.getAttribute(NAME);
 				common.init(select);
-				common.one($(`dl[xid=${sid}]`).parents(`.${PNAME}`));
+				common.one($(`dl[xid="${sid}"]`).parents(`.${PNAME}`));
 				common.initVal(sid);
 			});
 			
@@ -1061,7 +1074,7 @@
 			return arr;
 		}
 		if(common.isArray(type)) {
-			let dl = $(`[xid=${id}]`),
+			let dl = $(`[xid="${id}"]`),
 				temp = {},
 				dd,
 				isAdd = true;
@@ -1115,14 +1128,17 @@
 	
 	Select4.prototype.on = function(id, fun){
 		common.bindEvent('on', id, fun);
+		return this;
 	}
 	
 	Select4.prototype.filter = function(id, fun){
 		common.bindEvent('filter', id, fun);
+		return this;
 	}
 	
 	Select4.prototype.maxTips = function(id, fun){
 		common.bindEvent('maxTips', id, fun);
+		return this;
 	}
 	
 	Select4.prototype.config = function(id, config, isJson){
@@ -1139,11 +1155,13 @@
 			}
 			id ? (
 				ajaxs[id] = $.extend(true, {}, ajax, config),
-				data[id] && (data[id].config.direction = config.direction)
+				data[id] && (data[id].config.direction = config.direction),
+				config.searchUrl && data[id] && common.triggerSearch($(`.${PNAME} dl[xid="${id}"]`).parents(`.${FORM_SELECT}`), true)
 			) : (
 				$.extend(true, ajax, config)
 			);
 		}
+		return this;
 	}
 	
 	Select4.prototype.render = function(id){
@@ -1152,7 +1170,7 @@
 		
 		if(Object.getOwnPropertyNames(target).length){
 			$.each(target, (key, val) => {//恢复初始值
-				let dl = $(`dl[xid=${key}]`),
+				let dl = $(`dl[xid="${key}"]`),
 					vals = [];
 				val.select.find('option[selected]').each((index, item) => {
 					vals.push(item.value);
@@ -1172,9 +1190,10 @@
 		($(`select[${NAME}="${id}"]`)[0] ? $(`select[${NAME}="${id}"]`) : $(`select[${NAME}]`)).each((index, select) => {
 			let sid = select.getAttribute(NAME);
 			common.init(select);
-			common.one($(`dl[xid=${sid}]`).parents(`.${PNAME}`));
+			common.one($(`dl[xid="${sid}"]`).parents(`.${PNAME}`));
 			common.initVal(sid);
 		});
+		return this;
 	}
 	
 	Select4.prototype.disabled = function(id){
@@ -1182,8 +1201,9 @@
 		id ? (data[id] && (target[id] = data[id])) : (target = data);
 		
 		$.each(target, (key, val) => {
-			$(`dl[xid=${key}]`).prev().addClass(DIS);
+			$(`dl[xid="${key}"]`).prev().addClass(DIS);
 		});
+		return this;
 	}
 	
 	Select4.prototype.undisabled = function(id){
@@ -1191,26 +1211,23 @@
 		id ? (data[id] && (target[id] = data[id])) : (target = data);
 		
 		$.each(target, (key, val) => {
-			$(`dl[xid=${key}]`).prev().removeClass(DIS);
+			$(`dl[xid="${key}"]`).prev().removeClass(DIS);
 		});
+		return this;
 	}
 	
 	Select4.prototype.data = function(id, type, config){
 		if(!id || !type || !config){
-			return ;
+			return this;
 		}
 		//检测该id是否尚未渲染
-		!data[id] && this.render(id);
-		this.value(id, []);
+		!data[id] && this.render(id).value(id, []);
 		if(type == 'local'){
 			common.renderData(id, config.arr, config.linkage == true, config.linkageWidth ? config.linkageWidth : '100');
-			return ;
-		}
-		if(type == 'server'){
+		}else if(type == 'server'){
 			common.ajax(id, config.url, config.keyword, config.linkage == true, config.linkageWidth ? config.linkageWidth : '100');
-			return ;
 		}
-		
+		return this;
 	}
 	
 	return new Select4();
