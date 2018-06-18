@@ -15,6 +15,7 @@
 		<link rel="stylesheet" type="text/css" href="../UI/layui-v2.3.0-rc1/layui/css/layui.css" />
 		<link href="../UI/SyntaxHighlighter-3.0.83/shCore.css" rel="stylesheet">
 		<link href="../UI/SyntaxHighlighter-3.0.83/shThemeEclipse.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="../dist/formSelects-v4.css"/>
 		<style type="text/css">
 			.syntaxhighlighter {overflow-y: hidden !important;}
 			.syntaxhighlighter .toolbar{background: none !important;}
@@ -66,8 +67,8 @@
 		
 		<blockquote class="layui-elem-quote layui-quote-nm" id="download">3、下载与使用</blockquote>
 		<div class="chat">
-			下载地址: <a href="../dist/formSelects-v4.js" download="../dist/formSelects-v4.js">formSelects-v4.js</a>&nbsp;&nbsp;&nbsp;&nbsp;
-					<a href="../dist/layui-formSelects.zip" download="../dist/layui-formSelects.zip">离线文档</a><br />
+			下载地址: <a href="../dist/layui-formSelects.zip" download="../dist/layui-formSelects.zip">formSelects-v4.js</a>&nbsp;&nbsp;&nbsp;&nbsp;
+					<a href="../dist/layui-formSelects-demo.zip" download="../dist/layui-formSelects-demo.zip">离线文档</a><br />
 			使用方式: 
 			<div class="layui-collapse">
 				<div class="layui-colla-item">
@@ -171,6 +172,10 @@
 		  	<div class="layui-colla-item">
 			    <h2 class="layui-colla-title" id="methods-data" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9) data">data</h2>
 			    <div class="layui-colla-content layui-show" sid="data"></div>
+		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-btns" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10) btns">btns</h2>
+			    <div class="layui-colla-content layui-show" sid="btns"></div>
 		  	</div>
 		</div>
 		
@@ -388,7 +393,7 @@
 			<p>xm-select-search="/search", 指定一个url, 将开启远程搜索模式</p>
 			<div>
 				<div style="width: 400px; display: inline-block; vertical-align: top;">
-					<select name="city" xm-select="select8" xm-select-max="1" xm-select-search="http://yapi.demo.qunar.com/mock/9813/layui/search">
+					<select name="city" xm-select="select8" xm-select-search="http://yapi.demo.qunar.com/mock/9813/layui/search">
 						<option value="1" disabled="disabled">北京</option>
 						<option value="2" selected="selected">上海</option>
 						<option value="3">广州</option>
@@ -730,6 +735,101 @@ layui.formSelects.config({direction: 'up'});
 				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 			</div>
 		</div>
+		<div class="example">
+			<h3 id="select_btns" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;16) 快捷操作">快捷操作</h3>
+			<p>设置内置的快捷操作</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select16_1">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3" selected="selected">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5" selected="selected">天津</option>
+							<option value="6" selected="selected" >杭州</option>
+						</select>
+						<js>
+							formSelects.btns('select16_1', ['select', 'remove', 'reverse', 'skin']);
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>自定义快捷操作</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select16_2">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3" selected="selected">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5" selected="selected">天津</option>
+							<option value="6" selected="selected" >杭州</option>
+						</select>
+						<js>
+							formSelects.btns('select16_2', ['select', 'remove', 'skin', {
+							    icon: 'layui-icon layui-icon-ok',   //自定义图标, 可以使用layui内置图标
+							    name: '提示名称',
+							    click: function(id){
+							        //点击后的操作
+							        alert('点击了自定义快捷操作')
+							    }
+							}]);
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>你是可以换数组位置, 更换显示位置滴</p>
+			<p>如果内置操作不满意, 完全可以自定义</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select16_3">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3" selected="selected">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5" selected="selected">天津</option>
+							<option value="6" selected="selected" >杭州</option>
+						</select>
+						<js>
+							formSelects.btns('select16_3', ['skin', {
+							    icon: 'layui-icon layui-icon-ok',   //自定义图标, 可以使用layui内置图标
+							    name: '提示名称',
+							    click: function(id){
+							        //点击后的操作
+							        alert('点击了自定义快捷操作')
+							    }
+							}, 'remove']);
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>如果不需要快捷操作, 设置一个空数组就可以了, 它会变回以前的模样</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select16_4">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3" selected="selected">广州</option>
+							<option value="4" selected="selected">深圳</option>
+							<option value="5" selected="selected">天津</option>
+							<option value="6" selected="selected" >杭州</option>
+						</select>
+						<js>
+							formSelects.btns('select16_4', []);
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		
 		
 		<blockquote class="layui-elem-quote layui-quote-nm" id="examples2">7、进阶示例</blockquote>
 		<div class="example">
@@ -1054,6 +1154,20 @@ layui.formSelects.config({direction: 'up'});
 		<blockquote class="layui-elem-quote layui-quote-nm" id="over">结尾</blockquote>
 		<div class="chat" style="display: inline-block;">
 <pre class="brush: js">
+[2018-06-18] v4.0.0.0618
+--新增--
+1.新增快捷操作, 可以 '全选,清空,反选,换肤'
+2.新增btns方法, 可以自定义快捷操作
+3.提供formSelects.all.js与formSelects.js, 其中all.js是使用js的方式加载的js, 不需要手动引入, 另外一种需要引入formSelects.css 
+
+--bug修复--
+1.搜索模式下, 点击选项后, 清空已输入数据
+2.修复远程搜索赋值与取值时的数据异常与显示异常
+3.如果是远程数据, 第一次将不会延迟500ms
+
+接下来的formSelects将进入稳定阶段, 主要以bug修复为主 ^_^
+
+	
 [2018-06-13] v4.0.0.0613
 这次算正式发布版本更新吧, 之前的都是出于完善 + 测试的阶段
 --已有功能--
@@ -1081,11 +1195,14 @@ layui.formSelects.config({direction: 'up'});
 [2018-05-28] 
 formSelects-v4, 静悄悄的, 愿它能够茁壮成长...
 
+
 [2018-05-07] 
 formSelects-v3, 高速开发与更新, 功能越来越多了, 代码越来越看不懂了...
 
+
 [2018-04-20] 
 formSelects-v2, 粗暴的升级了v1...
+
 
 [2017-08-29]
 formSelects-v1, 一个简简单单的layui多选...
@@ -1475,6 +1592,36 @@ formSelects.data('select15', 'server', {
 
 ]]></script>
 
+<script type="syntaxhighlighter" xid="btns" class="brush: js"><![CDATA[
+/**
+ * 1.快捷操作
+ *
+ * formSelects.btns(ID, BTNS);
+ *
+ * @param ID 		xm-select的值
+ * @param BTNS 		定义操作列表, 内置三种操作, select:全选, remove:清空, skin:换肤, 当然你可以自定义
+ */
+var formSelects = layui.formSelects;
+//默认设置了 全选, 清空
+//如下设置内置操作
+formSelects.btns('select1', ['select', 'remove', 'skin']);
+
+//如下设置自定义
+formSelects.btns('select1', ['select', 'remove', 'skin', {
+	icon: 'layui-icon layui-icon-ok',	//自定义图标, 可以使用layui内置图标
+	name: '提示名称',
+	click: function(id){
+		//点击后的操作
+		alert('点击了自定义快捷操作')
+	}
+}]);
+
+//如下写法定义所有的多选
+formSelects.btns(['select', 'remove', 'skin']);
+
+// !!友情提示: name不能重复
+]]></script>
+
 		<script src="../UI/jquery-v3.2.1.js" type="text/javascript" charset="utf-8"></script>
 		<!--<script src="../UI/layui-v2.3.0-rc1/layui/layui.js" type="text/javascript" charset="utf-8"></script>-->
 		<script type="text/javascript">
@@ -1722,7 +1869,7 @@ formSelects.data('select15', 'server', {
 			        {"name": "天津", "value": 5}
 			    ]
 			});
-			layui.formSelects.config('example6_2', {
+			formSelects.config('example6_2', {
 				beforeSuccess: function(id, url, searchVal, result){
 					result = result.data;
 					$.each(result, function(index, item) {
@@ -1733,6 +1880,24 @@ formSelects.data('select15', 'server', {
 			}).data('example6_2', 'server', {
 			    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data'
 			});
+			formSelects.btns('select16_1', ['select', 'remove', 'reverse', 'skin']);
+			formSelects.btns('select16_2', ['select', 'remove', 'skin', {
+			    icon: 'layui-icon layui-icon-ok',   //自定义图标, 可以使用layui内置图标
+			    name: '提示名称',
+			    click: function(id){
+			        //点击后的操作
+			        alert('点击了自定义快捷操作')
+			    }
+			}]);
+			formSelects.btns('select16_3', ['skin', {
+			    icon: 'layui-icon layui-icon-ok',   //自定义图标, 可以使用layui内置图标
+			    name: '提示名称',
+			    click: function(id){
+			        //点击后的操作
+			        alert('点击了自定义快捷操作')
+			    }
+			}, 'remove']);
+			formSelects.btns('select16_4', []);
 			
 		</script>
 	</body>
