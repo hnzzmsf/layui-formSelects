@@ -5,7 +5,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0618
+ * version: 4.0.0.0620
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function (layui, window, factory) {
@@ -24,7 +24,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function () {
-	var v = '4.0.0.0618',
+	var v = '4.0.0.0620',
 	    NAME = 'xm-select',
 	    PNAME = 'xm-select-parent',
 	    INPUT = 'xm-select-input',
@@ -83,11 +83,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		error: null
 	},
 	    quickBtns = [{ icon: 'iconfont icon-quanxuan', name: '全选', click: function click(id, cm) {
-			cm.selectAll(id, true);
+			cm.selectAll(id, true, true);
 		} }, { icon: 'iconfont icon-qingkong', name: '清空', click: function click(id, cm) {
-			cm.removeAll(id, true);
+			cm.removeAll(id, true, true);
 		} }, { icon: 'iconfont icon-fanxuan', name: '反选', click: function click(id, cm) {
-			cm.reverse(id, true);
+			cm.reverse(id, true, true);
 		} }, { icon: 'iconfont icon-pifu', name: '换肤', click: function click(id, cm) {
 			cm.skin(id);
 		} }],
@@ -846,7 +846,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			return;
 		}
 		if (!notOn) {
-			if (on && on instanceof Function && on(id, vals.concat([]), val, isAdd, dd.hasClass(DISABLED)) == false) {
+			if (on && on instanceof Function && on(id, vals.concat([]), val, isAdd, dd && dd.hasClass(DISABLED) == false)) {
 				return;
 			}
 		}
@@ -923,6 +923,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		div = div.find('.' + NAME);
 
 		var fs = data[dl.attr('xid')];
+		var base = dl.parents('.layui-form-pane')[0] && dl.prev()[0].clientHeight > 38 ? 14 : 10;
 		if (fs) {
 			if (fs.config.direction == 'up') {
 				dl.css({
@@ -933,7 +934,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			}
 			if (fs.direction == 'down') {
 				dl.css({
-					top: div[0].offsetTop + div.height() + 10 + 'px',
+					top: div[0].offsetTop + div.height() + base + 'px',
 					bottom: 'auto'
 				});
 				return;
@@ -947,7 +948,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			});
 		} else {
 			dl.css({
-				top: div[0].offsetTop + div.height() + 10 + 'px',
+				top: div[0].offsetTop + div.height() + base + 'px',
 				bottom: 'auto'
 			});
 		}
@@ -983,7 +984,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		if (data[id] && data[id].config.height) {//既然固定高度了, 那就看着办吧
 
 		} else {
-			title.css('height', title.find('.' + NAME)[0].clientHeight + 2 + 'px');
+			var height = title.find('.' + NAME)[0].clientHeight;
+			title.css('height', (height > 34 ? height + 4 : height) + 'px');
+			//如果是layui pane模式, 处理label的高度
+			var label = title.parents('.' + PNAME).parent().prev();
+			if (label.is('.layui-form-label') && title.parents('.layui-form-pane')[0]) {
+				height = height > 36 ? height + 6 : height;
+				title.css('height', height + 'px');
+				label.css({
+					height: height + 'px',
+					lineHeight: height - 18 + 'px'
+				});
+			}
 		}
 
 		var input = title.find('.' + TDIV + ' input'),
@@ -1017,14 +1029,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		return false;
 	};
 
-	Common.prototype.selectAll = function (id, isOn) {
+	Common.prototype.selectAll = function (id, isOn, skipDis) {
 		var _this11 = this;
 
 		var dl = $('[xid="' + id + '"]');
 		if (dl.find('.xm-select-linkage')[0]) {
 			return;
 		}
-		dl.find('dd[lay-value]:not(.' + FORM_SELECT_TIPS + '):not(.' + THIS + ')').each(function (index, item) {
+		dl.find('dd[lay-value]:not(.' + FORM_SELECT_TIPS + '):not(.' + THIS + ')' + (skipDis ? ':not(.' + DISABLED + ')' : '')).each(function (index, item) {
 			item = $(item);
 			var val = {
 				name: item.find('span').text(),
@@ -1034,7 +1046,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		});
 	};
 
-	Common.prototype.removeAll = function (id, isOn) {
+	Common.prototype.removeAll = function (id, isOn, skipDis) {
 		var _this12 = this;
 
 		var dl = $('[xid="' + id + '"]');
@@ -1054,18 +1066,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			return;
 		}
 		data[id].values.concat([]).forEach(function (item, index) {
-			_this12.handlerLabel(id, dl.find('dd[lay-value="' + item.val + '"]'), false, item, !isOn);
+			if (skipDis && dl.find('dd[lay-value="' + item.val + '"]').hasClass(DISABLED)) {} else {
+				_this12.handlerLabel(id, dl.find('dd[lay-value="' + item.val + '"]'), false, item, !isOn);
+			}
 		});
 	};
 
-	Common.prototype.reverse = function (id, isOn) {
+	Common.prototype.reverse = function (id, isOn, skipDis) {
 		var _this13 = this;
 
 		var dl = $('[xid="' + id + '"]');
 		if (dl.find('.xm-select-linkage')[0]) {
 			return;
 		}
-		dl.find('dd[lay-value]:not(.' + FORM_SELECT_TIPS + ')').each(function (index, item) {
+		dl.find('dd[lay-value]:not(.' + FORM_SELECT_TIPS + ')' + (skipDis ? ':not(.' + DISABLED + ')' : '')).each(function (index, item) {
 			item = $(item);
 			var val = {
 				name: item.find('span').text(),
@@ -1322,6 +1336,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 		//检测该id是否尚未渲染
 		!data[id] && this.render(id).value(id, []);
+		this.config(id, config);
 		if (type == 'local') {
 			common.renderData(id, config.arr, config.linkage == true, config.linkageWidth ? config.linkageWidth : '100');
 		} else if (type == 'server') {

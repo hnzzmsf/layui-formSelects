@@ -1149,16 +1149,55 @@ layui.formSelects.config({direction: 'up'});
 				</div>
 				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 			</div>
+			<p>不知道你们为什么吐槽我的设计, 也许真的是不好, 新增如下写法</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="example6_3">
+							<option value="">来自星星的你</option>
+						</select>
+						<js>
+							layui.formSelects.data('example6_3', 'server', {
+							    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data',
+							    beforeSuccess: function(id, url, searchVal, result){
+									//我要把数据外层的code, msg, data去掉
+									result = result.data;
+									//我要反转name
+									$.each(result, function(index, item) {
+										item.name && (item.name = item.name.split('').reverse().join(''))
+									});
+									//然后返回数据
+									return result;
+								},
+								success: function(id, url, searchVal, result){
+									console.log('id: example6_3, 成功返回数据!!!');
+								}
+							});
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
 		</div>
 		
 		<blockquote class="layui-elem-quote layui-quote-nm" id="over">结尾</blockquote>
 		<div class="chat" style="display: inline-block;">
 <pre class="brush: js">
+[2018-06-20] v4.0.0.0620
+--bug修复--
+1.修改联动模式下监听on的时候报错
+2.修改pane inline模式下 边框消失的问题
+3.想了很久, 还是把预置的快捷操作跳过了禁用的选项, 更新后快捷操作将不再操作被禁用的选项
+
+-_- 也许你们真的感觉 config + data 不好用...
+你们现在可以在data中写config参数了, 仅此而已, 具体示例查看 #select_data
+
+
 [2018-06-18] v4.0.0.0618
 --新增--
 1.新增快捷操作, 可以 '全选,清空,反选,换肤'
 2.新增btns方法, 可以自定义快捷操作
-3.提供formSelects.all.js与formSelects.js, 其中all.js是使用js的方式加载的js, 不需要手动引入, 另外一种需要引入formSelects.css 
+3.提供formSelects.all.js与formSelects.js, 其中formSelects.all.js是使用js的方式加载的css, 不需要手动引入, 而formSelects.js需要引入formSelects.css 
 
 --bug修复--
 1.搜索模式下, 点击选项后, 清空已输入数据
@@ -1879,6 +1918,22 @@ formSelects.btns(['select', 'remove', 'skin']);
 				}
 			}).data('example6_2', 'server', {
 			    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data'
+			});
+			formSelects.data('example6_3', 'server', {
+			    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data',
+			    beforeSuccess: function(id, url, searchVal, result){
+					//我要把数据外层的code, msg, data去掉
+					result = result.data;
+					//我要反转name
+					$.each(result, function(index, item) {
+						item.name && (item.name = item.name.split('').reverse().join(''))
+					});
+					//然后返回数据
+					return result;
+				},
+				success: function(id, url, searchVal, result){
+					console.log('id: example6_3, 成功返回数据!!!');
+				}
 			});
 			formSelects.btns('select16_1', ['select', 'remove', 'reverse', 'skin']);
 			formSelects.btns('select16_2', ['select', 'remove', 'skin', {
