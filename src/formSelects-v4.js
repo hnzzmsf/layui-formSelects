@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0620
+ * version: 4.0.0.0622
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function(layui, window, factory) {
@@ -17,7 +17,7 @@
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function() {
-	let v = '4.0.0.0620',
+	let v = '4.0.0.0622',
 		NAME = 'xm-select',
 		PNAME = 'xm-select-parent',
 		INPUT = 'xm-select-input',
@@ -66,6 +66,7 @@
 			data: {},
 			searchUrl: '',
 			searchName: 'keyword',
+			searchVal: null,
 			keyName: 'name',
 			keyVal: 'value',
 			keySel: 'selected',
@@ -76,6 +77,8 @@
 			beforeSuccess: null,
 			success: null,
 			error: null,
+			beforeSearch: null,
+			clearInput: false,
 		},
 		quickBtns = [
 			{icon: 'iconfont icon-quanxuan', name: '全选', click: function(id, cm){
@@ -277,17 +280,23 @@
 					searchUrl = ajaxConfig.searchUrl || searchUrl;
 					//如果开启了远程搜索
 					if(searchUrl){
-						let delay = ajaxConfig.delay;
-						if(ajaxConfig.first){
-							ajaxConfig.first = false;
-							delay = 10;
+						if(ajaxConfig.searchVal){
+							inputValue = ajaxConfig.searchVal;
+							ajaxConfig.searchVal = '';
 						}
-						clearTimeout(fs.clearid);
-						fs.clearid = setTimeout(() => {
-							reElem.find(`dl > *:not(.${FORM_SELECT_TIPS})`).remove();
-							reElem.find(`dd.${FORM_NONE}`).addClass(FORM_EMPTY).text('请求中');
-							this.ajax(id, searchUrl, inputValue, false, null, true);
-						}, delay);
+						if(!ajaxConfig.beforeSearch || (ajaxConfig.beforeSearch && ajaxConfig.beforeSearch instanceof Function && ajaxConfig.beforeSearch(id, searchUrl, inputValue))){
+							let delay = ajaxConfig.delay;
+							if(ajaxConfig.first){
+								ajaxConfig.first = false;
+								delay = 10;
+							}
+							clearTimeout(fs.clearid);
+							fs.clearid = setTimeout(() => {
+								reElem.find(`dl > *:not(.${FORM_SELECT_TIPS})`).remove();
+								reElem.find(`dd.${FORM_NONE}`).addClass(FORM_EMPTY).text('请求中');
+								this.ajax(id, searchUrl, inputValue, false, null, true);
+							}, delay);
+						}
 					}else{
 						reElem.find(`dl .layui-hide`).removeClass('layui-hide');
 						//遍历选项, 选择可以显示的值
@@ -521,16 +530,16 @@
 				</dd>`;
 	}
 	
-	Common.prototype.createQuickBtn = function(obj){
-		return `<div class="${CZ}" method="${obj.name}"><i class="${obj.icon}"></i><span>${obj.name}</span></div>`
+	Common.prototype.createQuickBtn = function(obj, right){
+		return `<div class="${CZ}" method="${obj.name}" title="${obj.name}" ${right ? 'style="margin-right: ' + right + '"': ''}><i class="${obj.icon}"></i><span>${obj.name}</span></div>`
 	}
 	
-	Common.prototype.renderBtns = function(id){
+	Common.prototype.renderBtns = function(id, show, right){
 		let quickBtn = [];
 		let dl = $(`dl[xid="${id}"]`);
-		quickBtn.push(`<div class="${CZ_GROUP}" style="max-width: ${dl.prev().width() - 54}px">`);
+		quickBtn.push(`<div class="${CZ_GROUP}" show="${show}" style="max-width: ${dl.prev().width() - 54}px;">`);
 		$.each(data[id].config.btns, (index, item) => {
-			quickBtn.push(this.createQuickBtn(item));
+			quickBtn.push(this.createQuickBtn(item, right));
 		});
 		quickBtn.push(`</div>`);
 		quickBtn.push(this.createQuickBtn({icon: 'iconfont icon-caidan', name: ''}));
@@ -547,7 +556,7 @@
 			}, 10)
 			arr.push([
 				`<dd lay-value="" class="${FORM_SELECT_TIPS}" style="background-color: #FFF!important;">`,
-				this.renderBtns(id),
+				this.renderBtns(id, null, '30px'),
 				`</dd>`
 			].join(''));
 		}else{
@@ -863,7 +872,7 @@
 		div.parents(`.${FORM_TITLE}`).prev().removeClass('layui-form-danger');
 		
 		//清空搜索值
-		div.parents(`.${PNAME}`).find(`.${INPUT}`).val('');
+		fs.config.clearInput && div.parents(`.${PNAME}`).find(`.${INPUT}`).val('');
 		
 		this.commonHanler(id, div);
 	}
@@ -1334,7 +1343,7 @@
 		return this;
 	}
 	
-	Select4.prototype.btns = function(id, btns){
+	Select4.prototype.btns = function(id, btns, config){
 		if(!btns || !common.isArray(btns)) {
 			return this;
 		};
@@ -1363,7 +1372,8 @@
 			val.config.btns = btns;
 			let dd = $(`dl[xid="${key}"]`).find(`.${FORM_SELECT_TIPS}:first`);
 			if(btns.length){
-				let html = common.renderBtns(key);
+				let show = config && config.show && (config.show == 'name' || config.show == 'icon') ? config.show : '';
+				let html = common.renderBtns(key, show, config && config.space ? config.space : '30px');
 				dd.html(html);
 			}else{
 				let pcInput = dd.parents(`.${FORM_SELECT}`).find(`.${TDIV} input`);
@@ -1373,6 +1383,17 @@
 			}
 		});
 		
+		return this;
+	}
+	
+	Select4.prototype.search = function(id, val){
+		if(id && data[id]){
+			ajaxs[id] = $.extend(true, {}, ajax, {
+				first: true,
+				searchVal: val
+			});
+			common.triggerSearch($(`dl[xid="${id}"]`).parents(`.${FORM_SELECT}`), true);
+		}
 		return this;
 	}
 	

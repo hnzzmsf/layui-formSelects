@@ -5,7 +5,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0620
+ * version: 4.0.0.0622
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function (layui, window, factory) {
@@ -24,7 +24,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function () {
-	var v = '4.0.0.0620',
+	var v = '4.0.0.0622',
 	    NAME = 'xm-select',
 	    PNAME = 'xm-select-parent',
 	    INPUT = 'xm-select-input',
@@ -71,6 +71,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		data: {},
 		searchUrl: '',
 		searchName: 'keyword',
+		searchVal: null,
 		keyName: 'name',
 		keyVal: 'value',
 		keySel: 'selected',
@@ -80,7 +81,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		delay: 500,
 		beforeSuccess: null,
 		success: null,
-		error: null
+		error: null,
+		beforeSearch: null,
+		clearInput: false
 	},
 	    quickBtns = [{ icon: 'iconfont icon-quanxuan', name: '全选', click: function click(id, cm) {
 			cm.selectAll(id, true, true);
@@ -263,17 +266,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					searchUrl = ajaxConfig.searchUrl || searchUrl;
 					//如果开启了远程搜索
 					if (searchUrl) {
-						var delay = ajaxConfig.delay;
-						if (ajaxConfig.first) {
-							ajaxConfig.first = false;
-							delay = 10;
+						if (ajaxConfig.searchVal) {
+							inputValue = ajaxConfig.searchVal;
+							ajaxConfig.searchVal = '';
 						}
-						clearTimeout(fs.clearid);
-						fs.clearid = setTimeout(function () {
-							reElem.find('dl > *:not(.' + FORM_SELECT_TIPS + ')').remove();
-							reElem.find('dd.' + FORM_NONE).addClass(FORM_EMPTY).text('请求中');
-							_this2.ajax(id, searchUrl, inputValue, false, null, true);
-						}, delay);
+						if (!ajaxConfig.beforeSearch || ajaxConfig.beforeSearch && ajaxConfig.beforeSearch instanceof Function && ajaxConfig.beforeSearch(id, searchUrl, inputValue)) {
+							var delay = ajaxConfig.delay;
+							if (ajaxConfig.first) {
+								ajaxConfig.first = false;
+								delay = 10;
+							}
+							clearTimeout(fs.clearid);
+							fs.clearid = setTimeout(function () {
+								reElem.find('dl > *:not(.' + FORM_SELECT_TIPS + ')').remove();
+								reElem.find('dd.' + FORM_NONE).addClass(FORM_EMPTY).text('请求中');
+								_this2.ajax(id, searchUrl, inputValue, false, null, true);
+							}, delay);
+						}
 					} else {
 						reElem.find('dl .layui-hide').removeClass('layui-hide');
 						//遍历选项, 选择可以显示的值
@@ -520,18 +529,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		return '<dd lay-value="' + item.value + '" class="' + (item.disabled ? DISABLED : '') + ' ' + (clz ? clz : '') + '">\n\t\t\t\t\t<div class="xm-unselect xm-form-checkbox ' + (item.disabled ? 'layui-checkbox-disbaled ' + DISABLED : '') + '" lay-skin="primary">\n\t\t\t\t\t\t<span>' + $.trim(item.innerHTML) + '</span>\n\t\t\t\t\t\t<i class="' + CHECKBOX_YES + '"></i>\n\t\t\t\t\t</div>\n\t\t\t\t</dd>';
 	};
 
-	Common.prototype.createQuickBtn = function (obj) {
-		return '<div class="' + CZ + '" method="' + obj.name + '"><i class="' + obj.icon + '"></i><span>' + obj.name + '</span></div>';
+	Common.prototype.createQuickBtn = function (obj, right) {
+		return '<div class="' + CZ + '" method="' + obj.name + '" title="' + obj.name + '" ' + (right ? 'style="margin-right: ' + right + '"' : '') + '><i class="' + obj.icon + '"></i><span>' + obj.name + '</span></div>';
 	};
 
-	Common.prototype.renderBtns = function (id) {
+	Common.prototype.renderBtns = function (id, show, right) {
 		var _this5 = this;
 
 		var quickBtn = [];
 		var dl = $('dl[xid="' + id + '"]');
-		quickBtn.push('<div class="' + CZ_GROUP + '" style="max-width: ' + (dl.prev().width() - 54) + 'px">');
+		quickBtn.push('<div class="' + CZ_GROUP + '" show="' + show + '" style="max-width: ' + (dl.prev().width() - 54) + 'px;">');
 		$.each(data[id].config.btns, function (index, item) {
-			quickBtn.push(_this5.createQuickBtn(item));
+			quickBtn.push(_this5.createQuickBtn(item, right));
 		});
 		quickBtn.push('</div>');
 		quickBtn.push(this.createQuickBtn({ icon: 'iconfont icon-caidan', name: '' }));
@@ -547,7 +556,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				var dl = $('dl[xid="' + id + '"]');
 				dl.find('.' + CZ_GROUP).css('max-width', dl.prev().width() - 54 + 'px');
 			}, 10);
-			arr.push(['<dd lay-value="" class="' + FORM_SELECT_TIPS + '" style="background-color: #FFF!important;">', this.renderBtns(id), '</dd>'].join(''));
+			arr.push(['<dd lay-value="" class="' + FORM_SELECT_TIPS + '" style="background-color: #FFF!important;">', this.renderBtns(id, null, '30px'), '</dd>'].join(''));
 		} else {
 			arr.push('<dd lay-value="" class="' + FORM_SELECT_TIPS + '">' + tips + '</dd>');
 		}
@@ -861,7 +870,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		div.parents('.' + FORM_TITLE).prev().removeClass('layui-form-danger');
 
 		//清空搜索值
-		div.parents('.' + PNAME).find('.' + INPUT).val('');
+		fs.config.clearInput && div.parents('.' + PNAME).find('.' + INPUT).val('');
 
 		this.commonHanler(id, div);
 	};
@@ -1345,7 +1354,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		return this;
 	};
 
-	Select4.prototype.btns = function (id, btns) {
+	Select4.prototype.btns = function (id, btns, config) {
 		if (!btns || !common.isArray(btns)) {
 			return this;
 		};
@@ -1374,7 +1383,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			val.config.btns = btns;
 			var dd = $('dl[xid="' + key + '"]').find('.' + FORM_SELECT_TIPS + ':first');
 			if (btns.length) {
-				var html = common.renderBtns(key);
+				var show = config && config.show && (config.show == 'name' || config.show == 'icon') ? config.show : '';
+				var html = common.renderBtns(key, show, config && config.space ? config.space : '30px');
 				dd.html(html);
 			} else {
 				var pcInput = dd.parents('.' + FORM_SELECT).find('.' + TDIV + ' input');
@@ -1384,6 +1394,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			}
 		});
 
+		return this;
+	};
+
+	Select4.prototype.search = function (id, val) {
+		if (id && data[id]) {
+			ajaxs[id] = $.extend(true, {}, ajax, {
+				first: true,
+				searchVal: val
+			});
+			common.triggerSearch($('dl[xid="' + id + '"]').parents('.' + FORM_SELECT), true);
+		}
 		return this;
 	};
 

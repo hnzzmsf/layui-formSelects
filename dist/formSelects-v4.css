@@ -129,12 +129,15 @@ div[xm-select-skin='danger'] .xm-select-linkage-group li:hover {border-left-colo
 .xm-select-parent dd > .xm-cz-group{margin-right: 30px; border-right: 2px solid #ddd; height: 16px; margin-top: 10px; line-height: 16px; overflow: hidden;}
 .xm-select-parent dd > .xm-cz-group .xm-cz{display: inline-block; margin-right: 30px;}
 .xm-select-parent dd > .xm-cz-group .xm-cz i{margin-right: 10px;}
+.xm-select-parent dd > .xm-cz-group[show='name'] .xm-cz i{display: none;}
+.xm-select-parent dd > .xm-cz-group[show='icon'] .xm-cz span{display: none;}
 .xm-select-parent dd .xm-cz:hover{color: #009688;}
 div[xm-select-skin='default'] dd .xm-cz:hover{color: #C0C4CC;}
 div[xm-select-skin='primary'] dd .xm-cz:hover{color: #009688;}
 div[xm-select-skin='normal'] dd .xm-cz:hover{color: #1E9FFF;}
 div[xm-select-skin='warm'] dd .xm-cz:hover{color: #FFB800;}
 div[xm-select-skin='danger'] dd .xm-cz:hover{color: #FF5722;}
+
 
 
 /* 阿里巴巴矢量图标库 */

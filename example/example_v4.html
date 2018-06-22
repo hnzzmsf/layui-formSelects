@@ -35,6 +35,7 @@
 			.example-show-code{margin-left: 30px; height: 36px; line-height: 36px;}
 			.example-btn{margin-left: 30px; height: 36px; line-height: 36px;}
 			.layui-layer-content{max-height: 600px;}
+			.over .line{margin-bottom: 10px!important;}
 			js{display: none;}
 		</style>
 	</head>
@@ -828,6 +829,63 @@ layui.formSelects.config({direction: 'up'});
 				</div>
 				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 			</div>
+			<p>只显示图标</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select16_5">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3">广州</option>
+							<option value="4">深圳</option>
+							<option value="5">天津</option>
+							<option value="6">杭州</option>
+						</select>
+						<js>
+							formSelects.btns('select16_5', ['select', 'remove'], {show: 'icon'});
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>只显示名称</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select16_6">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3">广州</option>
+							<option value="4">深圳</option>
+							<option value="5">天津</option>
+							<option value="6">杭州</option>
+						</select>
+						<js>
+							formSelects.btns('select16_6', ['select', 'remove'], {show: 'name'});
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>显示图标+名称, 但是是紧凑型的</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select16_7">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3">广州</option>
+							<option value="4">深圳</option>
+							<option value="5">天津</option>
+							<option value="6">杭州</option>
+						</select>
+						<js>
+							formSelects.btns('select16_7', ['select', 'remove'], {show: '', space: '10px'});
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
 		</div>
 		
 		
@@ -1179,10 +1237,56 @@ layui.formSelects.config({direction: 'up'});
 				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 			</div>
 		</div>
+		<div class="example">
+			<h3 id="select_search" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7) 搜索控制">搜索控制</h3>
+			<p>当输入内容为空时不触发搜索</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="example7_1" xm-select-search></select>
+						<js>
+							layui.formSelects.config('example7_1', {
+								searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/data', 
+								beforeSearch: function(id, url, val){
+									if(!val){
+										console.log('内容为空, 不进行远程搜索')
+										return false;
+									}
+									return true;
+								}
+							});
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>主动触发搜索</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="example7_2" xm-select-search="http://yapi.demo.qunar.com/mock/9813/layui/data"></select>
+						<js>
+							layui.formSelects.search('example7_2', 'click');
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn example-btn" onclick="formSelects.search('example7_2', 'click')">点我搜索查看选项变化</button>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
 		
 		<blockquote class="layui-elem-quote layui-quote-nm" id="over">结尾</blockquote>
-		<div class="chat" style="display: inline-block;">
+		<div class="chat over" style="display: inline-block;">
 <pre class="brush: js">
+[2018-06-22] v4.0.0.0622
+-- 新增 --
+1.config新增beforeSearch方法, 用于确定是否触发搜索
+2.config新增clearInput配置, 用于确定是否清空搜索内容
+3.config新增searchVal配置, 可自定义搜索内容, 触发一次后失效, 优先级大于搜索框
+4.btns新增配置, 可以自定义显示[图标/名称/全部, 间隔]
+5.新增search方法, 可以使用js随时随地触发搜索;(只针对于远程搜索)
+
+	
 [2018-06-20] v4.0.0.0620
 --bug修复--
 1.修改联动模式下监听on的时候报错
@@ -1195,7 +1299,7 @@ layui.formSelects.config({direction: 'up'});
 
 [2018-06-18] v4.0.0.0618
 --新增--
-1.新增快捷操作, 可以 '全选,清空,反选,换肤'
+1.新增快捷操作, 可以 (全选,清空,反选,换肤)
 2.新增btns方法, 可以自定义快捷操作
 3.提供formSelects.all.js与formSelects.js, 其中formSelects.all.js是使用js的方式加载的css, 不需要手动引入, 而formSelects.js需要引入formSelects.css 
 
@@ -1231,21 +1335,28 @@ layui.formSelects.config({direction: 'up'});
 2.修改on函数中的文档错误, return false是取消本次选择
 
 
-[2018-05-28] 
+[2018-05-28] v4
 formSelects-v4, 静悄悄的, 愿它能够茁壮成长...
 
 
-[2018-05-07] 
+[2018-05-07] v3
 formSelects-v3, 高速开发与更新, 功能越来越多了, 代码越来越看不懂了...
 
 
-[2018-04-20] 
+[2018-04-20] v2
 formSelects-v2, 粗暴的升级了v1...
 
 
-[2017-08-29]
+[2017-08-29] v1
 formSelects-v1, 一个简简单单的layui多选...
 </pre>	
+		</div>
+		<div class="example">
+			<p>↓↓↓ 捐赠作者 ↓↓↓</p>
+			<p>
+				<img src="../static/img/wx.jpg" width="230px" style="border: 1px solid #009688">
+			</p>
+			<p>你们的支持, 是我们坚持的动力</p>
 		</div>
 		<div style="height: 300px;"></div>
 
@@ -1423,6 +1534,7 @@ formSelects.config('select1', {
 	data: {},					//自定义除搜索内容外的其他数据
 	searchUrl: '',				//搜索地址, 默认使用xm-select-search的值, 此参数优先级高
 	searchName: 'keyword',		//自定义搜索内容的key值
+	searchVal: '',				//自定义搜索内容, 搜素一次后失效, 优先级高于搜索框中的值
 	keyName: 'name',			//自定义返回数据中name的key, 默认 name
 	keyVal: 'value',			//自定义返回数据中value的key, 默认 value
 	keySel: 'selected',			//自定义返回数据中selected的key, 默认 selected
@@ -1447,7 +1559,14 @@ formSelects.config('select1', {
 		console.log(result);	//返回的结果
 		
 		return result;	//必须return一个结果, 这个结果要符合对应的数据结构
-	}
+	},
+	beforeSearch: function(id, url, searchVal){			//搜索前调用此方法, return true将触发搜索, 否则不触发
+		if(!searchVal){//如果搜索内容为空,就不触发搜索
+			return false;
+		}
+		return true;
+	},
+	clearInput: false, 			//当有搜索内容时, 点击选项是否清空搜索内容, 默认不清空
 }, true);
 
 //以下两种方式则配置所有的多选select
@@ -1635,10 +1754,11 @@ formSelects.data('select15', 'server', {
 /**
  * 1.快捷操作
  *
- * formSelects.btns(ID, BTNS);
+ * formSelects.btns(ID, BTNS, config);
  *
  * @param ID 		xm-select的值
  * @param BTNS 		定义操作列表, 内置三种操作, select:全选, remove:清空, skin:换肤, 当然你可以自定义
+ * @param config 	配置操作列表, config.show='name' 只显示名称, config.show='icon' 只显示图标, config.space='30px' 两个操作之间的间隔
  */
 var formSelects = layui.formSelects;
 //默认设置了 全选, 清空
@@ -1655,10 +1775,29 @@ formSelects.btns('select1', ['select', 'remove', 'skin', {
 	}
 }]);
 
+//配置只显示名称,紧凑型, 适合宽度较窄的情况
+formSelects.btns('select1', ['select', 'remove'], {show: 'name', space: '10px'});
+
 //如下写法定义所有的多选
 formSelects.btns(['select', 'remove', 'skin']);
 
 // !!友情提示: name不能重复
+]]></script>
+
+<script type="syntaxhighlighter" xid="search" class="brush: js"><![CDATA[
+/**
+ * 1.触发搜索
+ *
+ * formSelects.search(ID, val);
+ *
+ * @param ID 		xm-select的值
+ * @param BTNS 		搜索内容
+ */
+var formSelects = layui.formSelects;
+
+//使用js主动触发搜索
+formSelects.search('select1', '关键内容');
+
 ]]></script>
 
 		<script src="../UI/jquery-v3.2.1.js" type="text/javascript" charset="utf-8"></script>
@@ -1782,11 +1921,19 @@ formSelects.btns(['select', 'remove', 'skin']);
 						scrollbar: false,
 						shadeClose: true,
 						area: [(logs.width() + 30) + "px"],
-						content: '<div style="padding: 10px">' + logs.html() + '</div>',
+						content: '<div style="padding: 10px" id="history-info">' + logs.html() + '</div>',
+						success: function(){
+							setTimeout(function(){
+								$('#history-info .line :contains("["):contains("v")').attr('style', 'font-weight: bold !important; color: #01AAED !important;');
+							}, 1000);
+						}
 					});
 				});
 				localStorage.setItem(v, v);
 			}
+			setTimeout(function(){
+				$('.over .line :contains("["):contains("v")').attr('style', 'font-weight: bold !important; color: #01AAED !important;');
+			}, 1000);
 			
 			//示例操作
 			layui.use('form', function(){
@@ -1935,6 +2082,17 @@ formSelects.btns(['select', 'remove', 'skin']);
 					console.log('id: example6_3, 成功返回数据!!!');
 				}
 			});
+			formSelects.config('example7_1', {
+				searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/data', 
+				beforeSearch: function(id, url, val){
+					if(!val){
+						console.log('内容为空, 不进行远程搜索')
+						return false;
+					}
+					return true;
+				}
+			});
+			
 			formSelects.btns('select16_1', ['select', 'remove', 'reverse', 'skin']);
 			formSelects.btns('select16_2', ['select', 'remove', 'skin', {
 			    icon: 'layui-icon layui-icon-ok',   //自定义图标, 可以使用layui内置图标
@@ -1953,7 +2111,9 @@ formSelects.btns(['select', 'remove', 'skin']);
 			    }
 			}, 'remove']);
 			formSelects.btns('select16_4', []);
-			
+			formSelects.btns('select16_5', ['select', 'remove'], {show: 'icon'});
+			formSelects.btns('select16_6', ['select', 'remove'], {show: 'name'});
+			formSelects.btns('select16_7', ['select', 'remove'], {show: '', space: '10px'});
 		</script>
 	</body>
 
