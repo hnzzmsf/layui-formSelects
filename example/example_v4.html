@@ -37,6 +37,8 @@
 			.layui-layer-content{max-height: 600px;}
 			.over .line{margin-bottom: 10px!important;}
 			js{display: none;}
+			#openChat{position: fixed; right: 10px; bottom: 10px;}
+			.layui-layer[type="iframe"] .layui-layer-setwin{right: 453px;}
 		</style>
 	</head>
 
@@ -133,6 +135,16 @@
 		      		<td>单选模式</td>
 		      		<td>xm-select-radio, 最多只能选择一个</td>
 		    	</tr>
+		    	<tr>
+		      		<td>xm-select-search-type</td>
+		      		<td>搜索框的显示位置</td>
+		      		<td>xm-select-search-type="title" 在下拉选title部分显示, xm-select-search-type="dl" 在选项的第二条显示</td>
+		    	</tr>
+		    	<tr>
+		      		<td>xm-select-show-count</td>
+		      		<td>多选显示的label数量</td>
+		      		<td>xm-select-show-count="2", 超出后隐藏</td>
+		    	</tr>
 		  </tbody>
 		</table>
 		
@@ -203,7 +215,7 @@
 			<div>
 				<div style="width: 400px; display: inline-block; vertical-align: top;">
 					<div class="layui-form layui-form-pane">
-						<div class="layui-form-item" pane>
+						<div class="layui-form-item">
 							<label class="layui-form-label">多选框</label>
 							<div class="layui-input-block">
 								<select name="city" xm-select="select2">
@@ -615,6 +627,24 @@ layui.formSelects.config({direction: 'up'});
 					</div>
 				</div>
 				<button class="layui-btn example-btn" lay-submit lay-filter="select14">验证提交</button>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+			<p>tips模式, lay-verify="required", lay-verType="tips"</p>
+			<div class="layui-form">
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="select14_1" lay-verify="required" lay-verType="tips">
+							<option value="">选择3项以上通过验证</option>
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3">广州</option>
+							<option value="4">深圳</option>
+							<option value="5">天津</option>
+							<option value="6">杭州</option>
+						</select>
+					</div>
+				</div>
+				<button class="layui-btn example-btn" lay-submit lay-filter="select14_1">验证提交</button>
 				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 			</div>
 			<p>支持表单提交自动赋值, 只需要在select加上name属性即可, 点击提交可查看url的变化</p>
@@ -1274,10 +1304,106 @@ layui.formSelects.config({direction: 'up'});
 				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 			</div>
 		</div>
+		<div class="example">
+			<h3 id="select_show_count" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8) 显示数量">显示数量</h3>
+			<p>默认显示全部, 如果设置了高度的话就是显示指定范围内的label, 当然你也可以控制显示的数量</p>
+			<p>xm-select-show-count="2", 最多显示2个, 多余的隐藏</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="example8_1" xm-select-show-count="2">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3">广州</option>
+							<option value="4">深圳</option>
+							<option value="5">天津</option>
+							<option value="6">郑州</option>
+							<option value="7">合肥</option>
+							<option value="8">邯郸</option>
+							<option value="9">舟山</option>
+							<option value="10">海南</option>
+							<option value="11">南京</option>
+							<option value="12">哈尔滨</option>
+						</select>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_template" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9) 自定义模板">自定义模板</h3>
+			<p>选项默认是显示的孤零零的name值, 你也可以自定义格式</p>
+			<p>比如来一个左边name, 右边拼音的</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="example9_1" xm-select-show-count="2" xm-select-search xm-select-search-type="dl">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3">广州</option>
+							<option value="4">深圳</option>
+							<option value="5">天津</option>
+							<option value="6">郑州</option>
+							<option value="7">合肥</option>
+							<option value="8">邯郸</option>
+							<option value="9">舟山</option>
+							<option value="10">海南</option>
+							<option value="11">南京</option>
+							<option value="12">哈尔滨</option>
+						</select>
+						<js>
+							layui.formSelects.render('example9_1', {
+								template: function(name, value, selected, disabled){
+									return name + '&lt;span style="position: absolute; right: 0; color: #A0A0A0; font-size: 12px;">' + PY.fullPY(name) + '&lt;/span>';
+								}
+							});
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_search_type" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10) 搜索位置">搜索位置</h3>
+			<p>默认是在title上的, 可以设置到选项中, 前提是你打开了搜索</p>
+			<p>xm-select-search-type="dl"</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="example10_1" xm-select-search xm-select-search-type="dl">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3">广州</option>
+							<option value="4">深圳</option>
+							<option value="5">天津</option>
+						</select>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
 		
 		<blockquote class="layui-elem-quote layui-quote-nm" id="over">结尾</blockquote>
 		<div class="chat over" style="display: inline-block;">
 <pre class="brush: js">
+[2018-07-02] v4.0.0.0702
+-- 新增 --
+1.重做了render方法, 支持了N多种操作, 比如多选->单选, 单选->多选
+2.新增create创建处理, 也许动态创建的value你并不想使用时间戳~~
+3.新增template方式, 你可以重新"画"选项结构
+4.新增配置项xm-select-search-type, title|dl, 可以自由选择搜索框的显示位置, tips: 投票结果竟然相等
+5.新增xm-select-show-count, 可以设置多选label的显示数量, 超出后隐藏
+6.表单验证支持lay-verType
+
+--bug修复--
+1.修复当多次使用data函数时, 历史label中的数据不清空
+2.修复config函数错误, 指定配置不生效
+
+!! 取消对dom的监听, 不在自动渲染新增的select, 如需渲染, 调用formSelects.render
+!! 取消formSelects.all.js, 请使用js + css模式
+!! 每一次的更新都是为了更好的发展 ^_^
+
+
 [2018-06-22] v4.0.0.0622
 -- 新增 --
 1.config新增beforeSearch方法, 用于确定是否触发搜索
@@ -1581,13 +1707,42 @@ formSelects.config(null, {
 <script type="syntaxhighlighter" xid="render" class="brush: js"><![CDATA[
 /**
  * 1.重新渲染, 如果已经是多选则重置为初始值, 如果是初始select则渲染为多选 
+ * 2.支持渲染时候改变多个参数
  *
  * formSelects.render(ID);
  *
  * @param ID 		xm-select的值
  */
 var formSelects = layui.formSelects;
-formSelects.render('select1');
+formSelects.render('select1', {
+	init: ["1", "2"],				//默认值
+	skin: "danger",					//多选皮肤
+	height: "auto",					//是否固定高度, 38px | auto
+	radio: false,					//是否设置为单选模式
+	direction: "auto",
+	create: function(id, name){
+		console.log(id);	//多选id
+		console.log(name);	//创建的标签名称
+		
+		return Date.now();	//返回该标签对应的val
+	},			
+	filter: fun...,			//同formSelects.filter			
+	max: 3,					//多选最多选择量			
+	maxTips: fun...,		//同formSelects.maxTips
+	on: fun...,				//同formSelects.on
+	searchType: "title",	//搜索框的位置			
+	template: function(name, value, selected, disabled){
+		console.log(name);		//选项名
+		console.log(value);		//选项值
+		console.log(selected);	//是否被选中
+		console.log(disabled);	//是否被禁用
+		
+		//例如: 反转字符串
+		//return name.split('').reverse().join('');
+		return name;		//返回一个html结构, 用于显示选项
+	},
+	showCount: 0, 			//多选的label数量, 0,负值,非数字则显示全部
+});
 
 //以下方式则重新渲染所有的已存在多选
 formSelects.render();
@@ -1856,11 +2011,11 @@ formSelects.search('select1', '关键内容');
 			
 			var formSelects = layui.formSelects;
 			
-			//生成目录结构
 			layui.use(['layer'], function(){
+				//生成目录结构
 				var layer = layui.layer;
 				var content = '<ul class="sun-menu" style="overflow: auto;">';
-				$('body *[id]').each(function(index, item){
+				$('body *[id]:not(.syntaxhighlighter)').each(function(index, item){
 					item = $(item);
 					content += '<li><a href="#'+item.attr("id")+'">'+(item.attr('title') ? item.attr('title') : item.html())+'</a></li>'
 				});
@@ -1880,9 +2035,29 @@ formSelects.search('select1', '关键内容');
 							left: 'auto',
 							right: 10
 						});
+						var layero = $(layero);
+						layero.on('hover', '*', function(){
+							layero.css('z-index', '20000000');
+						});
 					}
 				});
-			})
+				//填充一个聊天窗口
+				//openChat();
+			});
+			
+			function openChat(){
+				layui.layer.open({
+				  	type: 2,
+				  	title: false,
+				  	shade: false,
+				  	area: ['440px', '544px'],
+					offset: 'rb', 
+					anim: 2,
+					content: ['https://faysunshine.com/layui/formSelects/chat/chat.php', 'no'],
+				});
+				$('body').append('<div id="openChat" onclick="openChat()" class="layui-btn layui-btn-primary layui-btn-xs">open chat</div>')
+			}
+			
 			
 			//填充内容
 			$('body script[xid]').each(function(index, item){
@@ -2090,6 +2265,11 @@ formSelects.search('select1', '关键内容');
 						return false;
 					}
 					return true;
+				}
+			});
+			formSelects.render('example9_1', {
+				template: function(name, value, selected, disabled){
+					return name + '<span style="position: absolute; right: 0; color: #A0A0A0; font-size: 12px;">' + PY.fullPY(name) + '</span>';
 				}
 			});
 			

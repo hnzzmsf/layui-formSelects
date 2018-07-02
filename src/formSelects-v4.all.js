@@ -995,10 +995,10 @@
 			//如果是layui pane模式, 处理label的高度
 			let label = title.parents(`.${PNAME}`).parent().prev();
 			if(label.is('.layui-form-label') && title.parents('.layui-form-pane')[0]){
-				height = height > 36 ? height + 6 : height;
+				height = height > 36 ? height + 4 : height;
 				title.css('height' , height + 'px');
 				label.css({
-					height: height + 'px',
+					height: height + 2 + 'px',
 					lineHeight: (height - 18) + 'px'
 				})
 			}
