@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0702
+ * version: 4.0.0.0704
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function(layui, window, factory) {
@@ -17,7 +17,7 @@
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function() {
-	let v = '4.0.0.0702',
+	let v = '4.0.0.0704',
 		NAME = 'xm-select',
 		PNAME = 'xm-select-parent',
 		INPUT = 'xm-select-input',
@@ -39,6 +39,7 @@
 		RADIO = 'xm-select-radio',
 		LINKAGE= 'xm-select-linkage',
 		DL = 'xm-select-dl',
+		DD_HIDE = 'xm-select-hide',
 		HIDE_INPUT = 'xm-hide-input',
 		SANJIAO = 'xm-select-sj',
 		ICON_CLOSE = 'xm-icon-close',
@@ -132,6 +133,8 @@
 					return name;
 				},
 				showCount: 0,
+				isCreate: false,
+				placeholder: TIPS,
 			};
 			this.select = null;
 			this.values = [];
@@ -237,19 +240,38 @@
 			data[id] = fs;
 			
 			fs.values = value;
-			fs.config.name = id;
 			fs.config.init = value.concat([]);
+			fs.config.name = id;
+			fs.config.disabled = disabled;
+			fs.config.max = max;
+			fs.config.isSearch = isSearch;
+			fs.config.searchUrl = searchUrl;
+			fs.config.isCreate = isCreate;
+			fs.config.radio = isRadio;
+			fs.config.skin = skin;
 			fs.config.direction = direction;
 			fs.config.height = height;
-			fs.config.radio = isRadio;
+			fs.config.searchType = searchtype;
+			fs.config.formname = formname;
+			fs.config.layverify = layverify;
+			fs.config.layverType = layverType;
 			fs.config.searchType = searchtype;
 			fs.config.showCount = showCount;
+			fs.config.placeholder = placeholder;
 			
 			if(hisFs){
 				$.extend(true, fs.config, hisFs.config);
-				isRadio = fs.config.radio;
+				disabled = fs.config.disabled;
+				isSearch = fs.config.isSearch;
+				searchUrl = fs.config.searchUrl;
 				skin = fs.config.skin;
 				height = fs.config.height;
+				max = fs.config.max;
+				formname = fs.config.formname;
+				layverify = fs.config.layverify;
+				layverType = fs.config.layverType;
+				placeholder = fs.config.placeholder;
+				isRadio = fs.config.radio;
 				
 				if(hisFs.config.init){
 					fs.values = hisFs.config.init.map(item => {
@@ -267,9 +289,6 @@
 				}
 			}
 			
-			if(max){//有最大值
-				fs.config.max = max;
-			}
 			//先取消layui对select的渲染
 			hasRender[0] && hasRender.remove();
 
@@ -277,7 +296,7 @@
 			let dinfo = this.renderSelect(id, placeholder, select); 
 			let heightStyle = !height || height == 'auto' ? '' : `style="height: ${height};"`;
 			let inputHtml =  height ? [
-				`<div class="${LABEL}" style="margin-right: 50px;"></div>`,
+				`<div class="${LABEL}" style="margin-right: ${isSearch && searchtype == 0 ? '50px' : '10px'};"></div>`,
 				`<input type="text" fsw class="${FORM_INPUT} ${INPUT}" ${isSearch ? '' : 'style="display: none;"'} autocomplete="off" debounce="0" style="position: absolute;right: 10px;top: 3px;"/>`
 			] : [
 				`<div class="${LABEL}">`,
@@ -286,7 +305,7 @@
 			];
 			let reElem =
 				$(`<div class="${FORM_SELECT}" ${SKIN}="${skin}">
-					<input class="${HIDE_INPUT}" value="" name="${formname}" lay-verify="${layverify}" lay-verType="${layverType}" type="text" style="position: absolute;bottom: 0; z-index: -1;width: 100%; height: 100%; border: none;"/>
+					<input class="${HIDE_INPUT}" value="" name="${formname}" lay-verify="${layverify}" lay-verType="${layverType}" type="text" style="position: absolute;bottom: 0; z-index: -1;width: 100%; height: 100%; border: none; opacity: 0;"/>
 					<div class="${FORM_TITLE} ${disabled ? DIS : ''}">
 						<div class="${FORM_INPUT} ${NAME}" ${heightStyle}>
 							${inputHtml.join('')}
@@ -305,73 +324,18 @@
 				fs.select = othis;
 			}else{
 				//包裹一个div
-				othis.wrap(`<div class="${PNAME}"></div>`);
+				othis.wrap(`<div class="${PNAME}" FS_ID="${id}"></div>`);
 				othis.after(reElem);
 				fs.select = othis.remove();
 			}
 			
 			//如果可搜索, 加上事件
 			if(isSearch){
-				reElem.find(`.${INPUT}`).on('input propertychange', (e) => {
-					let input = e.target,
-						inputValue = $.trim(input.value),
-						keyCode = e.keyCode;
-					if(keyCode === 9 || keyCode === 13 || keyCode === 37 || keyCode === 38 || keyCode === 39 || keyCode === 40) {
-						return false;
-					}
-					
-					//过滤一下tips
-					this.changePlaceHolder($(input));
-					
-					let ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
-					searchUrl = ajaxConfig.searchUrl || searchUrl;
-					//如果开启了远程搜索
-					if(searchUrl){
-						if(ajaxConfig.searchVal){
-							inputValue = ajaxConfig.searchVal;
-							ajaxConfig.searchVal = '';
-						}
-						if(!ajaxConfig.beforeSearch || (ajaxConfig.beforeSearch && ajaxConfig.beforeSearch instanceof Function && ajaxConfig.beforeSearch(id, searchUrl, inputValue))){
-							let delay = ajaxConfig.delay;
-							if(ajaxConfig.first){
-								ajaxConfig.first = false;
-								delay = 10;
-							}
-							clearTimeout(fs.clearid);
-							fs.clearid = setTimeout(() => {
-								reElem.find(`dl > *:not(.${FORM_SELECT_TIPS})`).remove();
-								reElem.find(`dd.${FORM_NONE}`).addClass(FORM_EMPTY).text('请求中');
-								this.ajax(id, searchUrl, inputValue, false, null, true);
-							}, delay);
-						}
-					}else{
-						reElem.find(`dl .layui-hide`).removeClass('layui-hide');
-						//遍历选项, 选择可以显示的值
-						reElem.find(`dl dd:not(.${FORM_SELECT_TIPS})`).each((idx, item) => {
-							let _item = $(item);
-							let searchFun = data[id].config.filter || events.filter[id];
-							if(searchFun && searchFun(id, inputValue, {
-								name: _item.find('span').attr('name'),
-								val: _item.attr('lay-value')
-							}, _item.hasClass(DISABLED)) == true){
-								_item.addClass('layui-hide');
-							}
-						});
-						//控制分组名称
-						reElem.find('dl dt').each((index, item) => {
-							if(!$(item).nextUntil('dt', ':not(.layui-hide)').length) {
-								$(item).addClass('layui-hide');
-							}
-						});
-						//动态创建
-						this.create(id, isCreate, inputValue);
-						let shows = reElem.find(`dl dd:not(.${FORM_SELECT_TIPS}):not(.layui-hide)`);
-						if(!shows.length){
-							reElem.find(`dd.${FORM_NONE}`).addClass(FORM_EMPTY).text('无匹配项');
-						}else{
-							reElem.find(`dd.${FORM_NONE}`).removeClass(FORM_EMPTY);
-						}
-					}
+				ajaxs[id] = $.extend(true, {}, ajax, {
+					searchUrl: searchUrl
+				});
+				$(document).on('input propertychange', `div.${PNAME}[FS_ID="${id}"] .${INPUT}`, (e) => {
+					this.search(id, e, searchUrl);
 				});
 				if(searchUrl){//触发第一次请求事件
 					this.triggerSearch(reElem, true);
@@ -380,6 +344,75 @@
 				reElem.find(`dl dd.${FORM_DL_INPUT}`).css('display', 'none');
 			}
 		});
+	}
+	
+	Common.prototype.search = function(id, e, searchUrl, call){
+		let input;
+		if(call){
+			input = call;
+		}else{
+			input = e.target;
+			let keyCode = e.keyCode;
+			if(keyCode === 9 || keyCode === 13 || keyCode === 37 || keyCode === 38 || keyCode === 39 || keyCode === 40) {
+				return false;
+			}
+		}
+		let inputValue = $.trim(input.value);
+		//过滤一下tips
+		this.changePlaceHolder($(input));
+		
+		let ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
+		searchUrl = ajaxConfig.searchUrl || searchUrl;
+		let fs = data[id],
+			isCreate = fs.config.isCreate,
+			reElem = $(`dl[xid="${id}"]`).parents(`.${FORM_SELECT}`);
+		//如果开启了远程搜索
+		if(searchUrl){
+			if(ajaxConfig.searchVal){
+				inputValue = ajaxConfig.searchVal;
+				ajaxConfig.searchVal = '';
+			}
+			if(!ajaxConfig.beforeSearch || (ajaxConfig.beforeSearch && ajaxConfig.beforeSearch instanceof Function && ajaxConfig.beforeSearch(id, searchUrl, inputValue))){
+				let delay = ajaxConfig.delay;
+				if(ajaxConfig.first){
+					ajaxConfig.first = false;
+					delay = 10;
+				}
+				clearTimeout(fs.clearid);
+				fs.clearid = setTimeout(() => {
+					reElem.find(`dl > *:not(.${FORM_SELECT_TIPS})`).remove();
+					reElem.find(`dd.${FORM_NONE}`).addClass(FORM_EMPTY).text('请求中');
+					this.ajax(id, searchUrl, inputValue, false, null, true);
+				}, delay);
+			}
+		}else{
+			reElem.find(`dl .${DD_HIDE}`).removeClass(DD_HIDE);
+			//遍历选项, 选择可以显示的值
+			reElem.find(`dl dd:not(.${FORM_SELECT_TIPS})`).each((idx, item) => {
+				let _item = $(item);
+				let searchFun = data[id].config.filter || events.filter[id];
+				if(searchFun && searchFun(id, inputValue, {
+					name: _item.find('span').attr('name'),
+					val: _item.attr('lay-value')
+				}, _item.hasClass(DISABLED)) == true){
+					_item.addClass(DD_HIDE);
+				}
+			});
+			//控制分组名称
+			reElem.find('dl dt').each((index, item) => {
+				if(!$(item).nextUntil('dt', `:not(.${DD_HIDE})`).length) {
+					$(item).addClass(DD_HIDE);
+				}
+			});
+			//动态创建
+			this.create(id, isCreate, inputValue);
+			let shows = reElem.find(`dl dd:not(.${FORM_SELECT_TIPS}):not(.${DD_HIDE})`);
+			if(!shows.length){
+				reElem.find(`dd.${FORM_NONE}`).addClass(FORM_EMPTY).text('无匹配项');
+			}else{
+				reElem.find(`dd.${FORM_NONE}`).removeClass(FORM_EMPTY);
+			}
+		}
 	}
 	
 	Common.prototype.isArray = function(obj){
@@ -391,14 +424,7 @@
 			reElem = $(reElem);
 			let id = reElem.find('dl').attr('xid')
 			if((id && data[id] && data[id].config.isEmpty) || isCall){
-				let obj_caller = reElem.find(`.${INPUT}`)[0];
-				if(document.createEventObject) {
-				    obj_caller.fireEvent("onchange");
-				} else {
-				    var evt = document.createEvent("HTMLEvents");
-				    evt.initEvent("input", false, true);
-				    obj_caller.dispatchEvent(evt);
-				}
+				this.search(id, null, null, data[id].config.searchType == 0 ? reElem.find(`.${LABEL} .${INPUT}`) : reElem.find(`dl .${FORM_DL_INPUT} .${INPUT}`));
 			}
 		});
 	}
@@ -556,7 +582,7 @@
 				if(temp[0]){
 					temp.attr('lay-value', val);
 					temp.find('span').text(inputValue);
-					temp.removeClass('layui-hide');
+					temp.removeClass(DD_HIDE);
 				}else{
 					tips.after($(this.createDD(id, {
 						innerHTML: inputValue,
@@ -647,9 +673,15 @@
 		$(document).on('click', (e) => {
 			if(!$(e.target).parents(`.${FORM_TITLE}`)[0]){//清空input中的值
 				$(`.${INPUT}`).val('');
-				$(`.${PNAME} dl .layui-hide`).removeClass('layui-hide');
+				$(`.${PNAME} dl .${DD_HIDE}`).removeClass(DD_HIDE);
+				$(`.${PNAME} dl dd.${FORM_EMPTY}`).removeClass(FORM_EMPTY);
 				$(`.${PNAME} dl dd.${TEMP}`).remove();
 				this.triggerSearch();
+				$.each(data, (key, fs) => {
+					if(!fs.values.length){
+						this.changePlaceHolder($(`div[FS_ID="${key}"] .${LABEL}`));
+					}
+				});
 			}
 			$(`.${PNAME} .${FORM_SELECTED}`).removeClass(FORM_SELECTED);
 		});
@@ -657,7 +689,7 @@
 	}
 	
 	Common.prototype.one = function(target){//一次性事件绑定
-		$(target ? target : document).find(`.${FORM_TITLE}`).off('click').on('click', (e) => {
+		$(target ? target : document).off('click').on('click', `.${FORM_TITLE}`, (e) => {
 			let othis = $(e.target),
 				title = othis.is(FORM_TITLE) ? othis : othis.parents(`.${FORM_TITLE}`),
 				dl = title.next(),
@@ -665,7 +697,7 @@
 			
 			//清空非本select的input val
 			$(`dl[xid]`).not(dl).prev().find(`.${INPUT}`).val('');
-			$(`dl[xid]`).not(dl).find(`dd.layui-hide`).removeClass('layui-hide');
+			$(`dl[xid]`).not(dl).find(`dd.${DD_HIDE}`).removeClass(DD_HIDE);
 			
 			//如果是disabled select
 			if(title.hasClass(DIS)){
@@ -900,7 +932,7 @@
 			return ;
 		}
 		if(!notOn){
-			if(on && on instanceof Function && (on(id, vals.concat([]), val, isAdd, (dd && dd.hasClass(DISABLED) == false)))) {
+			if(on && on instanceof Function && on(id, vals.concat([]), val, isAdd, dd && dd.hasClass(DISABLED)) == false) {
 				return ;
 			}
 		}
@@ -1039,16 +1071,21 @@
 			this.retop(top);
 			top.addClass(FORM_SELECTED);
 			top.find(`.${INPUT}`).focus();
+			if(!top.find(`dl dd[lay-value]:not(.${FORM_SELECT_TIPS})`).length){
+				top.find(`dl .${FORM_NONE}`).addClass(FORM_EMPTY);
+			}
 		}else{
 			top.removeClass(FORM_SELECTED);
 			top.find(`.${INPUT}`).val('');
-			top.find(`dl .layui-hide`).removeClass('layui-hide');
+			top.find(`dl .${FORM_EMPTY}`).removeClass(FORM_EMPTY);
+			top.find(`dl dd.${DD_HIDE}`).removeClass(DD_HIDE);
 			top.find(`dl dd.${TEMP}`).remove();
 			//计算ajax数据是否为空, 然后重新请求数据
 			let id = top.find('dl').attr('xid');
 			if(id && data[id] && data[id].config.isEmpty){
 				this.triggerSearch(top);
 			}
+			this.changePlaceHolder(top.find(`.${LABEL}`));
 		}
 	}
 	
@@ -1056,6 +1093,9 @@
 		//调整pane模式下的高度
 		let title = div.parents(`.${FORM_TITLE}`);
 		title[0] || (title = div.parents(`dl`).prev());
+		if(!title[0]){
+			return ;
+		}
 		
 		let id = div.parents(`.${PNAME}`).find(`dl[xid]`).attr('xid');
 		if(data[id] && data[id].config.height){//既然固定高度了, 那就看着办吧
@@ -1108,6 +1148,9 @@
 	
 	Common.prototype.selectAll = function(id, isOn, skipDis){
 		let dl = $(`[xid="${id}"]`);
+		if(!dl[0]){
+			return ;
+		}
 		if(dl.find('.xm-select-linkage')[0]){
 			return ;
 		}
@@ -1123,6 +1166,9 @@
 	
 	Common.prototype.removeAll = function(id, isOn, skipDis){
 		let dl = $(`[xid="${id}"]`);
+		if(!dl[0]){
+			return ;
+		}
 		if(dl.find('.xm-select-linkage')[0]){//针对多级联动的处理
 			data[id].values.concat([]).forEach((item, idx) => {
 				let vs = item.val.split('/');
@@ -1146,6 +1192,9 @@
 	
 	Common.prototype.reverse = function(id, isOn, skipDis){
 		let dl = $(`[xid="${id}"]`);
+		if(!dl[0]){
+			return ;
+		}
 		if(dl.find('.xm-select-linkage')[0]){
 			return ;
 		}
@@ -1163,7 +1212,7 @@
 		let skins = ['default' ,'primary', 'normal', 'warm', 'danger'];
 		let skin = skins[Math.floor(Math.random() * skins.length)];
 		$(`dl[xid="${id}"]`).parents(`.${PNAME}`).find(`.${FORM_SELECT}`).attr('xm-select-skin', skin);
-		this.commonHanler(id, $(`dl[xid="${id}"]`).parents(`.${PNAME}`).find(`.${LABEL}`));
+		this.check(id) && this.commonHanler(id, $(`dl[xid="${id}"]`).parents(`.${PNAME}`).find(`.${LABEL}`));
 	}
 	
 	Common.prototype.getPosition = function(e){
@@ -1194,6 +1243,40 @@
 		});
 	}
 	
+	Common.prototype.bindEvent = function(name, id, fun){
+		if(id && id instanceof Function){
+			fun = id;
+			id = null;
+		}
+		if(fun && fun instanceof Function){
+			if(!id){
+				$.each(data, (id, val) => {
+					data[id] ? (data[id].config[name] = fun) : (events[name][id] = fun)				
+				})
+			}else{
+				data[id] ? (data[id].config[name] = fun) : (events[name][id] = fun)
+			}
+		}
+	}
+	
+	Common.prototype.check = function(id){
+		if($(`dl[xid="${id}"]`).length){
+			return true;
+		}else{
+			delete data[id];
+			return false;
+		}
+	}
+	
+	Common.prototype.render = function(id, select){
+		if(this.check(id)){
+			select = data[id].select;
+		}
+		common.init(select);
+		common.one($(`dl[xid="${id}"]`).parents(`.${PNAME}`));
+		common.initVal(id);
+	}
+	
 	let Select4 = function(){
 		this.v = v;
 	};
@@ -1204,7 +1287,7 @@
 			return [];
 		}
 		let fs = data[id];
-		if(!fs){
+		if(!common.check(id)){
 			return [];
 		}
 		if(typeof type == 'string' || type == undefined){
@@ -1268,22 +1351,6 @@
 		}
 	}
 	
-	Common.prototype.bindEvent = function(name, id, fun){
-		if(id && id instanceof Function){
-			fun = id;
-			id = null;
-		}
-		if(fun && fun instanceof Function){
-			if(!id){
-				$.each(data, (id, val) => {
-					data[id] ? (data[id].config[name] = fun) : (events[name][id] = fun)				
-				})
-			}else{
-				data[id] ? (data[id].config[name] = fun) : (events[name][id] = fun)
-			}
-		}
-	}
-	
 	Select4.prototype.on = function(id, fun){
 		common.bindEvent('on', id, fun);
 		return this;
@@ -1313,10 +1380,14 @@
 			}
 			id ? (
 				ajaxs[id] = $.extend(true, {}, ajaxs[id] || ajax, config),
+				!common.check(id) && this.render(id),
 				data[id] && (data[id].config.direction = config.direction),
 				config.searchUrl && data[id] && common.triggerSearch($(`.${PNAME} dl[xid="${id}"]`).parents(`.${FORM_SELECT}`), true)
 			) : (
-				$.extend(true, ajax, config)
+				$.extend(true, ajax, config),
+				$.each(ajaxs, (key, item) => {
+					$.extend(true, item, config)
+				})
 			);
 		}
 		return this;
@@ -1328,45 +1399,50 @@
 			id = null;
 		}
 		let target = {};
-		id ? (data[id] && (target[id] = data[id])) : (target = data);
+		id ? (common.check(id) && (target[id] = data[id])) : (target = data);
 		
 		let config = options ? {
 			init: options.init,
-			skin: options.skin,
-			height: options.height,
+			disabled: options.disabled,
+			max: options.max,			
+			isSearch: options.isSearch,			
+			isCreate: options.isCreate,			
 			radio: options.radio,
+			skin: options.skin,
 			direction: options.direction,
+			height: options.height,
+			formname: options.formname,
+			layverify: options.layverify,
+			layverType: options.layverType,
+			searchType: options.searchType,			
+			showCount: options.showCount,	
+			placeholder: options.placeholder,	
 			create: options.create,			
 			filter: options.filter,			
-			max: options.max,			
 			maxTips: options.maxTips,			
 			on: options.on,			
-			searchType: options.searchType,			
 			template: options.template,			
-			showCount: options.showCount,			
 		} : {};
 		
 		if(Object.getOwnPropertyNames(target).length){
 			$.each(target, (key, val) => {//恢复初始值
-				this.value(key, []);
-				$.extend(data[key].config, config);
-				common.init(val.select);
-				common.one($(`dl[xid="${key}"]`).parents(`.${PNAME}`));
-				common.initVal(key);
+				if(common.check(key)){
+					this.value(key, []);
+					$.extend(data[key].config, config);
+					common.render(key, val.select);
+				}
 			});
 		}
 		($(`select[${NAME}="${id}"]`)[0] ? $(`select[${NAME}="${id}"]`) : $(`select[${NAME}]`)).each((index, select) => {
 			let sid = select.getAttribute(NAME);
-			common.init(select);
-			common.one($(`dl[xid="${sid}"]`).parents(`.${PNAME}`));
-			common.initVal(sid);
+			common.render(sid, select);
 		});
 		return this;
 	}
 	
 	Select4.prototype.disabled = function(id){
 		let target = {};
-		id ? (data[id] && (target[id] = data[id])) : (target = data);
+		id ? (common.check(id) && (target[id] = data[id])) : (target = {});
 		
 		$.each(target, (key, val) => {
 			$(`dl[xid="${key}"]`).prev().addClass(DIS);
@@ -1376,7 +1452,7 @@
 	
 	Select4.prototype.undisabled = function(id){
 		let target = {};
-		id ? (data[id] && (target[id] = data[id])) : (target = data);
+		id ? (common.check(id) && (target[id] = data[id])) : (target = {});
 		
 		$.each(target, (key, val) => {
 			$(`dl[xid="${key}"]`).prev().removeClass(DIS);
@@ -1388,10 +1464,9 @@
 		if(!id || !type || !config){
 			return this;
 		}
-		//检测该id是否尚未渲染
-		!data[id] && this.render(id).value(id, []);
-		this.config(id, config);
+		!common.check(id) && this.render(id);
 		this.value(id, []);
+		this.config(id, config);
 		if(type == 'local'){
 			common.renderData(id, config.arr, config.linkage == true, config.linkageWidth ? config.linkageWidth : '100');
 		}else if(type == 'server'){
@@ -1405,7 +1480,7 @@
 			return this;
 		};
 		let target = {};
-		id ? (data[id] && (target[id] = data[id])) : (target = data);
+		id ? (common.check(id) && (target[id] = data[id])) : (target = {});
 		
 		btns = btns.map((obj) => {
 			if(typeof obj == 'string'){
@@ -1444,8 +1519,8 @@
 	}
 	
 	Select4.prototype.search = function(id, val){
-		if(id && data[id]){
-			ajaxs[id] = $.extend(true, {}, ajax, {
+		if(id && common.check(id)){
+			ajaxs[id] = $.extend(true, {}, ajaxs[id] || ajax, {
 				first: true,
 				searchVal: val
 			});
