@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0704
+ * version: 4.0.0.0706
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function(layui, window, factory) {
@@ -151,54 +151,14 @@
 	};
 	
 	Common.prototype.appender = function(){//针对IE做的一些拓展
-		if (!Array.prototype.map) {
-		    Array.prototype.map = function(callback, thisArg) {
-		        var T, A, k, 
-		        	O = Object(this),
-		        	len = O.length >>> 0;
-		        if (thisArg) {
-		            T = thisArg;
-		        }
-		        A = new Array(len);
-		        k = 0;
-		        while(k < len) {
-		            var kValue, mappedValue;
-		            if (k in O) {
-		                kValue = O[ k ];
-		                mappedValue = callback.call(T, kValue, k, O);
-		                A[ k ] = mappedValue;
-		            }
-		            k++;
-		        }
-		        return A;
-		    };
-		}
-		if ( !Array.prototype.forEach ) {
-		    Array.prototype.forEach = function forEach( callback, thisArg ) {
-		        var T, k;
-		        if ( this == null ) {
-		            throw new TypeError( "this is null or not defined" );
-		        }
-		        var O = Object(this);
-		        var len = O.length >>> 0;
-		        if ( typeof callback !== "function" ) {
-		            throw new TypeError( callback + " is not a function" );
-		        }
-		        if ( arguments.length > 1 ) {
-		            T = thisArg;
-		        }
-		        k = 0;
-		        while( k < len ) {
-		            var kValue;
-		            if ( k in O ) {
+		//拓展Array map方法
+		if(!Array.prototype.map){Array.prototype.map=function(i,h){var b,a,c,e=Object(this),f=e.length>>>0;if(h){b=h}a=new Array(f);c=0;while(c<f){var d,g;if(c in e){d=e[c];g=i.call(b,d,c,e);a[c]=g}c++}return a}};
 		
-		                kValue = O[ k ];
-		                callback.call( T, kValue, k, O );
-		            }
-		            k++;
-		        }
-		    };
-		}
+		//拓展Array foreach方法
+		if(!Array.prototype.forEach){Array.prototype.forEach=function forEach(g,b){var d,c;if(this==null){throw new TypeError("this is null or not defined")}var f=Object(this);var a=f.length>>>0;if(typeof g!=="function"){throw new TypeError(g+" is not a function")}if(arguments.length>1){d=b}c=0;while(c<a){var e;if(c in f){e=f[c];g.call(d,e,c,f)}c++}}};
+		
+		//jquery横向滚动, https://github.com/jquery/jquery-mousewheel	
+		(function(a){if(typeof define==="function"&&define.amd){define(["jquery"],a)}else{if(typeof exports==="object"){module.exports=a}else{a($)}}}(function(c){var d=["wheel","mousewheel","DOMMouseScroll","MozMousePixelScroll"],k=("onwheel" in document||document.documentMode>=9)?["wheel"]:["mousewheel","DomMouseScroll","MozMousePixelScroll"],h=Array.prototype.slice,j,b;if(c.event.fixHooks){for(var e=d.length;e;){c.event.fixHooks[d[--e]]=c.event.mouseHooks}}var f=c.event.special.mousewheel={version:"3.1.12",setup:function(){if(this.addEventListener){for(var m=k.length;m;){this.addEventListener(k[--m],l,false)}}else{this.onmousewheel=l}c.data(this,"mousewheel-line-height",f.getLineHeight(this));c.data(this,"mousewheel-page-height",f.getPageHeight(this))},teardown:function(){if(this.removeEventListener){for(var m=k.length;m;){this.removeEventListener(k[--m],l,false)}}else{this.onmousewheel=null}c.removeData(this,"mousewheel-line-height");c.removeData(this,"mousewheel-page-height")},getLineHeight:function(m){var i=c(m),n=i["offsetParent" in c.fn?"offsetParent":"parent"]();if(!n.length){n=c("body")}return parseInt(n.css("fontSize"),10)||parseInt(i.css("fontSize"),10)||16},getPageHeight:function(i){return c(i).height()},settings:{adjustOldDeltas:true,normalizeOffset:true}};c.fn.extend({mousewheel:function(i){return i?this.bind("mousewheel",i):this.trigger("mousewheel")},unmousewheel:function(i){return this.unbind("mousewheel",i)}});function l(i){var o=i||window.event,u=h.call(arguments,1),w=0,q=0,p=0,t=0,s=0,r=0;i=c.event.fix(o);i.type="mousewheel";if("detail" in o){p=o.detail*-1}if("wheelDelta" in o){p=o.wheelDelta}if("wheelDeltaY" in o){p=o.wheelDeltaY}if("wheelDeltaX" in o){q=o.wheelDeltaX*-1}if("axis" in o&&o.axis===o.HORIZONTAL_AXIS){q=p*-1;p=0}w=p===0?q:p;if("deltaY" in o){p=o.deltaY*-1;w=p}if("deltaX" in o){q=o.deltaX;if(p===0){w=q*-1}}if(p===0&&q===0){return}if(o.deltaMode===1){var v=c.data(this,"mousewheel-line-height");w*=v;p*=v;q*=v}else{if(o.deltaMode===2){var n=c.data(this,"mousewheel-page-height");w*=n;p*=n;q*=n}}t=Math.max(Math.abs(p),Math.abs(q));if(!b||t<b){b=t;if(a(o,t)){b/=40}}if(a(o,t)){w/=40;q/=40;p/=40}w=Math[w>=1?"floor":"ceil"](w/b);q=Math[q>=1?"floor":"ceil"](q/b);p=Math[p>=1?"floor":"ceil"](p/b);if(f.settings.normalizeOffset&&this.getBoundingClientRect){var m=this.getBoundingClientRect();s=i.clientX-m.left;r=i.clientY-m.top}i.deltaX=q;i.deltaY=p;i.deltaFactor=b;i.offsetX=s;i.offsetY=r;i.deltaMode=0;u.unshift(i,w,q,p);if(j){clearTimeout(j)}j=setTimeout(g,200);return(c.event.dispatch||c.event.handle).apply(this,u)}function g(){b=null}function a(m,i){return f.settings.adjustOldDeltas&&m.type==="mousewheel"&&i%120===0}}));
 	}
 	
 	Common.prototype.init = function(target){
@@ -294,11 +254,8 @@
 
 			//构造渲染div
 			let dinfo = this.renderSelect(id, placeholder, select); 
-			let heightStyle = !height || height == 'auto' ? '' : `style="height: ${height};"`;
-			let inputHtml =  height ? [
-				`<div class="${LABEL}" style="margin-right: ${isSearch && searchtype == 0 ? '50px' : '10px'};"></div>`,
-				`<input type="text" fsw class="${FORM_INPUT} ${INPUT}" ${isSearch ? '' : 'style="display: none;"'} autocomplete="off" debounce="0" style="position: absolute;right: 10px;top: 3px;"/>`
-			] : [
+			let heightStyle = !height || height == 'auto' ? '' : `xm-hg style="height: 34px;"`;
+			let inputHtml = [
 				`<div class="${LABEL}">`,
 					`<input type="text" fsw class="${FORM_INPUT} ${INPUT}" ${isSearch ? '' : 'style="display: none;"'} autocomplete="off" debounce="0" />`,
 				`</div>`
@@ -334,7 +291,7 @@
 				ajaxs[id] = $.extend(true, {}, ajax, {
 					searchUrl: searchUrl
 				});
-				$(document).on('input propertychange', `div.${PNAME}[FS_ID="${id}"] .${INPUT}`, (e) => {
+				$(document).on('input', `div.${PNAME}[FS_ID="${id}"] .${INPUT}`, (e) => {
 					this.search(id, e, searchUrl);
 				});
 				if(searchUrl){//触发第一次请求事件
@@ -427,6 +384,12 @@
 				this.search(id, null, null, data[id].config.searchType == 0 ? reElem.find(`.${LABEL} .${INPUT}`) : reElem.find(`dl .${FORM_DL_INPUT} .${INPUT}`));
 			}
 		});
+	}
+	
+	Common.prototype.clearInput = function(id){
+		let div = $(`.${PNAME}[fs_id="${id}"]`);
+		let input = data[id].config.searchType == 0 ? div.find(`.${LABEL} .${INPUT}`) : div.find(`dl .${FORM_DL_INPUT} .${INPUT}`);
+		input.val('');
 	}
 	
 	Common.prototype.ajax = function(id, searchUrl, inputValue, isLinkage, linkageWidth, isSearch){
@@ -644,10 +607,12 @@
 		}
 		if(this.isArray(select)){
 			$(select).each((index, item) => {
-				if(item.type === 'optgroup') {
-					arr.push(`<dt>${item.name}</dt>`);
-				} else {
-					arr.push(this.createDD(id, item));
+				if(item){
+					if(item.type && item.type === 'optgroup') {
+						arr.push(`<dt>${item.name}</dt>`);
+					} else {
+						arr.push(this.createDD(id, item));
+					}
 				}
 			});
 		}else{
@@ -672,12 +637,11 @@
 		
 		$(document).on('click', (e) => {
 			if(!$(e.target).parents(`.${FORM_TITLE}`)[0]){//清空input中的值
-				$(`.${INPUT}`).val('');
 				$(`.${PNAME} dl .${DD_HIDE}`).removeClass(DD_HIDE);
 				$(`.${PNAME} dl dd.${FORM_EMPTY}`).removeClass(FORM_EMPTY);
 				$(`.${PNAME} dl dd.${TEMP}`).remove();
-				this.triggerSearch();
 				$.each(data, (key, fs) => {
+					this.clearInput(key);
 					if(!fs.values.length){
 						this.changePlaceHolder($(`div[FS_ID="${key}"] .${LABEL}`));
 					}
@@ -686,17 +650,75 @@
 			$(`.${PNAME} .${FORM_SELECTED}`).removeClass(FORM_SELECTED);
 		});
 		
+		$(document).on('mousewheel', '.xm-select-label', (e, w) => {
+	    	let target = $(e.target)
+	    	this.calcLabelLeft(target.is(`.${LABEL}`) ? target : target.parents(`.${LABEL}`), w);
+	    });
+	    $(document).on('mouseover', '.xm-select-label', () => {
+	   		var tops = $(document).scrollTop();//当页面滚动时，把当前距离赋值给页面，这样保持页面滚动条不动
+			$(document).bind("scroll",function (){$(document).scrollTop(tops); });
+	    });
+	    $(document).on('mouseout', '.xm-select-label', () => {
+	   		$(document).unbind("scroll");
+	    });
+	   
+	}
+	
+	Common.prototype.scroll = function(top){
+		$(window).scroll(() => {
+			$(window).scrollTop(top);
+		});
+	}
+	
+	Common.prototype.calcLabelLeft = function(label, w, call){
+		let pos = this.getPosition(label[0]);
+    	pos.y = pos.x + label[0].clientWidth;
+    	let left = label[0].offsetLeft;
+    	if(!label.find('span').length){
+    		left = 0;
+    	}else if(call){//校正归位
+    		let span = label.find('span:last');
+    		span.css('display') == 'none' ? (span = span.prev()[0]) : (span = span[0]);
+			let spos = this.getPosition(span);
+			spos.y = spos.x + span.clientWidth;
+			
+			if(spos.y > pos.y){
+				left = left - (spos.y - pos.y) - 5;
+			}else{
+				left = 0;
+			}
+    	}else{
+	    	if(w < 0){
+				let span = label.find(':last');
+				span.css('display') == 'none' ? (span = span.prev()[0]) : (span = span[0]);
+				let spos = this.getPosition(span);
+				spos.y = spos.x + span.clientWidth;
+				if(spos.y > pos.y){
+					left -= 10;
+				}
+	    	}else{
+				if(left < 0){
+					left += 10;
+				}
+				if(left > 0){
+					left = 0;
+				}
+	    	}
+    	}
+    	label.css('left', left + 'px');
 	}
 	
 	Common.prototype.one = function(target){//一次性事件绑定
-		$(target ? target : document).off('click').on('click', `.${FORM_TITLE}`, (e) => {
+		$(target ? target : document).find(`.${FORM_TITLE}`).on('click', (e) => {
 			let othis = $(e.target),
 				title = othis.is(FORM_TITLE) ? othis : othis.parents(`.${FORM_TITLE}`),
 				dl = title.next(),
 				id = dl.attr('xid');
 			
 			//清空非本select的input val
-			$(`dl[xid]`).not(dl).prev().find(`.${INPUT}`).val('');
+			$(`dl[xid]`).not(dl).each((index, item) => {
+				this.clearInput($(item).attr('xid'));
+			});
 			$(`dl[xid]`).not(dl).find(`dd.${DD_HIDE}`).removeClass(DD_HIDE);
 			
 			//如果是disabled select
@@ -815,7 +837,6 @@
 				if(!btn[0]){
 					return false;
 				}
-				//TODO 快捷操作
 				let method = btn.attr('method');
 				let obj = data[id].config.btns.filter(bean => bean.name == method)[0];
 				obj && obj.click && obj.click instanceof Function && obj.click(id, this);
@@ -877,7 +898,7 @@
 		//计算高度
 		this.retop(label.parents(`.${FORM_SELECT}`));
 		this.checkHideSpan(key, label);
-		this.calcLeft(key, label);
+		this.calcLabelLeft(label, 0, true);
 		//表单默认值
 		label.parents(`.${PNAME}`).find(`.${HIDE_INPUT}`).val(data[key].values.map((val) => {
 			return val.val;
@@ -964,7 +985,7 @@
 		div.parents(`.${FORM_TITLE}`).prev().removeClass('layui-form-danger');
 		
 		//清空搜索值
-		fs.config.clearInput && div.parents(`.${PNAME}`).find(`.${INPUT}`).val('');
+		fs.config.clearInput && this.clearInput(id);
 		
 		this.commonHanler(id, div);
 	}
@@ -985,24 +1006,13 @@
 			div.find('span').remove();
 		}
 		//如果是固定高度
-		if(fs.config.height){
-			div.append($label);
-		}else{
-			div.find('input').css('width', '50px');
-			div.find('input').before($label);
-		}
+		div.find('input').css('width', '50px');
+		div.find('input').before($label);
 	}
 	
 	Common.prototype.delLabel = function(id, div, val){
 		if(!val) return ;
 		div.find(`span[value="${val.val}"]:first`).remove();
-	}
-	
-	Common.prototype.calcLeft = function(id, div){
-		if(data[id].config.height){
-			let showLastSpan = div.find('span:not(.xm-span-hide):last')[0];
-			div.next().css('left', (showLastSpan ? this.getPosition(showLastSpan).x - this.getPosition(div[0]).x + showLastSpan.offsetWidth + 20 : 10) + 'px');
-		}
 	}
 	
 	Common.prototype.checkHideSpan = function(id, div){
@@ -1013,9 +1023,6 @@
 		let count = data[id].config.showCount;
 		div.find('span').each((index, item) => {
 			if(index >= count){
-				$(item).addClass('xm-span-hide');
-			}
-			if(item.offsetHeight + item.offsetTop > parentHeight || this.getPosition(item).y + item.offsetHeight > this.getPosition(div[0]).y + div[0].offsetHeight + 5){
 				$(item).addClass('xm-span-hide');
 			}
 		});
@@ -1075,13 +1082,13 @@
 				top.find(`dl .${FORM_NONE}`).addClass(FORM_EMPTY);
 			}
 		}else{
+			let id = top.find('dl').attr('xid');
 			top.removeClass(FORM_SELECTED);
-			top.find(`.${INPUT}`).val('');
+			this.clearInput(id);
 			top.find(`dl .${FORM_EMPTY}`).removeClass(FORM_EMPTY);
 			top.find(`dl dd.${DD_HIDE}`).removeClass(DD_HIDE);
 			top.find(`dl dd.${TEMP}`).remove();
 			//计算ajax数据是否为空, 然后重新请求数据
-			let id = top.find('dl').attr('xid');
 			if(id && data[id] && data[id].config.isEmpty){
 				this.triggerSearch(top);
 			}

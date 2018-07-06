@@ -1386,7 +1386,17 @@ layui.formSelects.config({direction: 'up'});
 		<blockquote class="layui-elem-quote layui-quote-nm" id="over">结尾</blockquote>
 		<div class="chat over" style="display: inline-block;">
 <pre class="brush: js">
-[2018-07-02] v4.0.0.0704
+[2018-07-06] v4.0.0.0706
+-- 新增 --
+1.修改固定高度为默认值34px;
+2.当固定高度后, 已选择数据可以通过鼠标滚轮横向滚动
+3.0702忘记说了, 新增点击分组名称选中该分组下的数据
+
+-- bug修复 --
+1.修复form表单不能正常验证
+
+	
+[2018-07-04] v4.0.0.0704
 -- bug修复 --
 1.修复了render方法的错误, 带来了一连串的影响...
 2.修复有搜索内容无匹配直接关闭时, 仍显示无匹配项
@@ -2011,7 +2021,7 @@ formSelects.search('select1', '关键内容');
 		<script src="../UI/SyntaxHighlighter-3.0.83/shCore.js"></script>
 		<script src="../UI/SyntaxHighlighter-3.0.83/shBrushJScript.js"></script>
 		<script src="../UI/layui-v2.3.0-rc1/layui/layui.js" type="text/javascript" charset="utf-8"></script>
-		<script src="../dist/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../dist/formSelects-v4.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../UI/js-pinyin.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
 			SyntaxHighlighter.defaults["quick-code"] = false;
@@ -2168,10 +2178,10 @@ formSelects.search('select1', '关键内容');
 			
 			formSelects.config({
 				success: function(id, url, val, result){
-					console.log("success回调: " + url);
+					console.log("success回调: " + url, id);
 				},
 				error: function(id, url, val, err){
-					console.log("err回调: " + url);
+					console.log("err回调: " + url, id);
 				}
 			});
 			formSelects.data('select15_2', 'server', {

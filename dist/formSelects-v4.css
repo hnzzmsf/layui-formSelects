@@ -55,6 +55,7 @@
 .layui-form-pane .xm-select,.layui-form-pane .xm-select:hover {border: none!important;top: 0px}
 .layui-form-pane .xm-select-title {border: 1px solid #e6e6e6!important}
 .xm-select-hide {display: none !important;}
+div[xm-hg] .xm-select-label{white-space: nowrap; overflow: hidden; position: absolute; right: 30px; left: 0; padding-left: 10px;}
 
 /* 颜色相关 */
 div[xm-select-skin] .xm-select-title div.xm-select-label>span {border: 1px solid #009688}
