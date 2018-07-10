@@ -5,7 +5,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0706
+ * version: 4.0.0.0710
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function (layui, window, factory) {
@@ -24,7 +24,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function () {
-	var v = '4.0.0.0704',
+	var v = '4.0.0.0710',
 	    NAME = 'xm-select',
 	    PNAME = 'xm-select-parent',
 	    INPUT = 'xm-select-input',
@@ -187,103 +187,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				}
 			};
 		};
-
-		//jquery横向滚动, https://github.com/jquery/jquery-mousewheel	
-		(function (a) {
-			if (typeof define === "function" && define.amd) {
-				define(["jquery"], a);
-			} else {
-				if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === "object") {
-					module.exports = a;
-				} else {
-					a($);
-				}
-			}
-		})(function (c) {
-			var d = ["wheel", "mousewheel", "DOMMouseScroll", "MozMousePixelScroll"],
-			    k = "onwheel" in document || document.documentMode >= 9 ? ["wheel"] : ["mousewheel", "DomMouseScroll", "MozMousePixelScroll"],
-			    h = Array.prototype.slice,
-			    j,
-			    b;if (c.event.fixHooks) {
-				for (var e = d.length; e;) {
-					c.event.fixHooks[d[--e]] = c.event.mouseHooks;
-				}
-			}var f = c.event.special.mousewheel = { version: "3.1.12", setup: function setup() {
-					if (this.addEventListener) {
-						for (var m = k.length; m;) {
-							this.addEventListener(k[--m], l, false);
-						}
-					} else {
-						this.onmousewheel = l;
-					}c.data(this, "mousewheel-line-height", f.getLineHeight(this));c.data(this, "mousewheel-page-height", f.getPageHeight(this));
-				}, teardown: function teardown() {
-					if (this.removeEventListener) {
-						for (var m = k.length; m;) {
-							this.removeEventListener(k[--m], l, false);
-						}
-					} else {
-						this.onmousewheel = null;
-					}c.removeData(this, "mousewheel-line-height");c.removeData(this, "mousewheel-page-height");
-				}, getLineHeight: function getLineHeight(m) {
-					var i = c(m),
-					    n = i["offsetParent" in c.fn ? "offsetParent" : "parent"]();if (!n.length) {
-						n = c("body");
-					}return parseInt(n.css("fontSize"), 10) || parseInt(i.css("fontSize"), 10) || 16;
-				}, getPageHeight: function getPageHeight(i) {
-					return c(i).height();
-				}, settings: { adjustOldDeltas: true, normalizeOffset: true } };c.fn.extend({ mousewheel: function mousewheel(i) {
-					return i ? this.bind("mousewheel", i) : this.trigger("mousewheel");
-				}, unmousewheel: function unmousewheel(i) {
-					return this.unbind("mousewheel", i);
-				} });function l(i) {
-				var o = i || window.event,
-				    u = h.call(arguments, 1),
-				    w = 0,
-				    q = 0,
-				    p = 0,
-				    t = 0,
-				    s = 0,
-				    r = 0;i = c.event.fix(o);i.type = "mousewheel";if ("detail" in o) {
-					p = o.detail * -1;
-				}if ("wheelDelta" in o) {
-					p = o.wheelDelta;
-				}if ("wheelDeltaY" in o) {
-					p = o.wheelDeltaY;
-				}if ("wheelDeltaX" in o) {
-					q = o.wheelDeltaX * -1;
-				}if ("axis" in o && o.axis === o.HORIZONTAL_AXIS) {
-					q = p * -1;p = 0;
-				}w = p === 0 ? q : p;if ("deltaY" in o) {
-					p = o.deltaY * -1;w = p;
-				}if ("deltaX" in o) {
-					q = o.deltaX;if (p === 0) {
-						w = q * -1;
-					}
-				}if (p === 0 && q === 0) {
-					return;
-				}if (o.deltaMode === 1) {
-					var v = c.data(this, "mousewheel-line-height");w *= v;p *= v;q *= v;
-				} else {
-					if (o.deltaMode === 2) {
-						var n = c.data(this, "mousewheel-page-height");w *= n;p *= n;q *= n;
-					}
-				}t = Math.max(Math.abs(p), Math.abs(q));if (!b || t < b) {
-					b = t;if (a(o, t)) {
-						b /= 40;
-					}
-				}if (a(o, t)) {
-					w /= 40;q /= 40;p /= 40;
-				}w = Math[w >= 1 ? "floor" : "ceil"](w / b);q = Math[q >= 1 ? "floor" : "ceil"](q / b);p = Math[p >= 1 ? "floor" : "ceil"](p / b);if (f.settings.normalizeOffset && this.getBoundingClientRect) {
-					var m = this.getBoundingClientRect();s = i.clientX - m.left;r = i.clientY - m.top;
-				}i.deltaX = q;i.deltaY = p;i.deltaFactor = b;i.offsetX = s;i.offsetY = r;i.deltaMode = 0;u.unshift(i, w, q, p);if (j) {
-					clearTimeout(j);
-				}j = setTimeout(g, 200);return (c.event.dispatch || c.event.handle).apply(this, u);
-			}function g() {
-				b = null;
-			}function a(m, i) {
-				return f.settings.adjustOldDeltas && m.type === "mousewheel" && i % 120 === 0;
-			}
-		});
 	};
 
 	Common.prototype.init = function (target) {
@@ -776,26 +679,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			}
 			$('.' + PNAME + ' .' + FORM_SELECTED).removeClass(FORM_SELECTED);
 		});
-
-		$(document).on('mousewheel', '.xm-select-label', function (e, w) {
-			var target = $(e.target);
-			_this9.calcLabelLeft(target.is('.' + LABEL) ? target : target.parents('.' + LABEL), w);
-		});
-		$(document).on('mouseover', '.xm-select-label', function () {
-			var tops = $(document).scrollTop(); //当页面滚动时，把当前距离赋值给页面，这样保持页面滚动条不动
-			$(document).bind("scroll", function () {
-				$(document).scrollTop(tops);
-			});
-		});
-		$(document).on('mouseout', '.xm-select-label', function () {
-			$(document).unbind("scroll");
-		});
-	};
-
-	Common.prototype.scroll = function (top) {
-		$(window).scroll(function () {
-			$(window).scrollTop(top);
-		});
 	};
 
 	Common.prototype.calcLabelLeft = function (label, w, call) {
@@ -1174,7 +1057,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				});
 				return;
 			}
-			if (fs.direction == 'down') {
+			if (fs.config.direction == 'down') {
 				dl.css({
 					top: div[0].offsetTop + div.height() + base + 'px',
 					bottom: 'auto'
@@ -1423,6 +1306,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	var Select4 = function Select4() {
 		this.v = v;
+		console.log(data);
 	};
 	var common = new Common();
 
@@ -1525,7 +1409,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				config.header['Content-Type'] = 'application/json; charset=UTF-8';
 				config.dataType = 'json';
 			}
-			id ? (ajaxs[id] = $.extend(true, {}, ajaxs[id] || ajax, config), !common.check(id) && this.render(id), data[id] && (data[id].config.direction = config.direction), config.searchUrl && data[id] && common.triggerSearch($('.' + PNAME + ' dl[xid="' + id + '"]').parents('.' + FORM_SELECT), true)) : ($.extend(true, ajax, config), $.each(ajaxs, function (key, item) {
+			id ? (ajaxs[id] = $.extend(true, {}, ajaxs[id] || ajax, config), !common.check(id) && this.render(id), data[id] && config.direction && (data[id].config.direction = config.direction), config.searchUrl && data[id] && common.triggerSearch($('.' + PNAME + ' dl[xid="' + id + '"]').parents('.' + FORM_SELECT), true)) : ($.extend(true, ajax, config), $.each(ajaxs, function (key, item) {
 				$.extend(true, item, config);
 			}));
 		}
@@ -1618,11 +1502,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	Select4.prototype.btns = function (id, btns, config) {
+		if (id && common.isArray(id)) {
+			btns = id;
+			id = null;
+		}
 		if (!btns || !common.isArray(btns)) {
 			return this;
 		};
 		var target = {};
-		id ? common.check(id) && (target[id] = data[id]) : target = {};
+		id ? common.check(id) && (target[id] = data[id]) : target = data;
 
 		btns = btns.map(function (obj) {
 			if (typeof obj == 'string') {
