@@ -5,7 +5,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0710
+ * version: 4.0.0.0711
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function (layui, window, factory) {
@@ -24,7 +24,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function () {
-	var v = '4.0.0.0710',
+	var v = '4.0.0.0711',
 	    NAME = 'xm-select',
 	    PNAME = 'xm-select-parent',
 	    INPUT = 'xm-select-input',
@@ -58,7 +58,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	    FORM_INPUT = 'xm-input',
 	    FORM_DL_INPUT = 'xm-dl-input',
 	    FORM_SELECT_TIPS = 'xm-select-tips',
-	    CHECKBOX_YES = 'xm-icon-yes',
+	    CHECKBOX_YES = 'iconfont',
 	    CZ = 'xm-cz',
 	    CZ_GROUP = 'xm-cz-group',
 	    TIPS = '请选择',
@@ -140,7 +140,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		};
 		this.select = null;
 		this.values = [];
-		$.extend(true, this.config, options);
+		$.extend(this.config, options);
 	};
 
 	//一些简单的处理方法
@@ -220,7 +220,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					val: option.value
 				};
 			}),
-			    fs = new FormSelects();
+			    fs = new FormSelects(isRadio ? { btns: [quickBtns[1]] } : {});
 			if (isNaN(showCount) || showCount <= 0) {
 				showCount = 19921012;
 			}
@@ -907,6 +907,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	Common.prototype.valToName = function (id, val) {
 		var dl = $('dl[xid="' + id + '"]');
 		var vs = (val + "").split('/');
+		if (!vs.length) {
+			return null;
+		}
 		var names = [];
 		$.each(vs, function (idx, item) {
 			var name = dl.find('.xm-select-linkage-group' + (idx + 1) + ' li[value="' + item + '"] span').text();
@@ -916,11 +919,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	Common.prototype.commonHanler = function (key, label) {
+		if (!label || !label[0]) {
+			return;
+		}
+		this.checkHideSpan(key, label);
 		//计算input的提示语
 		this.changePlaceHolder(label);
 		//计算高度
 		this.retop(label.parents('.' + FORM_SELECT));
-		this.checkHideSpan(key, label);
 		this.calcLabelLeft(label, 0, true);
 		//表单默认值
 		label.parents('.' + PNAME).find('.' + HIDE_INPUT).val(data[key].values.map(function (val) {
@@ -1306,7 +1312,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	var Select4 = function Select4() {
 		this.v = v;
-		console.log(data);
 	};
 	var common = new Common();
 

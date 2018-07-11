@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0710
+ * version: 4.0.0.0711
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function(layui, window, factory) {
@@ -17,7 +17,7 @@
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function() {
-	let v = '4.0.0.0710',
+	let v = '4.0.0.0711',
 		NAME = 'xm-select',
 		PNAME = 'xm-select-parent',
 		INPUT = 'xm-select-input',
@@ -51,7 +51,7 @@
 		FORM_INPUT = 'xm-input',
 		FORM_DL_INPUT = 'xm-dl-input',
 		FORM_SELECT_TIPS = 'xm-select-tips',
-		CHECKBOX_YES = 'xm-icon-yes',
+		CHECKBOX_YES = 'iconfont',
 		CZ = 'xm-cz',
 		CZ_GROUP = 'xm-cz-group',
 		TIPS = '请选择',
@@ -138,7 +138,7 @@
 			};
 			this.select = null;
 			this.values = [];
-			$.extend(true, this.config, options);
+			$.extend(this.config, options);
 		};
 	
 	//一些简单的处理方法
@@ -188,7 +188,7 @@
 						val: option.value,
 					}
 				}),
-				fs = new FormSelects();
+				fs = new FormSelects(isRadio ? {btns: [quickBtns[1]]} : {});
 			if(isNaN(showCount) || showCount <= 0){
 				showCount = 19921012;
 			}
@@ -862,6 +862,9 @@
 	Common.prototype.valToName = function(id, val){
 		let dl = $(`dl[xid="${id}"]`);
 		let vs = (val + "").split('/');
+		if(!vs.length){
+			return null;
+		}
 		let names = [];
 		$.each(vs, (idx, item) => {
 			let name = dl.find(`.xm-select-linkage-group${idx + 1} li[value="${item}"] span`).text();
@@ -871,11 +874,14 @@
 	}
 	
 	Common.prototype.commonHanler = function(key, label){
+		if(!label || !label[0]){
+			return ;
+		}
+		this.checkHideSpan(key, label);
 		//计算input的提示语
 		this.changePlaceHolder(label);
 		//计算高度
 		this.retop(label.parents(`.${FORM_SELECT}`));
-		this.checkHideSpan(key, label);
 		this.calcLabelLeft(label, 0, true);
 		//表单默认值
 		label.parents(`.${PNAME}`).find(`.${HIDE_INPUT}`).val(data[key].values.map((val) => {
@@ -1264,7 +1270,6 @@
 	
 	let Select4 = function(){
 		this.v = v;
-		console.log(data)
 	};
 	let common = new Common();
 	

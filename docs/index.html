@@ -1,61 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 
-	<head>
-		<meta charset="UTF-8">
-		<title>Document</title>
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-		<meta name="description" content="Description">
-		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-		<link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
-		<style type="text/css">
-			.xm-select-parent .xm-select-title div.xm-select-label>span{line-height: 14px; top: 2px;}
-			.xm-select-parent .xm-select-title div.xm-select-label>span i{top: 1px;}
-		</style>
-	</head>
+<script>
+	var _hmt = _hmt || [];
+	(function() {
+		var hm = document.createElement("script");
+		hm.src = "https://hm.baidu.com/hm.js?bf515042093c3de99a0ba28c661b07b4";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hm, s);
+	})();
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>formSelects 基于layui的多选解决方案</title>
+	<meta name="description" content="基于layui的多选解决方案">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<link type="image/x-icon" rel="shortcut icon" href="public/fs.png">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="//unpkg.com/docsify/lib/themes/vue.css">
+	<link rel="stylesheet" type="text/css" href="../dist/formSelects-v4.css"/>
+	<link rel="stylesheet" type="text/css" href="public/index.css"/>
+</head>
 
-	<body>
-		<div id="app">加载中...</div>
-		<script>
-			window.$docsify = {
-				basePath: './',
-				name: 'FormSelects',
-				repo: 'hnzzmsf/layui-formSelects',
-//				auto2top: true,
-				loadNavbar: true,
-				loadSidebar: true,
-				subMaxLevel: 2,
-				coverpage: true,
-				mergeNavbar: true,
-				executeScript: true,
-				homepage: 'README.md',
-				search: {
-			        noData: {
-			          '/': '没有结果!'
-			        },
-			        paths: 'auto',
-			        placeholder: {
-			          '/': '搜索'
-			        }
-			    },
-			}
-		</script>
-		<script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
-		<script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
-		<script src="//unpkg.com/docsify/lib/plugins/emoji.min.js"></script>
-		<script src="//unpkg.com/prismjs/components/prism-bash.min.js"></script>
-  		<script src="//unpkg.com/prismjs/components/prism-markdown.min.js"></script>
-		<script src="//unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+<body>
+
+    <nav>
+        <a href="#/">使用指南</a>
+        <a href="#/module/study">学习交流</a>
+        <a href="#/module/money">打赏赞助</a>
+    </nav>
+    
+    <div id="app">加载中</div>
+    
+    <div class="comment">
+    	<div class="comment-width">
+    		<div id="SOHUCS"></div>
+    	</div>
+    </div>
+
+
+    <script>
+        window.$docsify = {
+            name: 'FormSelects',
+            repo: 'hnzzmsf/layui-formSelects',
+            logo: 'public/logo.png',
+//          basePath: '/layui-formSelects-site/docs',
+            basePath: '/layui-formSelects/docs',
+            loadSidebar: true,
+			subMaxLevel: 2,
+            autoHeader: true,
+			executeScript: true,
+			alias: {
+			  '/module/_sidebar.md': '/module/sidebar.md',
+			  '/module2/_sidebar.md': '/sidebar.md',
+			  '/module3/_sidebar.md': '/sidebar.md',
+			  '/_sidebar.md': '/sidebar.md',
+			},
+        }
+    </script>
+    <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+	<script src="//unpkg.com/docsify/lib/plugins/external-script.min.js"></script>
+	<script src="//unpkg.com/docsify/lib/plugins/zoom-image.js"></script>
+	<script src="//unpkg.com/prismjs/components/prism-javascript.min.js"></script>
+	<script src="//unpkg.com/prismjs/components/prism-css.min.js"></script>
+	
+	<script src="//unpkg.com/jquery@3.3.1/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="//changyan.sohu.com/upload/changyan.js" ></script>
+	<script src="../dist/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		window.changyan.api.config({
+			appid: 'cytf1xpj9',
+			conf: 'prod_aa98a72bb9712154c1df3f40f796cd3c'
+		});
 		
-		<script src="//unpkg.com/jquery@3.3.1/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-		<script src="//faysunshine.com/layui/template/formSelects-v4/dist/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
-		<script type="text/javascript">
-			setInterval(function(){
+		var clearId = -1;
+		$(document).on('DOMNodeInserted', function(e) {
+			clearTimeout(clearId);
+			clearId = setTimeout(function(){
 				$('select[xm-select]').each(function(index, select){
-					formSelects.render($(select).attr('xm-select'));
+					var xid = select.getAttribute('xm-select');
+					formSelects.render(xid);
 				});
-			}, 1000);
-		</script>
-	</body>
+			}, 100);
+		});
+	</script>
+	
+
+
+	
+</body>
 
 </html>
+
