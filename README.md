@@ -59,7 +59,7 @@ clone最新版本
 		<meta charset="utf-8" />
 		<title></title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" type="text/css" href="../src/formSelects-v4.css"/>
+		<link rel="stylesheet" type="text/css" href="formSelects-v4.css"/>
 	</head>
 	<body>
 		<div>

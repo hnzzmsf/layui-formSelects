@@ -576,10 +576,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			});
 			if (!tdd) {
 				//如果不存在, 则创建
-				var val = fs.config.create(id, name);
+				var val = fs.config.create(id, inputValue);
 				if (temp[0]) {
 					temp.attr('lay-value', val);
 					temp.find('span').text(inputValue);
+					temp.find('span').attr("name", inputValue);
 					temp.removeClass(DD_HIDE);
 				} else {
 					tips.after($(this.createDD(id, {
@@ -1373,10 +1374,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						common.handlerLabel(id, dd, isAdd, null, true);
 						temp[val] = 1;
 					} else {
-						var _name = common.valToName(id, val);
-						if (_name) {
+						var name = common.valToName(id, val);
+						if (name) {
 							common.handlerLabel(id, dd, isAdd, {
-								name: _name,
+								name: name,
 								val: val
 							}, true);
 							temp[val] = 1;

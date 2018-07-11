@@ -538,10 +538,11 @@
 				}
 			});
 			if(!tdd){//如果不存在, 则创建
-				let val = fs.config.create(id, name);
+				let val = fs.config.create(id, inputValue);
 				if(temp[0]){
 					temp.attr('lay-value', val);
 					temp.find('span').text(inputValue);
+					temp.find('span').attr("name", inputValue);
 					temp.removeClass(DD_HIDE);
 				}else{
 					tips.after($(this.createDD(id, {
