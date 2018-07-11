@@ -82,6 +82,11 @@
 					formSelects.render(xid);
 				});
 			}, 100);
+			if(window.location.hash == '#/module2/comment'){
+				$('.comment').removeClass('comment-dis');
+			}else{
+				$('.comment').addClass('comment-dis');
+			}
 		});
 	</script>
 	

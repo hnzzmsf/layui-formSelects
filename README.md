@@ -6,7 +6,7 @@
 
 ---
 
-[文档地址](https://github.com/hnzzmsf/layui-formSelects/docs/index.html)
+[文档地址](https://hnzzmsf.github.io/layui-formSelects/docs/index.html)
 
 > 基于Layui的select多选解决方案
 
@@ -88,4 +88,4 @@ QQ 群: 769620939
 QQ 号: 707200833
 
 微信群: 
-[wx](docs/public/wx.png)
+![wx](docs/public/wx.png)
