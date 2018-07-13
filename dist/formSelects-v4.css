@@ -34,7 +34,7 @@
 .xm-select-parent dl dd.xm-dis-disabled i {border-color: #C2C2C2;}
 .xm-select-parent dl dd.xm-dis-disabled.xm-select-this i {color: #C2C2C2;}
 .xm-select-radio .xm-form-checkbox > i {border-radius: 20px;}
-.xm-select-parent dl.xm-select-radio dd.xm-select-this i:after{content: '\e62d';}
+.xm-select-parent dl.xm-select-radio dd.xm-select-this i:after{content: '\e62b';}
 
 .xm-dis-disabled,.xm-dis-disabled:hover {cursor: not-allowed!important}
 .xm-form-select dl dd.xm-dis-disabled {background-color: #fff!important}
@@ -160,6 +160,6 @@ div[xm-select-search-type="1"] .xm-select .xm-select-input{display: none !import
 .icon-pifu:before { content: "\e668"; }
 .icon-qingkong:before { content: "\e63e"; }
 .icon-sousuo:before { content: "\e503"; }
-.icon-danx:before { content: "\e62d"; }
+.icon-danx:before { content: "\e62b"; }
 .icon-duox:before { content: "\e613"; }
 .icon-close:before { content: "\e601"; }

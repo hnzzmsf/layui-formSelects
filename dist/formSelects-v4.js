@@ -409,7 +409,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		var div = $('.' + PNAME + '[fs_id="' + id + '"]');
 		var input = data[id].config.searchType == 0 ? div.find('.' + LABEL + ' .' + INPUT) : div.find('dl .' + FORM_DL_INPUT + ' .' + INPUT);
 		input.val('');
-		this.search(id, null, null, input);
 	};
 
 	Common.prototype.ajax = function (id, searchUrl, inputValue, isLinkage, linkageWidth, isSearch) {

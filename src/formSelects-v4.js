@@ -389,7 +389,6 @@
 		let div = $(`.${PNAME}[fs_id="${id}"]`);
 		let input = data[id].config.searchType == 0 ? div.find(`.${LABEL} .${INPUT}`) : div.find(`dl .${FORM_DL_INPUT} .${INPUT}`);
 		input.val('');
-		this.search(id, null, null, input);
 	}
 	
 	Common.prototype.ajax = function(id, searchUrl, inputValue, isLinkage, linkageWidth, isSearch){
