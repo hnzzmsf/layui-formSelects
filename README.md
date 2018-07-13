@@ -8,6 +8,10 @@
 
 [文档地址](https://hnzzmsf.github.io/layui-formSelects/docs/index.html)
 
+[演示站点](http://sun.faysunshine.com/layui/formSelects-v4/example/example_v4.html)
+
+---
+
 > 基于Layui的select多选解决方案
 
 formSelects有哪些功能
@@ -31,6 +35,23 @@ formSelects有哪些功能
   - [x] 快捷操作
   - [x] 选项模板
 - [x] 多级联动
+
+## 目录结构
+
+```
+  ├─UI 		//文档示例用到的一些组件库, layui等
+  ├─dist  //编译后的代码, 可直接用于生产环境
+  │  │─formSelects-v3.js			//v3版本
+  │  │─formSelects-v4.css			//v4版本css
+  │  │─formSelects-v4.js			//v4版本js
+  │  │─formSelects-v4.min.js	//v4版本压缩后的js
+  ├─docs 		//文档目录
+  ├─example //示例目录
+  ├─src //源码目录, 可用于二次开发
+  │  │─formSelects-v3.js
+  │  │─formSelects-v4.js
+  └─README.md
+```
 
 ## 安装
 
@@ -88,4 +109,13 @@ QQ 群: 769620939
 QQ 号: 707200833
 
 微信群: 
-![wx](docs/public/wx.png)
+
+<p>
+  <a href="javascript:;">
+    <img src="docs/public/wx.png" alt="formSelects" width="300">
+  </a>
+</p>
+
+## 更新记录
+
+[4.0.0.0713](https://hnzzmsf.github.io/layui-formSelects/docs/index.html#/module2/log)

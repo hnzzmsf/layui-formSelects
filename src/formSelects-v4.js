@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0711
+ * version: 4.0.0.0713
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function(layui, window, factory) {
@@ -17,7 +17,7 @@
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function() {
-	let v = '4.0.0.0711',
+	let v = '4.0.0.0713',
 		NAME = 'xm-select',
 		PNAME = 'xm-select-parent',
 		INPUT = 'xm-select-input',
@@ -82,7 +82,6 @@
 			success: null,
 			error: null,
 			beforeSearch: null,
-			clearInput: false,
 		},
 		quickBtns = [
 			{icon: 'iconfont icon-quanxuan', name: '全选', click: function(id, cm){
@@ -135,6 +134,7 @@
 				showCount: 0,
 				isCreate: false,
 				placeholder: TIPS,
+				clearInput: false,
 			};
 			this.select = null;
 			this.values = [];
@@ -189,9 +189,6 @@
 					}
 				}),
 				fs = new FormSelects(isRadio ? {btns: [quickBtns[1]]} : {});
-			if(isNaN(showCount) || showCount <= 0){
-				showCount = 19921012;
-			}
 			
 			let hisFs = data[id];
 			data[id] = fs;
@@ -219,16 +216,17 @@
 			if(hisFs){
 				$.extend(true, fs.config, hisFs.config);
 				disabled = fs.config.disabled;
+				max = fs.config.max;
 				isSearch = fs.config.isSearch;
 				searchUrl = fs.config.searchUrl;
+				isRadio = fs.config.radio;
 				skin = fs.config.skin;
 				height = fs.config.height;
-				max = fs.config.max;
 				formname = fs.config.formname;
 				layverify = fs.config.layverify;
 				layverType = fs.config.layverType;
+				showCount = fs.config.showCount;
 				placeholder = fs.config.placeholder;
-				isRadio = fs.config.radio;
 				
 				if(hisFs.config.init){
 					fs.values = hisFs.config.init.map(item => {
@@ -244,6 +242,10 @@
 					});
 					fs.config.init = fs.values.concat([]);
 				}
+			}
+			
+			if(isNaN(showCount) || showCount <= 0){
+				showCount = 19921012;
 			}
 			
 			//先取消layui对select的渲染
@@ -387,6 +389,7 @@
 		let div = $(`.${PNAME}[fs_id="${id}"]`);
 		let input = data[id].config.searchType == 0 ? div.find(`.${LABEL} .${INPUT}`) : div.find(`dl .${FORM_DL_INPUT} .${INPUT}`);
 		input.val('');
+		this.search(id, null, null, input);
 	}
 	
 	Common.prototype.ajax = function(id, searchUrl, inputValue, isLinkage, linkageWidth, isSearch){
@@ -688,7 +691,7 @@
 	}
 	
 	Common.prototype.one = function(target){//一次性事件绑定
-		$(target ? target : document).find(`.${FORM_TITLE}`).on('click', (e) => {
+		$(target ? target : document).off('click', `.${FORM_TITLE}`).on('click', `.${FORM_TITLE}`, (e) => {
 			let othis = $(e.target),
 				title = othis.is(FORM_TITLE) ? othis : othis.parents(`.${FORM_TITLE}`),
 				dl = title.next(),
@@ -753,6 +756,9 @@
 				othis = othis.is('li') ? othis : othis.parents('li');
 				let group = othis.parents('.xm-select-linkage-group'),
 					id = othis.parents('dl').attr('xid');
+				if(!id){
+					return false;
+				}
 				//激活li
 				group.find('.xm-select-active').removeClass('xm-select-active');
 				othis.addClass('xm-select-active');
@@ -980,7 +986,7 @@
 		let tips = `fsw="${NAME}"`;
 		let [$label, $close] = [
 			$(`<span ${tips} value="${val.val}"><font ${tips}>${val.name}</font></span>`), 
-			$(`<i ${tips} class="xm-icon-close">×</i>`)
+			$(`<i ${tips} class="iconfont icon-close"></i>`)
 		];
 		$label.append($close);
 		//如果是radio模式
@@ -1374,6 +1380,7 @@
 				ajaxs[id] = $.extend(true, {}, ajaxs[id] || ajax, config),
 				!common.check(id) && this.render(id),
 				data[id] && config.direction && (data[id].config.direction = config.direction),
+				data[id] && config.clearInput && (data[id].config.clearInput = true),
 				config.searchUrl && data[id] && common.triggerSearch($(`.${PNAME} dl[xid="${id}"]`).parents(`.${FORM_SELECT}`), true)
 			) : (
 				$.extend(true, ajax, config),
@@ -1406,14 +1413,15 @@
 			formname: options.formname,
 			layverify: options.layverify,
 			layverType: options.layverType,
-			searchType: options.searchType,			
+			searchType: options.searchType == 'dl' ? 1 : 0,			
 			showCount: options.showCount,	
 			placeholder: options.placeholder,	
 			create: options.create,			
 			filter: options.filter,			
 			maxTips: options.maxTips,			
 			on: options.on,			
-			template: options.template,			
+			template: options.template,		
+			clearInput: options.clearInput,		
 		} : {};
 		
 		if(Object.getOwnPropertyNames(target).length){
