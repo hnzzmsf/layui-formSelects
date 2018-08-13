@@ -192,6 +192,10 @@
 			    <h2 class="layui-colla-title" id="methods-btns" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10) btns">btns</h2>
 			    <div class="layui-colla-content layui-show" sid="btns"></div>
 		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-search" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11) search">search</h2>
+			    <div class="layui-colla-content layui-show" sid="search"></div>
+		  	</div>
 		</div>
 		
 		<blockquote class="layui-elem-quote layui-quote-nm" id="examples">6、基础示例</blockquote>
@@ -954,6 +958,31 @@ layui.formSelects.config({direction: 'up'});
 				</div>
 				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 			</div>
+			<p>获取实时数据</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="example1_1">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3">广州</option>
+							<option value="4">深圳</option>
+							<option value="5">天津</option>
+						</select>
+						<js>
+							layui.formSelects.on('example1_1', function(id, vals, val, isAdd, isDisabled){
+								//id: 			点击select的id
+								//vals:			当前select已选中的值
+								//val:			当前select点击的值
+								//isAdd:		当前操作选中or取消
+								//isDisabled:	当前选项是否是disabled
+								alert("当前选择了: " + JSON.stringify(vals));
+							}, true);
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
 		</div>
 		<div class="example">
 			<h3 id="select_value" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2) 赋值与取值">赋值与取值</h3>
@@ -1268,6 +1297,48 @@ layui.formSelects.config({direction: 'up'});
 				</div>
 				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 			</div>
+			<p>来一发树状结构压压惊</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="example6_4">
+							<option value="">此树是我栽</option>
+						</select>
+						<js>
+							//这里面的自由参数可以在template中使用
+							//只是加了一个树状展示形式, 过多的还没有做哈~ 有需求的可以提出来
+							layui.formSelects.data('example6_4', 'local', {
+								arr: [
+								    {
+								        "name": "北京",
+								        "value": 1,
+								        "xslkdf": "123",
+								        "children": [
+								            {
+								                "name": "朝阳",
+								                "value": 11,
+								                "children": [
+								                    {"name": "酒仙桥", "value": 111},
+								                    {"name": "望京东", "value": 121}
+								                ]
+								            },
+								            {"name": "海淀", "value": 12}
+								        ]
+								    },
+								    {
+								        "name": "深圳",
+								        "value": 2,
+								        "children": [
+								            {"name": "龙岗", "value": 21}
+								        ]
+								    }
+								]
+							});
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
 		</div>
 		<div class="example">
 			<h3 id="select_search" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7) 搜索控制">搜索控制</h3>
@@ -1387,7 +1458,27 @@ layui.formSelects.config({direction: 'up'});
 		
 		<blockquote class="layui-elem-quote layui-quote-nm" id="over">结尾</blockquote>
 		<div class="chat over" style="display: inline-block;">
+			<div class="example">
+				<p>↓↓↓ 捐赠作者 ↓↓↓</p>
+				<p>
+					<img src="../static/img/wx.jpg" width="230px" style="border: 1px solid #009688">
+				</p>
+				<p>你们的支持, 是我们坚持的动力</p>
+			</div>
 <pre class="brush: js">
+[2018-08-13] v4.0.0.0813
+-- bug修复 --
+1.修复value在为字符串时, 多级联动的bug
+2.修复value在超过int最大值时, 多级联动的bug
+3.修复在动态切换radio的时候, 快捷图标不发生变化的bug
+4.修改在未渲染的select上调用render, 配置项不生效的bug
+
+-- 修改 --
+1.新增formSelects.data的赋值方式, 可以赋值有层级结构的数据
+2.在template的时候可以获取到除了name, value以外的其他自定义值
+3.同步4.1的on方式, 可以使用后置on获取实时数据 
+
+
 [2018-07-13] v4.0.0.0713
 -- bug修复 --
 1.修复render使用searchType不生效
@@ -1530,17 +1621,10 @@ formSelects-v2, 粗暴的升级了v1...
 formSelects-v1, 一个简简单单的layui多选...
 </pre>	
 		</div>
-		<div class="example">
-			<p>↓↓↓ 捐赠作者 ↓↓↓</p>
-			<p>
-				<img src="../static/img/wx.jpg" width="230px" style="border: 1px solid #009688">
-			</p>
-			<p>你们的支持, 是我们坚持的动力</p>
-		</div>
 		<div style="height: 300px;"></div>
 
 <script type="syntaxhighlighter" xid="use" class="brush: js"><![CDATA[
-//1.下载formSelects-v4.1
+//1.下载formSelects-v4
 
 //2.模块化使用
 &lt;script src="layui.js" type="text/javascript" charset="utf-8">&lt;/script>
@@ -1618,6 +1702,7 @@ formSelects.value('select1', [2, 4], false);// 删除value为2和4的option, 如
  *
  * @param ID 		xm-select的值
  * @param Function 	自定义处理方法
+ * @param isEnd 	是否获取实时数据, true/false
  */
 var formSelects = layui.formSelects;
 formSelects.on('select1', function(id, vals, val, isAdd, isDisabled){
@@ -1638,6 +1723,17 @@ formSelects.on(function(id, vals, val, isAdd, isDisabled){
 formSelects.on(null, function(id, vals, val, isAdd, isDisabled){
 	...
 });
+
+//4.0.0.0813版本之前, 受到了颇多的小伙伴吐槽, 此版本加上了获取实时数据的方法
+formSelects.on('select1', function(id, vals, val, isAdd, isDisabled){
+	//id: 			点击select的id
+	//vals:			当前select已选中的值
+	//val:			当前select点击的值
+	//isAdd:		当前操作选中or取消
+	//isDisabled:	当前选项是否是disabled
+	
+}, true);
+
 ]]></script>
 
 <script type="syntaxhighlighter" xid="maxTips" class="brush: js"><![CDATA[
@@ -1844,7 +1940,7 @@ formSelects.undisabled();
  * 			url				远程数据链接
  * 			keyword			远程数据搜索内容, 其他附加数据可以使用 formSelects.config设置
  * 			linkage			是否为联动多选
- * 			linkageWidth	是否为联动多选
+ * 			linkageWidth	联动多选没级宽度
  */
 
 //以下代码可以在console中运行测试, 结果查看基础示例第一个
@@ -1888,6 +1984,19 @@ formSelects.data('select1', 'server', {
 	{"name":"深圳","value":4,"selected":"","disabled":"disabled"},
 	{"name":"天津","value":5,"selected":"","disabled":""}
 ]
+
+/*************** 华丽的分割线 ***************/
+//来一个树状结构的数据
+formSelects.data('select15', 'local', {
+	arr: [
+		{name: '北京', value: 1, xslkdf: '123', children: [
+			{name: '朝阳', value: 11}, 
+			{name: '海淀', value: 12}
+		]},
+		{name: '深圳', value: 2, children: [{name: '龙岗', value: 21}]},
+	]
+});
+
 
 /*************** 华丽的分割线 ***************/
 //联动多选数据格式
@@ -1969,9 +2078,9 @@ formSelects.data('select15', 'server', {
  * @param config 	配置操作列表, config.show='name' 只显示名称, config.show='icon' 只显示图标, config.space='30px' 两个操作之间的间隔
  */
 var formSelects = layui.formSelects;
-//默认设置了 全选, 清空
+//默认设置了 全选, 清空, 反选
 //如下设置内置操作
-formSelects.btns('select1', ['select', 'remove', 'skin']);
+formSelects.btns('select1', ['select', 'remove', 'reverse']);
 
 //如下设置自定义
 formSelects.btns('select1', ['select', 'remove', 'skin', {
@@ -2055,7 +2164,7 @@ formSelects.search('select1', '关键内容');
 		<script src="../UI/SyntaxHighlighter-3.0.83/shCore.js"></script>
 		<script src="../UI/SyntaxHighlighter-3.0.83/shBrushJScript.js"></script>
 		<script src="../UI/layui-v2.3.0-rc1/layui/layui.js" type="text/javascript" charset="utf-8"></script>
-		<script src="../dist/formSelects-v4.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../dist/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../UI/js-pinyin.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
 			SyntaxHighlighter.defaults["quick-code"] = false;
@@ -2225,12 +2334,15 @@ formSelects.search('select1', '关键内容');
 			});
 			
 			//进阶示例
-			layui.formSelects.on('example1', function(id, vals, val, isAdd, isDisabled){
+			formSelects.on('example1', function(id, vals, val, isAdd, isDisabled){
 				alert("选择了: " + val.name);
 				if(val.val == 1){
 					return false;
 				}
 			});
+			formSelects.on('example1_1', function(id, vals, val, isAdd, isDisabled){
+				alert("当前选择了: " + JSON.stringify(vals));
+			}, true);
 			formSelects.maxTips('example3', function(id, vals, val, max){
 			    alert("选超了, 选择的值: " + val.val);
 			});
@@ -2309,6 +2421,16 @@ formSelects.search('select1', '关键内容');
 				success: function(id, url, searchVal, result){
 					console.log('id: example6_3, 成功返回数据!!!');
 				}
+			});
+			formSelects.data('example6_4', 'local', {
+				arr: [
+					{name: '北京', value: 1, xslkdf: '123', children: [
+						{name: '朝阳', value: 11, children: [
+							{name: '酒仙桥', value: 111}, {name: '望京东', value: 121}
+						]}, {name: '海淀', value: 12}
+					]},
+					{name: '深圳', value: 2, children: [{name: '龙岗', value: 21}]},
+				]
 			});
 			formSelects.config('example7_1', {
 				searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/data', 

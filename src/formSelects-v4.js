@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0713
+ * version: 4.0.0.0813
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function(layui, window, factory) {
@@ -17,7 +17,7 @@
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function() {
-	let v = '4.0.0.0713',
+	let v = '4.0.0.0813',
 		NAME = 'xm-select',
 		PNAME = 'xm-select-parent',
 		INPUT = 'xm-select-input',
@@ -52,12 +52,14 @@
 		FORM_DL_INPUT = 'xm-dl-input',
 		FORM_SELECT_TIPS = 'xm-select-tips',
 		CHECKBOX_YES = 'iconfont',
+		FORM_TEAM_PID = 'XM_PID_VALUE',
 		CZ = 'xm-cz',
 		CZ_GROUP = 'xm-cz-group',
 		TIPS = '请选择',
 		data = {},
 		events = {
 			on: {},
+			endOn: {},
 			filter: {},
 			maxTips: {},
 		},
@@ -227,6 +229,12 @@
 				layverType = fs.config.layverType;
 				showCount = fs.config.showCount;
 				placeholder = fs.config.placeholder;
+				
+				if(fs.config.radio){
+					fs.config.btns = [quickBtns[1]];
+				}else{
+					fs.config.btns = [quickBtns[0], quickBtns[1], quickBtns[2]];
+				}
 				
 				if(hisFs.config.init){
 					fs.values = hisFs.config.init.map(item => {
@@ -468,7 +476,7 @@
 			$.each(result, (idx, arr) => {
 				let groupDiv = [`<div style="left: ${(linkageWidth-0) * idx}px;" class="xm-select-linkage-group xm-select-linkage-group${idx + 1} ${idx != 0 ? 'xm-select-linkage-hide':''}">`];
 				$.each(arr, (idx2, item) => {
-					let span = `<li title="${item.name}" pid="${item.pid}" value="${item.val}"><span>${item.name}</span></li>`;
+					let span = `<li title="${item.name}" pid="${item.pid}" xm-value="${item.val}"><span>${item.name}</span></li>`;
 					groupDiv.push(span);
 				});
 				groupDiv.push(`</div>`);
@@ -484,7 +492,8 @@
 		let reElem = $(`.${PNAME} dl[xid="${id}"]`).parents(`.${FORM_SELECT}`);
 		let ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
 		let pcInput = reElem.find(`.${TDIV} input`);
-		
+
+		dataArr = this.exchangeData(id, dataArr);
 		let values = [];
 		reElem.find('dl').html(this.renderSelect(id, pcInput.attr('placeholder') || pcInput.attr('back'), dataArr.map((item) => {
 			if(item[ajaxConfig.keySel]){
@@ -493,16 +502,16 @@
 					val: item[ajaxConfig.keyVal],
 				});
 			}
-			return {
+			return $.extend({}, item, {
 				innerHTML: item[ajaxConfig.keyName],
 				value: item[ajaxConfig.keyVal],
 				sel: item[ajaxConfig.keySel],
 				disabled: item[ajaxConfig.keyDis],
 				type: item.type,
 				name: item.name
-			}
+			})
 		})));
-		
+
 		let label = reElem.find(`.${LABEL}`);
 		let dl = reElem.find('dl[xid]');
 		if(isSearch){//如果是远程搜索, 这里需要判重
@@ -524,9 +533,36 @@
 			});
 			data[id].values = values;
 		}
-		this.commonHanler(id, label);
+		this.commonHandler(id, label);
 	}
-	
+
+	Common.prototype.exchangeData = function(id, arr){//这里处理树形结构
+	    let ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
+	    let childrenName = ajaxConfig['keyChildren'];
+
+	    let result = this.getChildrenList(arr, childrenName, []);
+	    console.log(result);
+        return result;
+	}
+
+	Common.prototype.getChildrenList = function(arr, childrenName, pid){
+	    let result = [];
+	    for(let a = 0; a < arr.length; a ++){
+            let item = arr[a];
+            let parentIds = pid.concat([]);
+            parentIds.push(a);
+            item[FORM_TEAM_PID] = JSON.stringify(parentIds);
+            result.push(item);
+            let child = item[childrenName];
+            if(child && common.isArray(child) && child.length){
+                let pidArr = parentIds.concat([]);
+                let childResult = this.getChildrenList(child, childrenName, pidArr);
+                result = result.concat(childResult);
+            }
+        }
+        return result;
+	}
+
 	Common.prototype.create = function(id, isCreate, inputValue){
 		if(isCreate && inputValue){
 			let fs = data[id],
@@ -560,9 +596,11 @@
 	
 	Common.prototype.createDD = function(id, item, clz){
 		let name = $.trim(item.innerHTML);
-		let template = data[id].config.template(name, item.value, item.selected, item.disabled);
+		let template = data[id].config.template(name);
+		let pid = item[FORM_TEAM_PID];
+		pid ? (pid = JSON.parse(pid)) : (pid = [1]);
 		return `<dd lay-value="${item.value}" class="${item.disabled ? DISABLED : ''} ${clz ? clz : ''}">
-					<div class="xm-unselect xm-form-checkbox ${item.disabled ? DISABLED : ''}">
+					<div class="xm-unselect xm-form-checkbox ${item.disabled ? DISABLED : ''}"  style="margin-left: ${(pid.length - 1) * 30}px">
 						<i class="${CHECKBOX_YES}"></i>
 						<span name="${name}">${template}</span>
 					</div>
@@ -765,7 +803,7 @@
 				group.nextAll('.xm-select-linkage-group').addClass('xm-select-linkage-hide');
 				let nextGroup = group.next('.xm-select-linkage-group');
 				nextGroup.find('li').addClass('xm-select-linkage-hide');
-				nextGroup.find(`li[pid="${othis.attr('value')}"]`).removeClass('xm-select-linkage-hide');
+				nextGroup.find(`li[pid="${othis.attr('xm-value')}"]`).removeClass('xm-select-linkage-hide');
 				//如果没有下一个group, 或没有对应的值
 				if(!nextGroup[0] || nextGroup.find(`li:not(.xm-select-linkage-hide)`).length == 0){
 					let vals = [],
@@ -777,9 +815,9 @@
 					do{
 						vals[index ++] = {
 							name: othis.find('span').text(),
-							val: othis.attr('value')
+							val: othis.attr('xm-value')
 						}
-						othis = othis.parents('.xm-select-linkage-group').prev().find(`li[value="${othis.attr('pid')}"]`);			
+						othis = othis.parents('.xm-select-linkage-group').prev().find(`li[xm-value="${othis.attr('pid')}"]`);			
 					}while(othis.length);
 					vals.reverse();
 					let val = {
@@ -840,7 +878,7 @@
 		let lis = [];
 		do{
 			pid = vs[index];
-			li = dl.find(`.xm-select-linkage-group${index + 1} li[value="${pid}"]`);
+			li = dl.find(`.xm-select-linkage-group${index + 1} li[xm-value="${pid}"]`);
 			li[0] && lis.push(li);
 			index ++;
 		}while(li.length && pid != undefined);
@@ -857,7 +895,7 @@
 		let pid, li, index = vs.length - 1;
 		do{
 			pid = vs[index];
-			li = dl.find(`.xm-select-linkage-group${index + 1} li[value="${pid}"]`);
+			li = dl.find(`.xm-select-linkage-group${index + 1} li[xm-value="${pid}"]`);
 			if(!li.parent().next().find(`li[pid=${pid}].xm-select-this`).length){
 				li.removeClass('xm-select-this');
 			}
@@ -873,13 +911,13 @@
 		}
 		let names = [];
 		$.each(vs, (idx, item) => {
-			let name = dl.find(`.xm-select-linkage-group${idx + 1} li[value="${item}"] span`).text();
+			let name = dl.find(`.xm-select-linkage-group${idx + 1} li[xm-value="${item}"] span`).text();
 			names.push(name);
 		});
 		return names.length == vs.length ? names.join('/') : null;
 	}
 	
-	Common.prototype.commonHanler = function(key, label){
+	Common.prototype.commonHandler = function(key, label){
 		if(!label || !label[0]){
 			return ;
 		}
@@ -921,7 +959,7 @@
 			if(val.config.radio){
 				_vals.length && values.push(_vals[_vals.length - 1]);
 			}
-			this.commonHanler(key, label);
+			this.commonHandler(key, label);
 		});
 	}
 	
@@ -932,7 +970,8 @@
 				val: dd.attr('lay-value')
 			},
 			vals = data[id].values,
-			on = data[id].config.on || events.on[id];
+			on = data[id].config.on || events.on[id],
+			endOn = data[id].config.endOn || events.endOn[id];
 		if(oval){
 			val = oval;
 		}
@@ -977,7 +1016,9 @@
 		//清空搜索值
 		fs.config.clearInput && this.clearInput(id);
 		
-		this.commonHanler(id, div);
+		this.commonHandler(id, div);
+		
+		!notOn && endOn && endOn instanceof Function && endOn(id, vals.concat([]), val, isAdd, dd && dd.hasClass(DISABLED));
 	}
 	
 	Common.prototype.addLabel = function(id, div, val){
@@ -1209,7 +1250,7 @@
 		let skins = ['default' ,'primary', 'normal', 'warm', 'danger'];
 		let skin = skins[Math.floor(Math.random() * skins.length)];
 		$(`dl[xid="${id}"]`).parents(`.${PNAME}`).find(`.${FORM_SELECT}`).attr('xm-select-skin', skin);
-		this.check(id) && this.commonHanler(id, $(`dl[xid="${id}"]`).parents(`.${PNAME}`).find(`.${LABEL}`));
+		this.check(id) && this.commonHandler(id, $(`dl[xid="${id}"]`).parents(`.${PNAME}`).find(`.${LABEL}`));
 	}
 	
 	Common.prototype.getPosition = function(e){
@@ -1348,8 +1389,8 @@
 		}
 	}
 	
-	Select4.prototype.on = function(id, fun){
-		common.bindEvent('on', id, fun);
+	Select4.prototype.on = function(id, fun, isEnd) {
+		common.bindEvent(isEnd ? 'endOn' : 'on', id, fun);
 		return this;
 	}
 	
@@ -1435,6 +1476,9 @@
 		($(`select[${NAME}="${id}"]`)[0] ? $(`select[${NAME}="${id}"]`) : $(`select[${NAME}]`)).each((index, select) => {
 			let sid = select.getAttribute(NAME);
 			common.render(sid, select);
+			if(Object.getOwnPropertyNames(options).length){
+				this.render(sid, options);
+			}
 		});
 		return this;
 	}

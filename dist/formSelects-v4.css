@@ -29,6 +29,7 @@
 .xm-form-checkbox:hover > i {border-color: #5FB878;}
 .xm-form-checkbox > span{display: block;position: relative;padding: 0 15px 0 30px;height: 100%;font-size: 14px;border-radius: 2px 0 0 2px;background-color: #d2d2d2;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;background: 0 0;color: #666;line-height: 36px;}
 
+.xm-select-parent dl{width: 100%;}
 .xm-select-parent dl dd.xm-select-this i {border: none; color: #009688; font-size: 18px;}
 .xm-select-parent dl dd.xm-select-this i:after{content: '\e613';}
 .xm-select-parent dl dd.xm-dis-disabled i {border-color: #C2C2C2;}

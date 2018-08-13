@@ -5,7 +5,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0713
+ * version: 4.0.0.0813
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function (layui, window, factory) {
@@ -24,7 +24,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function () {
-	var v = '4.0.0.0713',
+	var v = '4.0.0.0813',
 	    NAME = 'xm-select',
 	    PNAME = 'xm-select-parent',
 	    INPUT = 'xm-select-input',
@@ -59,12 +59,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	    FORM_DL_INPUT = 'xm-dl-input',
 	    FORM_SELECT_TIPS = 'xm-select-tips',
 	    CHECKBOX_YES = 'iconfont',
+	    FORM_TEAM_PID = 'XM_PID_VALUE',
 	    CZ = 'xm-cz',
 	    CZ_GROUP = 'xm-cz-group',
 	    TIPS = '请选择',
 	    data = {},
 	    events = {
 		on: {},
+		endOn: {},
 		filter: {},
 		maxTips: {}
 	},
@@ -259,6 +261,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				layverType = fs.config.layverType;
 				showCount = fs.config.showCount;
 				placeholder = fs.config.placeholder;
+
+				if (fs.config.radio) {
+					fs.config.btns = [quickBtns[1]];
+				} else {
+					fs.config.btns = [quickBtns[0], quickBtns[1], quickBtns[2]];
+				}
 
 				if (hisFs.config.init) {
 					fs.values = hisFs.config.init.map(function (item) {
@@ -499,7 +507,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				$.each(result, function (idx, arr) {
 					var groupDiv = ['<div style="left: ' + (linkageWidth - 0) * idx + 'px;" class="xm-select-linkage-group xm-select-linkage-group' + (idx + 1) + ' ' + (idx != 0 ? 'xm-select-linkage-hide' : '') + '">'];
 					$.each(arr, function (idx2, item) {
-						var span = '<li title="' + item.name + '" pid="' + item.pid + '" value="' + item.val + '"><span>' + item.name + '</span></li>';
+						var span = '<li title="' + item.name + '" pid="' + item.pid + '" xm-value="' + item.val + '"><span>' + item.name + '</span></li>';
 						groupDiv.push(span);
 					});
 					groupDiv.push('</div>');
@@ -521,6 +529,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		var ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
 		var pcInput = reElem.find('.' + TDIV + ' input');
 
+		dataArr = this.exchangeData(id, dataArr);
 		var values = [];
 		reElem.find('dl').html(this.renderSelect(id, pcInput.attr('placeholder') || pcInput.attr('back'), dataArr.map(function (item) {
 			if (item[ajaxConfig.keySel]) {
@@ -529,14 +538,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					val: item[ajaxConfig.keyVal]
 				});
 			}
-			return {
+			return $.extend({}, item, {
 				innerHTML: item[ajaxConfig.keyName],
 				value: item[ajaxConfig.keyVal],
 				sel: item[ajaxConfig.keySel],
 				disabled: item[ajaxConfig.keyDis],
 				type: item.type,
 				name: item.name
-			};
+			});
 		})));
 
 		var label = reElem.find('.' + LABEL);
@@ -561,7 +570,35 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			});
 			data[id].values = values;
 		}
-		this.commonHanler(id, label);
+		this.commonHandler(id, label);
+	};
+
+	Common.prototype.exchangeData = function (id, arr) {
+		//这里处理树形结构
+		var ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
+		var childrenName = ajaxConfig['keyChildren'];
+
+		var result = this.getChildrenList(arr, childrenName, []);
+		console.log(result);
+		return result;
+	};
+
+	Common.prototype.getChildrenList = function (arr, childrenName, pid) {
+		var result = [];
+		for (var a = 0; a < arr.length; a++) {
+			var item = arr[a];
+			var parentIds = pid.concat([]);
+			parentIds.push(a);
+			item[FORM_TEAM_PID] = JSON.stringify(parentIds);
+			result.push(item);
+			var child = item[childrenName];
+			if (child && common.isArray(child) && child.length) {
+				var pidArr = parentIds.concat([]);
+				var childResult = this.getChildrenList(child, childrenName, pidArr);
+				result = result.concat(childResult);
+			}
+		}
+		return result;
 	};
 
 	Common.prototype.create = function (id, isCreate, inputValue) {
@@ -598,8 +635,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	Common.prototype.createDD = function (id, item, clz) {
 		var name = $.trim(item.innerHTML);
-		var template = data[id].config.template(name, item.value, item.selected, item.disabled);
-		return '<dd lay-value="' + item.value + '" class="' + (item.disabled ? DISABLED : '') + ' ' + (clz ? clz : '') + '">\n\t\t\t\t\t<div class="xm-unselect xm-form-checkbox ' + (item.disabled ? DISABLED : '') + '">\n\t\t\t\t\t\t<i class="' + CHECKBOX_YES + '"></i>\n\t\t\t\t\t\t<span name="' + name + '">' + template + '</span>\n\t\t\t\t\t</div>\n\t\t\t\t</dd>';
+		var template = data[id].config.template(name);
+		var pid = item[FORM_TEAM_PID];
+		pid ? pid = JSON.parse(pid) : pid = [1];
+		return '<dd lay-value="' + item.value + '" class="' + (item.disabled ? DISABLED : '') + ' ' + (clz ? clz : '') + '">\n\t\t\t\t\t<div class="xm-unselect xm-form-checkbox ' + (item.disabled ? DISABLED : '') + '"  style="margin-left: ' + (pid.length - 1) * 30 + 'px">\n\t\t\t\t\t\t<i class="' + CHECKBOX_YES + '"></i>\n\t\t\t\t\t\t<span name="' + name + '">' + template + '</span>\n\t\t\t\t\t</div>\n\t\t\t\t</dd>';
 	};
 
 	Common.prototype.createQuickBtn = function (obj, right) {
@@ -804,7 +843,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				_group.nextAll('.xm-select-linkage-group').addClass('xm-select-linkage-hide');
 				var nextGroup = _group.next('.xm-select-linkage-group');
 				nextGroup.find('li').addClass('xm-select-linkage-hide');
-				nextGroup.find('li[pid="' + othis.attr('value') + '"]').removeClass('xm-select-linkage-hide');
+				nextGroup.find('li[pid="' + othis.attr('xm-value') + '"]').removeClass('xm-select-linkage-hide');
 				//如果没有下一个group, 或没有对应的值
 				if (!nextGroup[0] || nextGroup.find('li:not(.xm-select-linkage-hide)').length == 0) {
 					var vals = [],
@@ -816,9 +855,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					do {
 						vals[index++] = {
 							name: othis.find('span').text(),
-							val: othis.attr('value')
+							val: othis.attr('xm-value')
 						};
-						othis = othis.parents('.xm-select-linkage-group').prev().find('li[value="' + othis.attr('pid') + '"]');
+						othis = othis.parents('.xm-select-linkage-group').prev().find('li[xm-value="' + othis.attr('pid') + '"]');
 					} while (othis.length);
 					vals.reverse();
 					var val = {
@@ -883,7 +922,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		var lis = [];
 		do {
 			pid = vs[index];
-			li = dl.find('.xm-select-linkage-group' + (index + 1) + ' li[value="' + pid + '"]');
+			li = dl.find('.xm-select-linkage-group' + (index + 1) + ' li[xm-value="' + pid + '"]');
 			li[0] && lis.push(li);
 			index++;
 		} while (li.length && pid != undefined);
@@ -902,7 +941,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		    index = vs.length - 1;
 		do {
 			pid = vs[index];
-			li = dl.find('.xm-select-linkage-group' + (index + 1) + ' li[value="' + pid + '"]');
+			li = dl.find('.xm-select-linkage-group' + (index + 1) + ' li[xm-value="' + pid + '"]');
 			if (!li.parent().next().find('li[pid=' + pid + '].xm-select-this').length) {
 				li.removeClass('xm-select-this');
 			}
@@ -918,13 +957,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 		var names = [];
 		$.each(vs, function (idx, item) {
-			var name = dl.find('.xm-select-linkage-group' + (idx + 1) + ' li[value="' + item + '"] span').text();
+			var name = dl.find('.xm-select-linkage-group' + (idx + 1) + ' li[xm-value="' + item + '"] span').text();
 			names.push(name);
 		});
 		return names.length == vs.length ? names.join('/') : null;
 	};
 
-	Common.prototype.commonHanler = function (key, label) {
+	Common.prototype.commonHandler = function (key, label) {
 		if (!label || !label[0]) {
 			return;
 		}
@@ -968,7 +1007,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			if (val.config.radio) {
 				_vals.length && values.push(_vals[_vals.length - 1]);
 			}
-			_this11.commonHanler(key, label);
+			_this11.commonHandler(key, label);
 		});
 	};
 
@@ -979,7 +1018,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			val: dd.attr('lay-value')
 		},
 		    vals = data[id].values,
-		    on = data[id].config.on || events.on[id];
+		    on = data[id].config.on || events.on[id],
+		    endOn = data[id].config.endOn || events.endOn[id];
 		if (oval) {
 			val = oval;
 		}
@@ -1007,7 +1047,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		//清空搜索值
 		fs.config.clearInput && this.clearInput(id);
 
-		this.commonHanler(id, div);
+		this.commonHandler(id, div);
+
+		!notOn && endOn && endOn instanceof Function && endOn(id, vals.concat([]), val, isAdd, dd && dd.hasClass(DISABLED));
 	};
 
 	Common.prototype.addLabel = function (id, div, val) {
@@ -1249,7 +1291,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		var skins = ['default', 'primary', 'normal', 'warm', 'danger'];
 		var skin = skins[Math.floor(Math.random() * skins.length)];
 		$('dl[xid="' + id + '"]').parents('.' + PNAME).find('.' + FORM_SELECT).attr('xm-select-skin', skin);
-		this.check(id) && this.commonHanler(id, $('dl[xid="' + id + '"]').parents('.' + PNAME).find('.' + LABEL));
+		this.check(id) && this.commonHandler(id, $('dl[xid="' + id + '"]').parents('.' + PNAME).find('.' + LABEL));
 	};
 
 	Common.prototype.getPosition = function (e) {
@@ -1393,8 +1435,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 	};
 
-	Select4.prototype.on = function (id, fun) {
-		common.bindEvent('on', id, fun);
+	Select4.prototype.on = function (id, fun, isEnd) {
+		common.bindEvent(isEnd ? 'endOn' : 'on', id, fun);
 		return this;
 	};
 
@@ -1474,6 +1516,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		($('select[' + NAME + '="' + id + '"]')[0] ? $('select[' + NAME + '="' + id + '"]') : $('select[' + NAME + ']')).each(function (index, select) {
 			var sid = select.getAttribute(NAME);
 			common.render(sid, select);
+			if (Object.getOwnPropertyNames(options).length) {
+				_this15.render(sid, options);
+			}
 		});
 		return this;
 	};

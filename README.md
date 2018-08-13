@@ -6,7 +6,7 @@
 
 ---
 
-[文档地址](https://hnzzmsf.github.io/layui-formSelects/docs/index.html)
+[文档地址](https://hnzzmsf.github.io/layui-formSelects/docs/index.html)  未完待续, 文档先以演示站点为主
 
 [演示站点](http://sun.faysunshine.com/layui/formSelects-v4/example/example_v4.html)
 
@@ -39,15 +39,15 @@ formSelects有哪些功能
 ## 目录结构
 
 ```
-  ├─UI 		//文档示例用到的一些组件库, layui等
-  ├─dist  //编译后的代码, 可直接用于生产环境
-  │  │─formSelects-v3.js			//v3版本
-  │  │─formSelects-v4.css			//v4版本css
-  │  │─formSelects-v4.js			//v4版本js
-  │  │─formSelects-v4.min.js	//v4版本压缩后的js
-  ├─docs 		//文档目录
-  ├─example //示例目录
-  ├─src //源码目录, 可用于二次开发
+  ├─UI                       //文档示例用到的一些组件库, layui等
+  ├─dist                     //编译后的代码, 可直接用于生产环境
+  │  │─formSelects-v3.js         //v3版本
+  │  │─formSelects-v4.css        //v4版本css
+  │  │─formSelects-v4.js         //v4版本js
+  │  │─formSelects-v4.min.js     //v4版本压缩后的js
+  ├─docs                     //文档目录
+  ├─example                  //示例目录
+  ├─src                      //源码目录, 可用于二次开发
   │  │─formSelects-v3.js
   │  │─formSelects-v4.js
   └─README.md
@@ -118,4 +118,14 @@ QQ 号: 707200833
 
 ## 更新记录
 
-[4.0.0.0713](https://hnzzmsf.github.io/layui-formSelects/docs/index.html#/module2/log)
+[4.0.0.0813](https://hnzzmsf.github.io/layui-formSelects/docs/index.html#/module2/log)
+
+## 打赏 
+
+如果喜欢作者的插件, 可以请作者吃雪糕 ^_^
+
+<p>
+  <a href="javascript:;">
+    <img src="docs/public/wx.jpg" alt="打赏" width="300">
+  </a>
+</p>
