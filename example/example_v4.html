@@ -196,6 +196,14 @@
 			    <h2 class="layui-colla-title" id="methods-search" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11) search">search</h2>
 			    <div class="layui-colla-content layui-show" sid="search"></div>
 		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-opened" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12) opened">opened</h2>
+			    <div class="layui-colla-content layui-show" sid="opened"></div>
+		  	</div>
+		  	<div class="layui-colla-item">
+			    <h2 class="layui-colla-title" id="methods-closed" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13) closed">closed</h2>
+			    <div class="layui-colla-content layui-show" sid="closed"></div>
+		  	</div>
 		</div>
 		
 		<blockquote class="layui-elem-quote layui-quote-nm" id="examples">6、基础示例</blockquote>
@@ -588,6 +596,7 @@ layui.formSelects.config({direction: 'up'});
 						</select>
 					</div>
 				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 				<button class="layui-btn layui-btn-normal example-btn" onclick="formSelects.undisabled('select12_2')">点我启用</button>
 				<button class="layui-btn layui-btn-normal example-btn" onclick="formSelects.disabled('select12_2')">点我禁用</button>
 				<button class="layui-btn layui-btn-normal example-btn" onclick="formSelects.undisabled()">全部启用</button>
@@ -949,7 +958,7 @@ layui.formSelects.config({direction: 'up'});
 								//isDisabled:	当前选项是否是disabled
 								alert("选择了: " + val.name);
 								//如果return false, 那么将取消本次操作
-								if(val.val == 1){
+								if(val.value == 1){
 									return false;
 								}
 							});
@@ -1059,7 +1068,7 @@ layui.formSelects.config({direction: 'up'});
 							    //vals: 当前select已选中的值
 							    //val:  当前select点击的值
 							    //max:  当天多选最大值
-							    alert("选超了, 选择的值: " + val.val);
+							    alert("选超了, 选择的值: " + val.value);
 							});
 						</js>
 					</div>
@@ -1455,6 +1464,66 @@ layui.formSelects.config({direction: 'up'});
 				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 			</div>
 		</div>
+		<div class="example">
+			<h3 id="select_tree" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11) 树状结构">树状结构</h3>
+			<p>惊喜有没有, 树状结构来一发</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="example11_1">
+							<option value="">栽树乘凉</option>
+						</select>
+						<js>
+							layui.formSelects.data('example11_1', 'local', {
+								arr: [
+									{name: '分组1', type: 'optgroup'},
+									{name: '北京', value: 1, xslkdf: '123', children: [{name: '朝阳', disabled: true, value: 11}, {name: '海淀', value: 12}]},
+									{name: '分组2', type: 'optgroup'},
+									{name: '深圳', value: 2, children: [{name: '龙岗', value: 21}]},
+								],
+								tree: {
+									//在点击节点的时候, 如果没有子级数据, 会触发此事件
+									nextClick: function(id, item, callback){
+										//需要在callback中给定一个数组结构, 用来展示子级数据
+										callback([
+											{name: 'test1', value: Math.random()},
+											{name: 'test2', value: Math.random()}
+										])
+									},
+								}
+							});
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
+		<div class="example">
+			<h3 id="select_search_type" title="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;12) 监听打开关闭">监听打开关闭</h3>
+			<p>监听下拉选框的打开与关闭</p>
+			<div>
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<div class="layui-form">
+						<select name="city" xm-select="example12_1">
+							<option value="1">北京</option>
+							<option value="2">上海</option>
+							<option value="3">广州</option>
+							<option value="4">深圳</option>
+							<option value="5">天津</option>
+						</select>
+						<js>
+							layui.formSelects.opened('example12_1', function(id){
+								alert('打开了...');
+							});
+							layui.formSelects.closed('example12_1', function(id){
+								alert('关闭了...');
+							});
+						</js>
+					</div>
+				</div>
+				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
+			</div>
+		</div>
 		
 		<blockquote class="layui-elem-quote layui-quote-nm" id="over">结尾</blockquote>
 		<div class="chat over" style="display: inline-block;">
@@ -1466,6 +1535,23 @@ layui.formSelects.config({direction: 'up'});
 				<p>你们的支持, 是我们坚持的动力</p>
 			</div>
 <pre class="brush: js">
+[2018-08-17] v4.0.0.0817
+-- bug修复 --
+1.在多次render的时候快捷图标的错误
+2.修改图标库的标记 `iconfont` -> `xm-iconfont`, 避免冲突
+
+-- 修改 --
+1. 树状结构支持收缩
+2. 树状结构支持动态获取数据
+3. 那个没有用的图标可以全部展开/收缩树状结构
+4. 在4.1测试的select不删除拿到此版本使用
+5. 更新render的渲染方式, 优化代码
+6. 新增方法opened、closed, 可以监听多选的下拉展开与折叠
+7. 新增config参数, 可以自定义response结构
+8. !!!重点!!! 很多地方回调之前是val属性 -> value, 升级请仔细检查, 涉及: value, on, filter, maxTips
+9. 貌似在所有方法中增加了自定义属性, 可以自行尝试
+
+
 [2018-08-13] v4.0.0.0813
 -- bug修复 --
 1.修复value在为字符串时, 多级联动的bug
@@ -1817,6 +1903,12 @@ formSelects.config('select1', {
 	keyChildren: 'children',	//联动多选自定义children
 	delay: 500,					//搜索延迟时间, 默认停止输入500ms后开始搜索
 	direction: 'auto',			//多选下拉方向, auto|up|down
+	response: {
+		statusCode: 0,          //成功状态码
+		statusName: 'code',     //code key
+		msgName: 'msg',         //msg key
+		dataName: 'data'        //data key
+	},
 	success: function(id, url, searchVal, result){		//使用远程方式的success回调
 		console.log(id);		//组件ID xm-select
 		console.log(url);		//URL
@@ -2117,31 +2209,58 @@ formSelects.search('select1', '关键内容');
 
 ]]></script>
 
+<script type="syntaxhighlighter" xid="opened" class="brush: js"><![CDATA[
+/**
+ * 1.打开下拉框的回调事件
+ *
+ * formSelects.opened(ID);
+ *
+ * @param ID 		xm-select的值
+ */
+var formSelects = layui.formSelects;
+
+//监听下拉框的打开
+formSelects.opened('select1', function(id){
+	console.log('打开了');
+});
+
+//如下定义所有
+formSelects.opened(null, function(id){
+	console.log('打开了');
+});
+formSelects.opened(function(id){
+	console.log('打开了');
+});
+
+]]></script>
+
+<script type="syntaxhighlighter" xid="closed" class="brush: js"><![CDATA[
+/**
+ * 1.关闭下拉框的回调事件
+ *
+ * formSelects.closed(ID);
+ *
+ * @param ID 		xm-select的值
+ */
+var formSelects = layui.formSelects;
+
+//监听下拉框的关闭
+formSelects.closed('select1', function(id){
+	console.log('合上了');
+});
+
+//如下定义所有
+formSelects.closed(null, function(id){
+	console.log('合上了');
+});
+formSelects.closed(function(id){
+	console.log('合上了');
+});
+
+]]></script>
 		<script src="../UI/jquery-v3.2.1.js" type="text/javascript" charset="utf-8"></script>
-		<!--<script src="../UI/layui-v2.3.0-rc1/layui/layui.js" type="text/javascript" charset="utf-8"></script>-->
 		<script type="text/javascript">
-			if (!Array.prototype.map) {
-			    Array.prototype.map = function(callback, thisArg) {
-			        var T, A, k, 
-			        	O = Object(this),
-			        	len = O.length >>> 0;
-			        if (thisArg) {
-			            T = thisArg;
-			        }
-			        A = new Array(len);
-			        k = 0;
-			        while(k < len) {
-			            var kValue, mappedValue;
-			            if (k in O) {
-			                kValue = O[ k ];
-			                mappedValue = callback.call(T, kValue, k, O);
-			                A[ k ] = mappedValue;
-			            }
-			            k++;
-			        }
-			        return A;
-			    };
-			}
+			if(!Array.prototype.map){Array.prototype.map=function(i,h){var b,a,c,e=Object(this),f=e.length>>>0;if(h){b=h}a=new Array(f);c=0;while(c<f){var d,g;if(c in e){d=e[c];g=i.call(b,d,c,e);a[c]=g}c++}return a}};
 			var htmls = {};
 			$('.example > div > div > select').each(function(index, item){
 				var html = item.outerHTML.split('\n');
@@ -2336,7 +2455,7 @@ formSelects.search('select1', '关键内容');
 			//进阶示例
 			formSelects.on('example1', function(id, vals, val, isAdd, isDisabled){
 				alert("选择了: " + val.name);
-				if(val.val == 1){
+				if(val.value == 1){
 					return false;
 				}
 			});
@@ -2344,7 +2463,7 @@ formSelects.search('select1', '关键内容');
 				alert("当前选择了: " + JSON.stringify(vals));
 			}, true);
 			formSelects.maxTips('example3', function(id, vals, val, max){
-			    alert("选超了, 选择的值: " + val.val);
+			    alert("选超了, 选择的值: " + val.value);
 			});
 			formSelects.filter('example4', function(id, inputVal, val, isDisabled){
 			    if(
@@ -2447,6 +2566,28 @@ formSelects.search('select1', '关键内容');
 					return name + '<span style="position: absolute; right: 0; color: #A0A0A0; font-size: 12px;">' + PY.fullPY(name) + '</span>';
 				}
 			});
+			formSelects.data('example11_1', 'local', {
+				arr: [
+					{name: '分组1', type: 'optgroup'},
+					{name: '北京', value: 1, xslkdf: '123', children: [{name: '朝阳', disabled: true, value: 11}, {name: '海淀', value: 12}]},
+					{name: '分组2', type: 'optgroup'},
+					{name: '深圳', value: 2, children: [{name: '龙岗', value: 21}]},
+				],
+				tree: {
+					//在点击节点的时候, 如果没有子级数据, 会触发此事件
+					nextClick: function(id, item, callback){
+						callback([
+							{name: 'test1', value: Math.random()},
+							{name: 'test2', value: Math.random()}
+						])
+					},
+				}
+			});
+			formSelects.opened('example12_1', function(id){
+				alert('打开了...');
+			}).closed('example12_1', function(id){
+				alert('关闭了...');
+			});
 			
 			formSelects.btns('select16_1', ['select', 'remove', 'reverse', 'skin']);
 			formSelects.btns('select16_2', ['select', 'remove', 'skin', {
@@ -2469,6 +2610,7 @@ formSelects.search('select1', '关键内容');
 			formSelects.btns('select16_5', ['select', 'remove'], {show: 'icon'});
 			formSelects.btns('select16_6', ['select', 'remove'], {show: 'name'});
 			formSelects.btns('select16_7', ['select', 'remove'], {show: '', space: '10px'});
+			
 		</script>
 	</body>
 

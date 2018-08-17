@@ -2,10 +2,12 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0813
+ * version: 4.0.0.0817
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function (layui, window, factory) {
@@ -24,7 +26,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function () {
-	var v = '4.0.0.0813',
+	var v = '4.0.0.0817',
 	    NAME = 'xm-select',
 	    PNAME = 'xm-select-parent',
 	    INPUT = 'xm-select-input',
@@ -58,7 +60,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	    FORM_INPUT = 'xm-input',
 	    FORM_DL_INPUT = 'xm-dl-input',
 	    FORM_SELECT_TIPS = 'xm-select-tips',
-	    CHECKBOX_YES = 'iconfont',
+	    CHECKBOX_YES = 'xm-iconfont',
 	    FORM_TEAM_PID = 'XM_PID_VALUE',
 	    CZ = 'xm-cz',
 	    CZ_GROUP = 'xm-cz-group',
@@ -68,7 +70,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		on: {},
 		endOn: {},
 		filter: {},
-		maxTips: {}
+		maxTips: {},
+		opened: {},
+		closed: {}
 	},
 	    ajax = {
 		type: 'get',
@@ -88,27 +92,42 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		beforeSuccess: null,
 		success: null,
 		error: null,
-		beforeSearch: null
+		beforeSearch: null,
+		response: {
+			statusCode: 0,
+			statusName: 'code',
+			msgName: 'msg',
+			dataName: 'data'
+		},
+		tree: {
+			nextClick: function nextClick(id, item, callback) {
+				callback([]);
+			},
+			folderChoose: true,
+			lazy: true
+		}
 	},
-	    quickBtns = [{ icon: 'iconfont icon-quanxuan', name: '全选', click: function click(id, cm) {
+	    quickBtns = [{ icon: 'xm-iconfont icon-quanxuan', name: '全选', click: function click(id, cm) {
 			cm.selectAll(id, true, true);
-		} }, { icon: 'iconfont icon-qingkong', name: '清空', click: function click(id, cm) {
+		} }, { icon: 'xm-iconfont icon-qingkong', name: '清空', click: function click(id, cm) {
 			cm.removeAll(id, true, true);
-		} }, { icon: 'iconfont icon-fanxuan', name: '反选', click: function click(id, cm) {
+		} }, { icon: 'xm-iconfont icon-fanxuan', name: '反选', click: function click(id, cm) {
 			cm.reverse(id, true, true);
-		} }, { icon: 'iconfont icon-pifu', name: '换肤', click: function click(id, cm) {
+		} }, { icon: 'xm-iconfont icon-pifu', name: '换肤', click: function click(id, cm) {
 			cm.skin(id);
 		} }],
 	    $ = window.$ || window.layui && window.layui.jquery,
 	    $win = $(window),
 	    ajaxs = {},
+	    fsConfig = {},
+	    fsConfigs = {},
 	    FormSelects = function FormSelects(options) {
 		var _this = this;
 
 		this.config = {
 			name: null, //xm-select="xxx"
 			max: null,
-			maxTips: function maxTips(vals, val, max) {
+			maxTips: function maxTips(id, vals, val, max) {
 				var ipt = $('[xid="' + _this.config.name + '"]').prev().find('.' + NAME);
 				if (ipt.parents('.layui-form-item[pane]').length) {
 					ipt = ipt.parents('.layui-form-item[pane]');
@@ -120,6 +139,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			},
 			init: null, //初始化的选择值,
 			on: null, //select值发生变化
+			opened: null,
+			closed: null,
 			filter: function filter(id, inputVal, val, isDisabled) {
 				return val.name.indexOf(inputVal) == -1;
 			},
@@ -142,15 +163,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		};
 		this.select = null;
 		this.values = [];
-		$.extend(this.config, options);
+		$.extend(this.config, options, {
+			searchUrl: options.isSearch ? options.searchUrl : null,
+			placeholder: options.optionsFirst ? options.optionsFirst.value ? TIPS : options.optionsFirst.innerHTML || TIPS : TIPS,
+			btns: options.radio ? [quickBtns[1]] : [quickBtns[0], quickBtns[1], quickBtns[2]]
+		}, fsConfigs[options.name] || fsConfig);
+		if (isNaN(this.config.showCount) || this.config.showCount <= 0) {
+			this.config.showCount = 19921012;
+		}
 	};
 
 	//一些简单的处理方法
 	var Common = function Common() {
 		this.appender();
-		this.init();
 		this.on();
-		this.initVal();
 		this.onreset();
 	};
 
@@ -189,6 +215,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				}
 			};
 		};
+
+		//拓展Array filter方法
+		if (!Array.prototype.filter) {
+			Array.prototype.filter = function (b) {
+				if (this === void 0 || this === null) {
+					throw new TypeError();
+				}var f = Object(this);var a = f.length >>> 0;if (typeof b !== "function") {
+					throw new TypeError();
+				}var e = [];var d = arguments[1];for (var c = 0; c < a; c++) {
+					if (c in f) {
+						var g = f[c];if (b.call(d, g, c, f)) {
+							e.push(g);
+						}
+					}
+				}return e;
+			};
+		};
 	};
 
 	Common.prototype.init = function (target) {
@@ -198,124 +241,82 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		$(target ? target : 'select[' + NAME + ']').each(function (index, select) {
 			var othis = $(select),
 			    id = othis.attr(NAME),
-			    hasRender = othis.next('.layui-form-select'),
-			    disabled = select.disabled,
-			    max = othis.attr(MAX) - 0,
-			    isSearch = othis.attr(SEARCH) != undefined,
-			    searchUrl = isSearch ? othis.attr(SEARCH) : null,
-			    isCreate = othis.attr(CREATE) != undefined,
-			    isRadio = othis.attr(RADIO) != undefined,
-			    skin = othis.attr(SKIN),
-			    direction = othis.attr(DIRECTION),
-			    optionsFirst = select.options[0],
-			    height = othis.attr(HEIGHT),
-			    formname = othis.attr('name'),
-			    layverify = othis.attr('lay-verify'),
-			    layverType = othis.attr('lay-verType'),
-			    searchtype = othis.attr(SEARCH_TYPE) == 'dl' ? 1 : 0,
-			    showCount = othis.attr(SHOW_COUNT) - 0,
-			    placeholder = optionsFirst ? optionsFirst.value ? TIPS : optionsFirst.innerHTML || TIPS : TIPS,
+			    hasLayuiRender = othis.next('.layui-form-select'),
+			    hasRender = othis.next('.' + PNAME),
+			    options = {
+				name: id,
+				disabled: select.disabled,
+				max: othis.attr(MAX) - 0,
+				isSearch: othis.attr(SEARCH) != undefined,
+				searchUrl: othis.attr(SEARCH),
+				isCreate: othis.attr(CREATE) != undefined,
+				radio: othis.attr(RADIO) != undefined,
+				skin: othis.attr(SKIN),
+				direction: othis.attr(DIRECTION),
+				optionsFirst: select.options[0],
+				height: othis.attr(HEIGHT),
+				formname: othis.attr('name') || othis.attr('_name'),
+				layverify: othis.attr('lay-verify') || othis.attr('_lay-verify'),
+				layverType: othis.attr('lay-verType'),
+				searchType: othis.attr(SEARCH_TYPE) == 'dl' ? 1 : 0,
+				showCount: othis.attr(SHOW_COUNT) - 0
+			},
 			    value = othis.find('option[selected]').toArray().map(function (option) {
 				//获取已选中的数据
 				return {
 					name: option.innerHTML,
-					val: option.value
+					value: option.value
 				};
 			}),
-			    fs = new FormSelects(isRadio ? { btns: [quickBtns[1]] } : {});
-
-			var hisFs = data[id];
-			data[id] = fs;
+			    fs = new FormSelects(options);
 
 			fs.values = value;
-			fs.config.init = value.concat([]);
-			fs.config.name = id;
-			fs.config.disabled = disabled;
-			fs.config.max = max;
-			fs.config.isSearch = isSearch;
-			fs.config.searchUrl = searchUrl;
-			fs.config.isCreate = isCreate;
-			fs.config.radio = isRadio;
-			fs.config.skin = skin;
-			fs.config.direction = direction;
-			fs.config.height = height;
-			fs.config.searchType = searchtype;
-			fs.config.formname = formname;
-			fs.config.layverify = layverify;
-			fs.config.layverType = layverType;
-			fs.config.searchType = searchtype;
-			fs.config.showCount = showCount;
-			fs.config.placeholder = placeholder;
 
-			if (hisFs) {
-				$.extend(true, fs.config, hisFs.config);
-				disabled = fs.config.disabled;
-				max = fs.config.max;
-				isSearch = fs.config.isSearch;
-				searchUrl = fs.config.searchUrl;
-				isRadio = fs.config.radio;
-				skin = fs.config.skin;
-				height = fs.config.height;
-				formname = fs.config.formname;
-				layverify = fs.config.layverify;
-				layverType = fs.config.layverType;
-				showCount = fs.config.showCount;
-				placeholder = fs.config.placeholder;
-
-				if (fs.config.radio) {
-					fs.config.btns = [quickBtns[1]];
-				} else {
-					fs.config.btns = [quickBtns[0], quickBtns[1], quickBtns[2]];
-				}
-
-				if (hisFs.config.init) {
-					fs.values = hisFs.config.init.map(function (item) {
-						if ((typeof item === 'undefined' ? 'undefined' : _typeof(item)) == 'object') {
-							return item;
-						}
-						return {
-							name: othis.find('option[value="' + item + '"]').text(),
-							val: item
-						};
-					}).filter(function (item) {
-						return item.name;
-					});
-					fs.config.init = fs.values.concat([]);
-				}
+			if (fs.config.init) {
+				fs.values = fs.config.init.map(function (item) {
+					if ((typeof item === 'undefined' ? 'undefined' : _typeof(item)) == 'object') {
+						return item;
+					}
+					return {
+						name: othis.find('option[value="' + item + '"]').text(),
+						value: item
+					};
+				}).filter(function (item) {
+					return item.name;
+				});
+				fs.config.init = fs.values.concat([]);
+			} else {
+				fs.config.init = value.concat([]);
 			}
 
-			if (isNaN(showCount) || showCount <= 0) {
-				showCount = 19921012;
-			}
+			!fs.values && (fs.values = []);
+
+			data[id] = fs;
 
 			//先取消layui对select的渲染
+			hasLayuiRender[0] && hasLayuiRender.remove();
 			hasRender[0] && hasRender.remove();
 
 			//构造渲染div
-			var dinfo = _this2.renderSelect(id, placeholder, select);
-			var heightStyle = !height || height == 'auto' ? '' : 'xm-hg style="height: 34px;"';
-			var inputHtml = ['<div class="' + LABEL + '">', '<input type="text" fsw class="' + FORM_INPUT + ' ' + INPUT + '" ' + (isSearch ? '' : 'style="display: none;"') + ' autocomplete="off" debounce="0" />', '</div>'];
-			var reElem = $('<div class="' + FORM_SELECT + '" ' + SKIN + '="' + skin + '">\n\t\t\t\t\t<input class="' + HIDE_INPUT + '" value="" name="' + formname + '" lay-verify="' + layverify + '" lay-verType="' + layverType + '" type="text" style="position: absolute;bottom: 0; z-index: -1;width: 100%; height: 100%; border: none; opacity: 0;"/>\n\t\t\t\t\t<div class="' + FORM_TITLE + ' ' + (disabled ? DIS : '') + '">\n\t\t\t\t\t\t<div class="' + FORM_INPUT + ' ' + NAME + '" ' + heightStyle + '>\n\t\t\t\t\t\t\t' + inputHtml.join('') + '\n\t\t\t\t\t\t\t<i class="' + SANJIAO + '"></i>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class="' + TDIV + '">\n\t\t\t\t\t\t\t<input type="text" autocomplete="off" placeholder="' + placeholder + '" readonly="readonly" unselectable="on" class="' + FORM_INPUT + '">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div></div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<dl xid="' + id + '" class="' + DL + ' ' + (isRadio ? RADIO : '') + '">' + dinfo + '</dl>\n\t\t\t\t</div>');
+			var dinfo = _this2.renderSelect(id, fs.config.placeholder, select);
+			var heightStyle = !fs.config.height || fs.config.height == 'auto' ? '' : 'xm-hg style="height: 34px;"';
+			var inputHtml = ['<div class="' + LABEL + '">', '<input type="text" fsw class="' + FORM_INPUT + ' ' + INPUT + '" ' + (fs.config.isSearch ? '' : 'style="display: none;"') + ' autocomplete="off" debounce="0" />', '</div>'];
+			var reElem = $('<div class="' + FORM_SELECT + '" ' + SKIN + '="' + fs.config.skin + '">\n\t\t\t\t\t<input class="' + HIDE_INPUT + '" value="" name="' + fs.config.formname + '" lay-verify="' + fs.config.layverify + '" lay-verType="' + fs.config.layverType + '" type="text" style="position: absolute;bottom: 0; z-index: -1;width: 100%; height: 100%; border: none; opacity: 0;"/>\n\t\t\t\t\t<div class="' + FORM_TITLE + ' ' + (fs.config.disabled ? DIS : '') + '">\n\t\t\t\t\t\t<div class="' + FORM_INPUT + ' ' + NAME + '" ' + heightStyle + '>\n\t\t\t\t\t\t\t' + inputHtml.join('') + '\n\t\t\t\t\t\t\t<i class="' + SANJIAO + '"></i>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class="' + TDIV + '">\n\t\t\t\t\t\t\t<input type="text" autocomplete="off" placeholder="' + fs.config.placeholder + '" readonly="readonly" unselectable="on" class="' + FORM_INPUT + '">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div></div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<dl xid="' + id + '" class="' + DL + ' ' + (fs.config.radio ? RADIO : '') + '">' + dinfo + '</dl>\n\t\t\t\t</div>');
 
-			if (hisFs) {
-				$('dl[xid="' + id + '"]').parents('.' + PNAME).html(reElem);
-				fs.select = othis;
-			} else {
-				//包裹一个div
-				othis.wrap('<div class="' + PNAME + '" FS_ID="' + id + '"></div>');
-				othis.after(reElem);
-				fs.select = othis.remove();
-			}
+			var $parent = $('<div class="' + PNAME + '" FS_ID="' + id + '"></div>');
+			$parent.append(reElem);
+			othis.after($parent);
+			othis.attr('lay-ignore', '');
+			othis.removeAttr('name') && othis.attr('_name', fs.config.formname);
+			othis.removeAttr('lay-verify') && othis.attr('_lay-verify', fs.config.layverify);
 
 			//如果可搜索, 加上事件
-			if (isSearch) {
-				ajaxs[id] = $.extend(true, {}, ajax, {
-					searchUrl: searchUrl
-				});
+			if (fs.config.isSearch) {
+				ajaxs[id] = $.extend({}, ajax, { searchUrl: fs.config.searchUrl }, ajaxs[id]);
 				$(document).on('input', 'div.' + PNAME + '[FS_ID="' + id + '"] .' + INPUT, function (e) {
-					_this2.search(id, e, searchUrl);
+					_this2.search(id, e, fs.config.searchUrl);
 				});
-				if (searchUrl) {
+				if (fs.config.searchUrl) {
 					//触发第一次请求事件
 					_this2.triggerSearch(reElem, true);
 				}
@@ -372,11 +373,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			//遍历选项, 选择可以显示的值
 			reElem.find('dl dd:not(.' + FORM_SELECT_TIPS + ')').each(function (idx, item) {
 				var _item = $(item);
-				var searchFun = data[id].config.filter || events.filter[id];
-				if (searchFun && searchFun(id, inputValue, {
-					name: _item.find('span').attr('name'),
-					val: _item.attr('lay-value')
-				}, _item.hasClass(DISABLED)) == true) {
+				var searchFun = events.filter[id] || data[id].config.filter;
+				if (searchFun && searchFun(id, inputValue, _this3.getItem(id, _item), _item.hasClass(DISABLED)) == true) {
 					_item.addClass(DD_HIDE);
 				}
 			});
@@ -442,19 +440,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				}
 				ajaxConfig.beforeSuccess && ajaxConfig.beforeSuccess instanceof Function && (res = ajaxConfig.beforeSuccess(id, searchUrl, inputValue, res));
 				if (_this5.isArray(res)) {
-					res = {
-						code: 0,
-						msg: "",
-						data: res
-					};
+					var newRes = {};
+					newRes[ajaxConfig.response.statusName] = ajaxConfig.response.statusCode;
+					newRes[ajaxConfig.response.msgName] = "";
+					newRes[ajaxConfig.response.dataName] = res;
+					res = newRes;
 				}
-				if (res.code != 0) {
-					reElem.find('dd.' + FORM_NONE).addClass(FORM_EMPTY).text(res.msg);
+				if (res[ajaxConfig.response.statusName] != ajaxConfig.response.statusCode) {
+					reElem.find('dd.' + FORM_NONE).addClass(FORM_EMPTY).text(res[ajaxConfig.response.msgName]);
 				} else {
 					reElem.find('dd.' + FORM_NONE).removeClass(FORM_EMPTY);
 					//获得已选择的values
-					_this5.renderData(id, res.data, isLinkage, linkageWidth, isSearch);
-					data[id].config.isEmpty = res.data.length == 0;
+					_this5.renderData(id, res[ajaxConfig.response.dataName], isLinkage, linkageWidth, isSearch);
+					data[id].config.isEmpty = res[ajaxConfig.response.dataName].length == 0;
 				}
 				ajaxConfig.success && ajaxConfig.success instanceof Function && ajaxConfig.success(id, searchUrl, inputValue, res);
 			},
@@ -476,6 +474,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				    index = 0,
 				    temp = { "0": dataArr },
 				    ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
+				db[id] = {};
 
 				var _loop = function _loop() {
 					var group = result[index++] = [],
@@ -486,12 +485,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 							var val = {
 								pid: pid,
 								name: item[ajaxConfig.keyName],
-								val: item[ajaxConfig.keyVal]
+								value: item[ajaxConfig.keyVal]
 							};
+							db[id][val.value] = $.extend(item, val);
 							group.push(val);
 							var children = item[ajaxConfig.keyChildren];
 							if (children && children.length) {
-								temp[val.val] = children;
+								temp[val.value] = children;
 							}
 						});
 					});
@@ -507,7 +507,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				$.each(result, function (idx, arr) {
 					var groupDiv = ['<div style="left: ' + (linkageWidth - 0) * idx + 'px;" class="xm-select-linkage-group xm-select-linkage-group' + (idx + 1) + ' ' + (idx != 0 ? 'xm-select-linkage-hide' : '') + '">'];
 					$.each(arr, function (idx2, item) {
-						var span = '<li title="' + item.name + '" pid="' + item.pid + '" xm-value="' + item.val + '"><span>' + item.name + '</span></li>';
+						var span = '<li title="' + item.name + '" pid="' + item.pid + '" xm-value="' + item.value + '"><span>' + item.name + '</span></li>';
 						groupDiv.push(span);
 					});
 					groupDiv.push('</div>');
@@ -535,10 +535,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			if (item[ajaxConfig.keySel]) {
 				values.push({
 					name: item[ajaxConfig.keyName],
-					val: item[ajaxConfig.keyVal]
+					value: item[ajaxConfig.keyVal]
 				});
 			}
-			return $.extend({}, item, {
+			var itemVal = $.extend({}, item, {
 				innerHTML: item[ajaxConfig.keyName],
 				value: item[ajaxConfig.keyVal],
 				sel: item[ajaxConfig.keySel],
@@ -546,6 +546,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				type: item.type,
 				name: item.name
 			});
+			return itemVal;
 		})));
 
 		var label = reElem.find('.' + LABEL);
@@ -554,19 +555,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			//如果是远程搜索, 这里需要判重
 			var oldVal = data[id].values;
 			oldVal.forEach(function (item, index) {
-				dl.find('dd[lay-value="' + item.val + '"]').addClass(THIS);
+				dl.find('dd[lay-value="' + item.value + '"]').addClass(THIS);
 			});
 			values.forEach(function (item, index) {
 				if (_this6.indexOf(oldVal, item) == -1) {
 					_this6.addLabel(id, label, item);
-					dl.find('dd[lay-value="' + item.val + '"]').addClass(THIS);
+					dl.find('dd[lay-value="' + item.value + '"]').addClass(THIS);
 					oldVal.push(item);
 				}
 			});
 		} else {
 			values.forEach(function (item, index) {
 				_this6.addLabel(id, label, item);
-				dl.find('dd[lay-value="' + item.val + '"]').addClass(THIS);
+				dl.find('dd[lay-value="' + item.value + '"]').addClass(THIS);
 			});
 			data[id].values = values;
 		}
@@ -577,24 +578,26 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		//这里处理树形结构
 		var ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
 		var childrenName = ajaxConfig['keyChildren'];
-
-		var result = this.getChildrenList(arr, childrenName, []);
-		console.log(result);
+		var disabledName = ajaxConfig['keyDis'];
+		db[id] = {};
+		var result = this.getChildrenList(arr, childrenName, disabledName, [], false);
 		return result;
 	};
 
-	Common.prototype.getChildrenList = function (arr, childrenName, pid) {
+	Common.prototype.getChildrenList = function (arr, childrenName, disabledName, pid, disabled) {
 		var result = [];
 		for (var a = 0; a < arr.length; a++) {
 			var item = arr[a];
 			var parentIds = pid.concat([]);
 			parentIds.push(a);
 			item[FORM_TEAM_PID] = JSON.stringify(parentIds);
+			item[disabledName] = item[disabledName] || disabled;
 			result.push(item);
 			var child = item[childrenName];
 			if (child && common.isArray(child) && child.length) {
+				item['XM_TREE_FOLDER'] = true;
 				var pidArr = parentIds.concat([]);
-				var childResult = this.getChildrenList(child, childrenName, pidArr);
+				var childResult = this.getChildrenList(child, childrenName, disabledName, pidArr, item[disabledName]);
 				result = result.concat(childResult);
 			}
 		}
@@ -623,6 +626,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					temp.removeClass(DD_HIDE);
 				} else {
 					tips.after($(this.createDD(id, {
+						name: inputValue,
 						innerHTML: inputValue,
 						value: val
 					}, TEMP + ' ' + CREATE_LONG)));
@@ -635,10 +639,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	Common.prototype.createDD = function (id, item, clz) {
 		var name = $.trim(item.innerHTML);
+		db[id][item.value] = $(item).is('option') ? { name: name, value: item.value } : item;
 		var template = data[id].config.template(name);
 		var pid = item[FORM_TEAM_PID];
-		pid ? pid = JSON.parse(pid) : pid = [1];
-		return '<dd lay-value="' + item.value + '" class="' + (item.disabled ? DISABLED : '') + ' ' + (clz ? clz : '') + '">\n\t\t\t\t\t<div class="xm-unselect xm-form-checkbox ' + (item.disabled ? DISABLED : '') + '"  style="margin-left: ' + (pid.length - 1) * 30 + 'px">\n\t\t\t\t\t\t<i class="' + CHECKBOX_YES + '"></i>\n\t\t\t\t\t\t<span name="' + name + '">' + template + '</span>\n\t\t\t\t\t</div>\n\t\t\t\t</dd>';
+		pid ? pid = JSON.parse(pid) : pid = [-1];
+		var attr = pid[0] == -1 ? '' : 'tree-id="' + pid.join('-') + '" tree-folder="' + !!item['XM_TREE_FOLDER'] + '"';
+		return '<dd lay-value="' + item.value + '" class="' + (item.disabled ? DISABLED : '') + ' ' + (clz ? clz : '') + '" ' + attr + '>\n\t\t\t\t\t<div class="xm-unselect xm-form-checkbox ' + (item.disabled ? DISABLED : '') + '"  style="margin-left: ' + (pid.length - 1) * 30 + 'px">\n\t\t\t\t\t\t<i class="' + CHECKBOX_YES + '"></i>\n\t\t\t\t\t\t<span name="' + name + '">' + template + '</span>\n\t\t\t\t\t</div>\n\t\t\t\t</dd>';
 	};
 
 	Common.prototype.createQuickBtn = function (obj, right) {
@@ -655,13 +661,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			quickBtn.push(_this7.createQuickBtn(item, right));
 		});
 		quickBtn.push('</div>');
-		quickBtn.push(this.createQuickBtn({ icon: 'iconfont icon-caidan', name: '' }));
+		quickBtn.push(this.createQuickBtn({ icon: 'xm-iconfont icon-caidan', name: '' }));
 		return quickBtn.join('');
 	};
 
 	Common.prototype.renderSelect = function (id, tips, select) {
 		var _this8 = this;
 
+		db[id] = {};
 		var arr = [];
 		if (data[id].config.btns.length) {
 			setTimeout(function () {
@@ -669,7 +676,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				dl.parents('.' + FORM_SELECT).attr(SEARCH_TYPE, data[id].config.searchType);
 				dl.find('.' + CZ_GROUP).css('max-width', dl.prev().width() - 54 + 'px');
 			}, 10);
-			arr.push(['<dd lay-value="" class="' + FORM_SELECT_TIPS + '" style="background-color: #FFF!important;">', this.renderBtns(id, null, '30px'), '</dd>', '<dd lay-value="" class="' + FORM_SELECT_TIPS + ' ' + FORM_DL_INPUT + '" style="background-color: #FFF!important;">', '<i class="iconfont icon-sousuo"></i>', '<input type="text" class="' + FORM_INPUT + ' ' + INPUT + '" placeholder="\u8BF7\u641C\u7D22"/>', '</dd>'].join(''));
+			arr.push(['<dd lay-value="" class="' + FORM_SELECT_TIPS + '" style="background-color: #FFF!important;">', this.renderBtns(id, null, '30px'), '</dd>', '<dd lay-value="" class="' + FORM_SELECT_TIPS + ' ' + FORM_DL_INPUT + '" style="background-color: #FFF!important;">', '<i class="xm-iconfont icon-sousuo"></i>', '<input type="text" class="' + FORM_INPUT + ' ' + INPUT + '" placeholder="\u8BF7\u641C\u7D22"/>', '</dd>'].join(''));
 		} else {
 			arr.push('<dd lay-value="" class="' + FORM_SELECT_TIPS + '">' + tips + '</dd>');
 		}
@@ -719,7 +726,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					}
 				});
 			}
-			$('.' + PNAME + ' .' + FORM_SELECTED).removeClass(FORM_SELECTED);
+			$('.' + PNAME + ' .' + FORM_SELECTED).each(function (index, item) {
+				_this9.changeShow($(item).find('.' + FORM_TITLE), false);
+			});
 		});
 	};
 
@@ -810,11 +819,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			}
 			//如果点击的是x按钮
 			if (othis.is('i[fsw="' + NAME + '"]')) {
-				var val = {
-					name: othis.prev().text(),
-					val: othis.parent().attr("value")
-				},
-				    dd = dl.find('dd[lay-value=\'' + val.val + '\']');
+				var val = _this10.getItem(id, othis.parent().attr("value")),
+				    dd = dl.find('dd[lay-value=\'' + val.value + '\']');
 				if (dd.hasClass(DISABLED)) {
 					//如果是disabled状态, 不可选, 不可删
 					return false;
@@ -826,7 +832,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			_this10.changeShow(title, !title.parents('.' + FORM_SELECT).hasClass(FORM_SELECTED));
 			return false;
 		});
-		$(target ? target : document).find('dl.' + DL).off('click').on('click', function (e) {
+		$(target ? target : document).off('click', 'dl.' + DL).on('click', 'dl.' + DL, function (e) {
 			var othis = $(e.target);
 			if (othis.is('.' + LINKAGE) || othis.parents('.' + LINKAGE)[0]) {
 				//linkage的处理
@@ -848,14 +854,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				if (!nextGroup[0] || nextGroup.find('li:not(.xm-select-linkage-hide)').length == 0) {
 					var vals = [],
 					    index = 0,
-					    _isAdd = !othis.hasClass('xm-select-this');
+					    isAdd = !othis.hasClass('xm-select-this');
 					if (data[_id].config.radio) {
 						othis.parents('.xm-select-linkage').find('.xm-select-this').removeClass('xm-select-this');
 					}
 					do {
 						vals[index++] = {
 							name: othis.find('span').text(),
-							val: othis.attr('xm-value')
+							value: othis.attr('xm-value')
 						};
 						othis = othis.parents('.xm-select-linkage-group').prev().find('li[xm-value="' + othis.attr('pid') + '"]');
 					} while (othis.length);
@@ -864,11 +870,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						name: vals.map(function (item) {
 							return item.name;
 						}).join('/'),
-						val: vals.map(function (item) {
-							return item.val;
+						value: vals.map(function (item) {
+							return item.value;
 						}).join('/')
 					};
-					_this10.handlerLabel(_id, null, _isAdd, val);
+					_this10.handlerLabel(_id, null, isAdd, val);
 				} else {
 					nextGroup.removeClass('xm-select-linkage-hide');
 				}
@@ -878,21 +884,79 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			if (othis.is('dl')) {
 				return false;
 			}
+
 			if (othis.is('dt')) {
 				othis.nextUntil('dt').each(function (index, item) {
 					item = $(item);
 					if (item.hasClass(DISABLED) || item.hasClass(THIS)) {} else {
-						item.click();
+						item.find('i:not(.icon-expand)').click();
 					}
 				});
 				return false;
 			}
 			var dd = othis.is('dd') ? othis : othis.parents('dd');
 			var id = dd.parent('dl').attr('xid');
+
 			if (dd.hasClass(DISABLED)) {
 				//被禁用选项的处理
 				return false;
 			}
+
+			//菜单功效
+			if (othis.is('i.icon-caidan')) {
+				var opens = [],
+				    closes = [];
+				othis.parents('dl').find('dd[tree-folder="true"]').each(function (index, item) {
+					$(item).attr('xm-tree-hidn') == undefined ? opens.push(item) : closes.push(item);
+				});
+				var arr = closes.length ? closes : opens;
+				arr.forEach(function (item) {
+					return item.click();
+				});
+				return false;
+			}
+			//树状结构的选择
+			var treeId = dd.attr('tree-id');
+			if (treeId) {
+				//忽略右边的图标
+				if (othis.is('i:not(.icon-expand)')) {
+					_this10.handlerLabel(id, dd, !dd.hasClass(THIS));
+					return false;
+				}
+				var ajaxConfig = ajaxs[id] || ajax;
+				var treeConfig = ajaxConfig.tree;
+				var childrens = dd.nextAll('dd[tree-id^="' + treeId + '"]');
+				if (childrens && childrens.length) {
+					var len = childrens[0].clientHeight;
+					len ? (_this10.addTreeHeight(dd, len), len = 0) : (len = dd.attr('xm-tree-hidn') || 36, dd.removeAttr('xm-tree-hidn'), dd.find('>i').remove(), childrens = childrens.filter(function (index, item) {
+						return $(item).attr('tree-id').split('-').length - 1 == treeId.split('-').length;
+					}));
+					childrens.animate({
+						height: len
+					}, 150);
+					return false;
+				} else {
+					if (treeConfig.nextClick && treeConfig.nextClick instanceof Function) {
+						treeConfig.nextClick(id, _this10.getItem(id, dd), function (res) {
+							if (!res || !res.length) {
+								_this10.handlerLabel(id, dd, !dd.hasClass(THIS));
+							} else {
+								dd.attr('tree-folder', 'true');
+								var ddChilds = [];
+								res.forEach(function (item, idx) {
+									item.innerHTML = item[ajaxConfig.keyName];
+									item[FORM_TEAM_PID] = JSON.stringify(treeId.split('-').concat([idx]));
+									ddChilds.push(_this10.createDD(id, item));
+									db[id][item[ajaxConfig.keyVal]] = item;
+								});
+								dd.after(ddChilds.join(''));
+							}
+						});
+						return false;
+					}
+				}
+			}
+
 			if (dd.hasClass(FORM_SELECT_TIPS)) {
 				//tips的处理
 				var btn = othis.is('.' + CZ) ? othis : othis.parents('.' + CZ);
@@ -906,16 +970,43 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				obj && obj.click && obj.click instanceof Function && obj.click(id, _this10);
 				return false;
 			}
-			var isAdd = !dd.hasClass(THIS);
-			_this10.handlerLabel(id, dd, isAdd);
+			_this10.handlerLabel(id, dd, !dd.hasClass(THIS));
 			return false;
 		});
+	};
+
+	Common.prototype.addTreeHeight = function (dd, len) {
+		var _this11 = this;
+
+		var treeId = dd.attr('tree-id');
+		var childrens = dd.nextAll('dd[tree-id^="' + treeId + '"]');
+		if (childrens.length) {
+			dd.append('<i class="xm-iconfont icon-expand"></i>');
+			dd.attr('xm-tree-hidn', len);
+			childrens.each(function (index, item) {
+				var that = $(item);
+				_this11.addTreeHeight(that, len);
+			});
+		}
+	};
+
+	var db = {};
+	Common.prototype.getItem = function (id, value) {
+		if (value instanceof $) {
+			value = value.attr('lay-value');
+		} else if (typeof value == 'string' && value.indexOf('/') != -1) {
+			return db[id][value] || {
+				name: this.valToName(id, value),
+				value: value
+			};
+		}
+		return db[id][value];
 	};
 
 	Common.prototype.linkageAdd = function (id, val) {
 		var dl = $('dl[xid="' + id + '"]');
 		dl.find('.xm-select-active').removeClass('xm-select-active');
-		var vs = val.val.split('/');
+		var vs = val.value.split('/');
 		var pid = void 0,
 		    li = void 0,
 		    index = 0;
@@ -935,7 +1026,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	Common.prototype.linkageDel = function (id, val) {
 		var dl = $('dl[xid="' + id + '"]');
-		var vs = val.val.split('/');
+		var vs = val.value.split('/');
 		var pid = void 0,
 		    li = void 0,
 		    index = vs.length - 1;
@@ -974,9 +1065,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		this.retop(label.parents('.' + FORM_SELECT));
 		this.calcLabelLeft(label, 0, true);
 		//表单默认值
-		label.parents('.' + PNAME).find('.' + HIDE_INPUT).val(data[key].values.map(function (val) {
-			return val.val;
-		}).join(','));
+		this.setHidnVal(key, label);
 		//title值
 		label.parents('.' + FORM_TITLE + ' .' + NAME).attr('title', data[key].values.map(function (val) {
 			return val.name;
@@ -984,7 +1073,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	Common.prototype.initVal = function (id) {
-		var _this11 = this;
+		var _this12 = this;
 
 		var target = {};
 		if (id) {
@@ -1001,22 +1090,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 			var _vals = values.concat([]);
 			_vals.concat([]).forEach(function (item, index) {
-				_this11.addLabel(key, label, item);
-				dl.find('dd[lay-value="' + item.val + '"]').addClass(THIS);
+				_this12.addLabel(key, label, item);
+				dl.find('dd[lay-value="' + item.value + '"]').addClass(THIS);
 			});
 			if (val.config.radio) {
 				_vals.length && values.push(_vals[_vals.length - 1]);
 			}
-			_this11.commonHandler(key, label);
+			_this12.commonHandler(key, label);
 		});
+	};
+
+	Common.prototype.setHidnVal = function (key, label) {
+		if (!label || !label[0]) {
+			return;
+		}
+		label.parents('.' + PNAME).find('.' + HIDE_INPUT).val(data[key].values.map(function (val) {
+			return val.value;
+		}).join(','));
 	};
 
 	Common.prototype.handlerLabel = function (id, dd, isAdd, oval, notOn) {
 		var div = $('[xid="' + id + '"]').prev().find('.' + LABEL),
-		    val = dd && {
-			name: dd.find('span').attr('name'),
-			val: dd.attr('lay-value')
-		},
+		    val = dd && this.getItem(id, dd),
 		    vals = data[id].values,
 		    on = data[id].config.on || events.on[id],
 		    endOn = data[id].config.endOn || events.endOn[id];
@@ -1025,8 +1120,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 		var fs = data[id];
 		if (isAdd && fs.config.max && fs.values.length >= fs.config.max) {
-			var maxTipsFun = data[id].config.maxTips || events.maxTips[id];
-			maxTipsFun && maxTipsFun(id, vals.concat([]), val, fs.max);
+			var maxTipsFun = events.maxTips[id] || data[id].config.maxTips;
+			maxTipsFun && maxTipsFun(id, vals.concat([]), val, fs.config.max);
 			return;
 		}
 		if (!notOn) {
@@ -1055,7 +1150,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	Common.prototype.addLabel = function (id, div, val) {
 		if (!val) return;
 		var tips = 'fsw="' + NAME + '"';
-		var _ref = [$('<span ' + tips + ' value="' + val.val + '"><font ' + tips + '>' + val.name + '</font></span>'), $('<i ' + tips + ' class="iconfont icon-close"></i>')],
+		var _ref = [$('<span ' + tips + ' value="' + val.value + '"><font ' + tips + '>' + val.name + '</font></span>'), $('<i ' + tips + ' class="xm-iconfont icon-close"></i>')],
 		    $label = _ref[0],
 		    $close = _ref[1];
 
@@ -1064,7 +1159,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		var fs = data[id];
 		if (fs.config.radio) {
 			fs.values.length = 0;
-			$('dl[xid="' + id + '"]').find('dd.' + THIS + ':not([lay-value="' + val.val + '"])').removeClass(THIS);
+			$('dl[xid="' + id + '"]').find('dd.' + THIS + ':not([lay-value="' + val.value + '"])').removeClass(THIS);
 			div.find('span').remove();
 		}
 		//如果是固定高度
@@ -1074,7 +1169,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	Common.prototype.delLabel = function (id, div, val) {
 		if (!val) return;
-		div.find('span[value="' + val.val + '"]:first').remove();
+		div.find('span[value="' + val.value + '"]:first').remove();
 	};
 
 	Common.prototype.checkHideSpan = function (id, div) {
@@ -1136,7 +1231,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	Common.prototype.changeShow = function (children, isShow) {
 		//显示于隐藏
 		$('.layui-form-selected').removeClass('layui-form-selected');
-		var top = children.parents('.' + FORM_SELECT);
+		var top = children.parents('.' + FORM_SELECT),
+		    realShow = top.hasClass(FORM_SELECTED),
+		    id = top.find('dl').attr('xid');
 		$('.' + PNAME + ' .' + FORM_SELECT).not(top).removeClass(FORM_SELECTED);
 		if (isShow) {
 			this.retop(top);
@@ -1146,7 +1243,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				top.find('dl .' + FORM_NONE).addClass(FORM_EMPTY);
 			}
 		} else {
-			var id = top.find('dl').attr('xid');
 			top.removeClass(FORM_SELECTED);
 			this.clearInput(id);
 			top.find('dl .' + FORM_EMPTY).removeClass(FORM_EMPTY);
@@ -1157,6 +1253,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				this.triggerSearch(top);
 			}
 			this.changePlaceHolder(top.find('.' + LABEL));
+		}
+		if (isShow != realShow) {
+			var openFun = data[id].config.opened || events.opened[id];
+			isShow && openFun && openFun instanceof Function && openFun(id);
+			var closeFun = data[id].config.closed || events.closed[id];
+			!isShow && closeFun && closeFun instanceof Function && closeFun(id);
 		}
 	};
 
@@ -1202,7 +1304,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	Common.prototype.indexOf = function (arr, val) {
 		for (var i = 0; i < arr.length; i++) {
-			if (arr[i].val == val || arr[i].val == (val ? val.val : val) || arr[i] == val || JSON.stringify(arr[i]) == JSON.stringify(val)) {
+			if (arr[i].value == val || arr[i].value == (val ? val.value : val) || arr[i] == val || JSON.stringify(arr[i]) == JSON.stringify(val)) {
 				return i;
 			}
 		}
@@ -1210,7 +1312,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	Common.prototype.remove = function (arr, val) {
-		var idx = this.indexOf(arr, val ? val.val : val);
+		var idx = this.indexOf(arr, val ? val.value : val);
 		if (idx > -1) {
 			arr.splice(idx, 1);
 			return true;
@@ -1219,7 +1321,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	Common.prototype.selectAll = function (id, isOn, skipDis) {
-		var _this12 = this;
+		var _this13 = this;
 
 		var dl = $('[xid="' + id + '"]');
 		if (!dl[0]) {
@@ -1230,16 +1332,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 		dl.find('dd[lay-value]:not(.' + FORM_SELECT_TIPS + '):not(.' + THIS + ')' + (skipDis ? ':not(.' + DISABLED + ')' : '')).each(function (index, item) {
 			item = $(item);
-			var val = {
-				name: item.find('span').attr('name'),
-				val: item.attr('lay-value')
-			};
-			_this12.handlerLabel(id, dl.find('dd[lay-value="' + val.val + '"]'), true, val, !isOn);
+			var val = _this13.getItem(id, item);
+			_this13.handlerLabel(id, dl.find('dd[lay-value="' + val.value + '"]'), true, val, !isOn);
 		});
 	};
 
 	Common.prototype.removeAll = function (id, isOn, skipDis) {
-		var _this13 = this;
+		var _this14 = this;
 
 		var dl = $('[xid="' + id + '"]');
 		if (!dl[0]) {
@@ -1248,7 +1347,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		if (dl.find('.xm-select-linkage')[0]) {
 			//针对多级联动的处理
 			data[id].values.concat([]).forEach(function (item, idx) {
-				var vs = item.val.split('/');
+				var vs = item.value.split('/');
 				var pid = void 0,
 				    li = void 0,
 				    index = 0;
@@ -1261,14 +1360,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			return;
 		}
 		data[id].values.concat([]).forEach(function (item, index) {
-			if (skipDis && dl.find('dd[lay-value="' + item.val + '"]').hasClass(DISABLED)) {} else {
-				_this13.handlerLabel(id, dl.find('dd[lay-value="' + item.val + '"]'), false, item, !isOn);
+			if (skipDis && dl.find('dd[lay-value="' + item.value + '"]').hasClass(DISABLED)) {} else {
+				_this14.handlerLabel(id, dl.find('dd[lay-value="' + item.value + '"]'), false, item, !isOn);
 			}
 		});
 	};
 
 	Common.prototype.reverse = function (id, isOn, skipDis) {
-		var _this14 = this;
+		var _this15 = this;
 
 		var dl = $('[xid="' + id + '"]');
 		if (!dl[0]) {
@@ -1279,11 +1378,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 		dl.find('dd[lay-value]:not(.' + FORM_SELECT_TIPS + ')' + (skipDis ? ':not(.' + DISABLED + ')' : '')).each(function (index, item) {
 			item = $(item);
-			var val = {
-				name: item.find('span').attr('name'),
-				val: item.attr('lay-value')
-			};
-			_this14.handlerLabel(id, dl.find('dd[lay-value="' + val.val + '"]'), !item.hasClass(THIS), val, !isOn);
+			var val = _this15.getItem(id, item);
+			_this15.handlerLabel(id, dl.find('dd[lay-value="' + val.value + '"]'), !item.hasClass(THIS), val, !isOn);
 		});
 	};
 
@@ -1315,7 +1411,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				    temp = {};
 				common.removeAll(id);
 				data[id].config.init.forEach(function (val, idx) {
-					if (val && (!temp[val] || data[id].config.repeat) && (dd = dl.find('dd[lay-value="' + val.val + '"]'))[0]) {
+					if (val && (!temp[val] || data[id].config.repeat) && (dd = dl.find('dd[lay-value="' + val.value + '"]'))[0]) {
 						common.handlerLabel(id, dd, true);
 						temp[val] = 1;
 					}
@@ -1335,13 +1431,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					data[id] ? data[id].config[name] = fun : events[name][id] = fun;
 				});
 			} else {
-				data[id] ? data[id].config[name] = fun : events[name][id] = fun;
+				data[id] ? (data[id].config[name] = fun, delete events[name][id]) : events[name][id] = fun;
 			}
 		}
 	};
 
 	Common.prototype.check = function (id) {
-		if ($('dl[xid="' + id + '"]').length) {
+		if ($('dl[xid="' + id + '"]').length || $('select[xm-select="' + id + '"]').length) {
 			return true;
 		} else {
 			delete data[id];
@@ -1350,9 +1446,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	Common.prototype.render = function (id, select) {
-		if (this.check(id)) {
-			select = data[id].select;
-		}
 		common.init(select);
 		common.one($('dl[xid="' + id + '"]').parents('.' + PNAME));
 		common.initVal(id);
@@ -1360,10 +1453,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	var Select4 = function Select4() {
 		this.v = v;
+		this.render();
 	};
 	var common = new Common();
 
 	Select4.prototype.value = function (id, type, isAppend) {
+		var _this16 = this;
+
 		if (typeof id != 'string') {
 			return [];
 		}
@@ -1375,12 +1471,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			var arr = fs.values.concat([]) || [];
 			if (type == 'val') {
 				return arr.map(function (val) {
-					return val.val;
+					return val.value;
 				});
 			}
 			if (type == 'valStr') {
 				return arr.map(function (val) {
-					return val.val;
+					return val.value;
 				}).join(',');
 			}
 			if (type == 'name') {
@@ -1412,7 +1508,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			}
 			if (isAdd) {
 				fs.values.forEach(function (val, index) {
-					temp[val.val] = 1;
+					temp[val.value] = 1;
 				});
 			}
 			type.forEach(function (val, index) {
@@ -1423,10 +1519,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 					} else {
 						var name = common.valToName(id, val);
 						if (name) {
-							common.handlerLabel(id, dd, isAdd, {
-								name: name,
-								val: val
-							}, true);
+							common.handlerLabel(id, dd, isAdd, _this16.getItem(id, val), true);
 							temp[val] = 1;
 						}
 					}
@@ -1450,6 +1543,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		return this;
 	};
 
+	Select4.prototype.opened = function (id, fun) {
+		common.bindEvent('opened', id, fun);
+		return this;
+	};
+
+	Select4.prototype.closed = function (id, fun) {
+		common.bindEvent('closed', id, fun);
+		return this;
+	};
+
 	Select4.prototype.config = function (id, config, isJson) {
 		if (id && (typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object') {
 			isJson = config == true;
@@ -1470,20 +1573,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	Select4.prototype.render = function (id, options) {
-		var _this15 = this;
+		var _ref2;
 
 		if (id && (typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object') {
 			options = id;
 			id = null;
 		}
-		var target = {};
-		id ? common.check(id) && (target[id] = data[id]) : target = data;
-
-		var config = options ? {
+		var config = options ? (_ref2 = {
 			init: options.init,
 			disabled: options.disabled,
 			max: options.max,
 			isSearch: options.isSearch,
+			searchUrl: options.searchUrl,
 			isCreate: options.isCreate,
 			radio: options.radio,
 			skin: options.skin,
@@ -1492,40 +1593,39 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			formname: options.formname,
 			layverify: options.layverify,
 			layverType: options.layverType,
-			searchType: options.searchType == 'dl' ? 1 : 0,
 			showCount: options.showCount,
 			placeholder: options.placeholder,
 			create: options.create,
 			filter: options.filter,
 			maxTips: options.maxTips,
-			on: options.on,
-			template: options.template,
-			clearInput: options.clearInput
-		} : {};
+			on: options.on
+		}, _defineProperty(_ref2, 'on', options.on), _defineProperty(_ref2, 'opened', options.opened), _defineProperty(_ref2, 'closed', options.closed), _defineProperty(_ref2, 'template', options.template), _defineProperty(_ref2, 'clearInput', options.clearInput), _ref2) : {};
 
-		if (Object.getOwnPropertyNames(target).length) {
-			$.each(target, function (key, val) {
-				//恢复初始值
-				if (common.check(key)) {
-					_this15.value(key, []);
-					$.extend(data[key].config, config);
-					common.render(key, val.select);
-				}
-			});
+		options && options.searchType != undefined && (config.searchType = options.searchType == 'dl' ? 1 : 0);
+
+		if (id && !common.check(id)) {
+			return this;
 		}
+		if (id) {
+			fsConfigs[id] = {};
+			$.extend(fsConfigs[id], data[id].config, config);
+		} else {
+			$.extend(fsConfig, config);
+		}
+
 		($('select[' + NAME + '="' + id + '"]')[0] ? $('select[' + NAME + '="' + id + '"]') : $('select[' + NAME + ']')).each(function (index, select) {
 			var sid = select.getAttribute(NAME);
 			common.render(sid, select);
-			if (Object.getOwnPropertyNames(options).length) {
-				_this15.render(sid, options);
-			}
+			setTimeout(function () {
+				return common.setHidnVal(sid, $('select[xm-select="' + sid + '"] + div.' + PNAME + ' .' + LABEL));
+			}, 10);
 		});
 		return this;
 	};
 
 	Select4.prototype.disabled = function (id) {
 		var target = {};
-		id ? common.check(id) && (target[id] = data[id]) : target = {};
+		id ? common.check(id) && (target[id] = data[id]) : target = data;
 
 		$.each(target, function (key, val) {
 			$('dl[xid="' + key + '"]').prev().addClass(DIS);
@@ -1535,7 +1635,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	Select4.prototype.undisabled = function (id) {
 		var target = {};
-		id ? common.check(id) && (target[id] = data[id]) : target = {};
+		id ? common.check(id) && (target[id] = data[id]) : target = data;
 
 		$.each(target, function (key, val) {
 			$('dl[xid="' + key + '"]').prev().removeClass(DIS);
