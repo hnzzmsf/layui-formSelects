@@ -1458,8 +1458,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 	var common = new Common();
 
 	Select4.prototype.value = function (id, type, isAppend) {
-		var _this16 = this;
-
 		if (typeof id != 'string') {
 			return [];
 		}
@@ -1519,7 +1517,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 					} else {
 						var name = common.valToName(id, val);
 						if (name) {
-							common.handlerLabel(id, dd, isAdd, _this16.getItem(id, val), true);
+							common.handlerLabel(id, dd, isAdd, common.getItem(id, val), true);
 							temp[val] = 1;
 						}
 					}

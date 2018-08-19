@@ -1456,7 +1456,7 @@
 					}else{
 						let name = common.valToName(id, val);						
 						if(name){
-							common.handlerLabel(id, dd, isAdd, this.getItem(id, val), true);
+							common.handlerLabel(id, dd, isAdd, common.getItem(id, val), true);
 							temp[val] = 1;
 						}
 					}
