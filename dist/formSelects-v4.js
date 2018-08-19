@@ -544,7 +544,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 				sel: item[ajaxConfig.keySel],
 				disabled: item[ajaxConfig.keyDis],
 				type: item.type,
-				name: item.name
+				name: item[ajaxConfig.keyName]
 			});
 			return itemVal;
 		})));
