@@ -545,6 +545,8 @@
                 let pidArr = parentIds.concat([]);
                 let childResult = this.getChildrenList(child, childrenName, disabledName, pidArr, item[disabledName]);
                 result = result.concat(childResult);
+            }else{
+            	delete item[FORM_TEAM_PID];
             }
         }
         return result;
