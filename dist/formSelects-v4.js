@@ -600,7 +600,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 				var childResult = this.getChildrenList(child, childrenName, disabledName, pidArr, item[disabledName]);
 				result = result.concat(childResult);
 			} else {
-				delete item[FORM_TEAM_PID];
+				parentIds = [];
 			}
 		}
 		return result;
