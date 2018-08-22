@@ -767,7 +767,7 @@
 			}
 			//如果点击的是x按钮
 			if(othis.is(`i[fsw="${NAME}"]`)){
-				let val = this.getItem(id, othis.parent().attr("value")),
+				let val = this.getItem(id, othis),
 				dd = dl.find(`dd[lay-value='${val.value}']`);
 				if(dd.hasClass(DISABLED)){//如果是disabled状态, 不可选, 不可删
 					return false;
@@ -938,6 +938,13 @@
 	let db = {};
 	Common.prototype.getItem = function(id, value){
 		if(value instanceof $){
+			if(value.is(`i[fsw="${NAME}"]`)){
+				let span = value.parent();
+				return db[id][value] || {
+					name: span.find('font').text(),
+					value: span.attr('value')
+				}
+			}
 			value = value.attr('lay-value');
 		}else if(typeof(value) == 'string' && value.indexOf('/') != -1){
 			return db[id][value] || {
@@ -1381,8 +1388,10 @@
 	}
 	
 	Common.prototype.check = function(id){
-		if($(`dl[xid="${id}"]`).length || $(`select[xm-select="${id}"]`).length) {
+		if($(`dl[xid="${id}"]`).length) {
 			return true;
+		}else if($(`select[xm-select="${id}"]`).length){
+			this.render(id, $(`select[xm-select="${id}"]`));
 		}else{
 			delete data[id];
 			return false;
@@ -1393,6 +1402,10 @@
 		common.init(select);
 		common.one($(`dl[xid="${id}"]`).parents(`.${PNAME}`));
 		common.initVal(id);
+	}
+	
+	Common.prototype.log = function(obj){
+		console.log(obj);
 	}
 	
 	let Select4 = function(){
@@ -1593,9 +1606,13 @@
 	
 	Select4.prototype.data = function(id, type, config){
 		if(!id || !type || !config){
+			common.log(`id: ${id} param error !!!`)
 			return this;
 		}
-		!common.check(id) && this.render(id);
+		if(!common.check(id)){
+			common.log(`id: ${id} not render !!!`)
+			return this;
+		}
 		this.value(id, []);
 		this.config(id, config);
 		if(type == 'local'){
