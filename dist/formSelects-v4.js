@@ -585,11 +585,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 	};
 
 	Common.prototype.getChildrenList = function (arr, childrenName, disabledName, pid, disabled) {
-		var result = [];
+		var result = [],
+		    offset = 0;
 		for (var a = 0; a < arr.length; a++) {
 			var item = arr[a];
+			if (item.type && item.type == 'optgroup') {
+				result.push(item);
+				continue;
+			} else {
+				offset++;
+			}
 			var parentIds = pid.concat([]);
-			parentIds.push(a);
+			parentIds.push(offset - 1 + '_E');
 			item[FORM_TEAM_PID] = JSON.stringify(parentIds);
 			item[disabledName] = item[disabledName] || disabled;
 			result.push(item);
@@ -599,8 +606,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 				var pidArr = parentIds.concat([]);
 				var childResult = this.getChildrenList(child, childrenName, disabledName, pidArr, item[disabledName]);
 				result = result.concat(childResult);
-			} else {
-				parentIds = [];
 			}
 		}
 		return result;

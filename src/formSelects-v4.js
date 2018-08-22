@@ -531,11 +531,17 @@
 	}
 
 	Common.prototype.getChildrenList = function(arr, childrenName, disabledName, pid, disabled){
-	    let result = [];
+	    let result = [], offset = 0;
 	    for(let a = 0; a < arr.length; a ++){
             let item = arr[a];
+            if(item.type && item.type == 'optgroup'){
+            	result.push(item);
+            	continue;
+            }else{
+            	offset ++;
+            }
             let parentIds = pid.concat([]);
-            parentIds.push(a);
+            parentIds.push(`${offset - 1}_E`);
             item[FORM_TEAM_PID] = JSON.stringify(parentIds);
             item[disabledName] = item[disabledName] || disabled;
             result.push(item);
@@ -545,8 +551,6 @@
                 let pidArr = parentIds.concat([]);
                 let childResult = this.getChildrenList(child, childrenName, disabledName, pidArr, item[disabledName]);
                 result = result.concat(childResult);
-            }else{
-            	parentIds = [];
             }
         }
         return result;
