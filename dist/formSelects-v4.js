@@ -417,7 +417,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 		input.val('');
 	};
 
-	Common.prototype.ajax = function (id, searchUrl, inputValue, isLinkage, linkageWidth, isSearch) {
+	Common.prototype.ajax = function (id, searchUrl, inputValue, isLinkage, linkageWidth, isSearch, successCallback, isReplace) {
 		var _this5 = this;
 
 		var reElem = $('.' + PNAME + ' dl[xid="' + id + '"]').parents('.' + FORM_SELECT);
@@ -450,10 +450,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 					reElem.find('dd.' + FORM_NONE).addClass(FORM_EMPTY).text(res[ajaxConfig.response.msgName]);
 				} else {
 					reElem.find('dd.' + FORM_NONE).removeClass(FORM_EMPTY);
-					//获得已选择的values
-					_this5.renderData(id, res[ajaxConfig.response.dataName], isLinkage, linkageWidth, isSearch);
+					_this5.renderData(id, res[ajaxConfig.response.dataName], isLinkage, linkageWidth, isSearch, isReplace);
 					data[id].config.isEmpty = res[ajaxConfig.response.dataName].length == 0;
 				}
+				successCallback && successCallback(id);
 				ajaxConfig.success && ajaxConfig.success instanceof Function && ajaxConfig.success(id, searchUrl, inputValue, res);
 			},
 			error: function error(err) {
@@ -464,65 +464,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 		});
 	};
 
-	Common.prototype.renderData = function (id, dataArr, linkage, linkageWidth, isSearch) {
+	Common.prototype.renderData = function (id, dataArr, linkage, linkageWidth, isSearch, isReplace) {
 		var _this6 = this;
 
 		if (linkage) {
-			var _ret = function () {
-				//渲染多级联动
-				var result = [],
-				    index = 0,
-				    temp = { "0": dataArr },
-				    ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
-				db[id] = {};
-
-				var _loop = function _loop() {
-					var group = result[index++] = [],
-					    _temp = temp;
-					temp = {};
-					$.each(_temp, function (pid, arr) {
-						$.each(arr, function (idx, item) {
-							var val = {
-								pid: pid,
-								name: item[ajaxConfig.keyName],
-								value: item[ajaxConfig.keyVal]
-							};
-							db[id][val.value] = $.extend(item, val);
-							group.push(val);
-							var children = item[ajaxConfig.keyChildren];
-							if (children && children.length) {
-								temp[val.value] = children;
-							}
-						});
-					});
-				};
-
-				do {
-					_loop();
-				} while (Object.getOwnPropertyNames(temp).length);
-
-				var reElem = $('.' + PNAME + ' dl[xid="' + id + '"]').parents('.' + FORM_SELECT);
-				var html = ['<div class="xm-select-linkage">'];
-
-				$.each(result, function (idx, arr) {
-					var groupDiv = ['<div style="left: ' + (linkageWidth - 0) * idx + 'px;" class="xm-select-linkage-group xm-select-linkage-group' + (idx + 1) + ' ' + (idx != 0 ? 'xm-select-linkage-hide' : '') + '">'];
-					$.each(arr, function (idx2, item) {
-						var span = '<li title="' + item.name + '" pid="' + item.pid + '" xm-value="' + item.value + '"><span>' + item.name + '</span></li>';
-						groupDiv.push(span);
-					});
-					groupDiv.push('</div>');
-					html = html.concat(groupDiv);
-				});
-				html.push('<div style="clear: both; height: 288px;"></div>');
-				html.push('</div>');
-				reElem.find('dl').html(html.join(''));
-				reElem.find('.' + INPUT).css('display', 'none'); //联动暂时不支持搜索
-				return {
-					v: void 0
-				};
-			}();
-
-			if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+			//渲染多级联动
+			this.renderLinkage(id, dataArr, linkageWidth);
+			return;
+		}
+		if (isReplace) {
+			this.renderReplace(id, dataArr);
+			return;
 		}
 
 		var reElem = $('.' + PNAME + ' dl[xid="' + id + '"]').parents('.' + FORM_SELECT);
@@ -532,12 +484,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 		dataArr = this.exchangeData(id, dataArr);
 		var values = [];
 		reElem.find('dl').html(this.renderSelect(id, pcInput.attr('placeholder') || pcInput.attr('back'), dataArr.map(function (item) {
-			if (item[ajaxConfig.keySel]) {
-				values.push({
-					name: item[ajaxConfig.keyName],
-					value: item[ajaxConfig.keyVal]
-				});
-			}
 			var itemVal = $.extend({}, item, {
 				innerHTML: item[ajaxConfig.keyName],
 				value: item[ajaxConfig.keyVal],
@@ -546,6 +492,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 				type: item.type,
 				name: item[ajaxConfig.keyName]
 			});
+			if (itemVal.sel) {
+				values.push(itemVal);
+			}
 			return itemVal;
 		})));
 
@@ -572,6 +521,81 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 			data[id].values = values;
 		}
 		this.commonHandler(id, label);
+	};
+
+	Common.prototype.renderLinkage = function (id, dataArr, linkageWidth) {
+		var result = [],
+		    index = 0,
+		    temp = { "0": dataArr },
+		    ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
+		db[id] = {};
+
+		var _loop = function _loop() {
+			var group = result[index++] = [],
+			    _temp = temp;
+			temp = {};
+			$.each(_temp, function (pid, arr) {
+				$.each(arr, function (idx, item) {
+					var val = {
+						pid: pid,
+						name: item[ajaxConfig.keyName],
+						value: item[ajaxConfig.keyVal]
+					};
+					db[id][val.value] = $.extend(item, val);
+					group.push(val);
+					var children = item[ajaxConfig.keyChildren];
+					if (children && children.length) {
+						temp[val.value] = children;
+					}
+				});
+			});
+		};
+
+		do {
+			_loop();
+		} while (Object.getOwnPropertyNames(temp).length);
+
+		var reElem = $('.' + PNAME + ' dl[xid="' + id + '"]').parents('.' + FORM_SELECT);
+		var html = ['<div class="xm-select-linkage">'];
+
+		$.each(result, function (idx, arr) {
+			var groupDiv = ['<div style="left: ' + (linkageWidth - 0) * idx + 'px;" class="xm-select-linkage-group xm-select-linkage-group' + (idx + 1) + ' ' + (idx != 0 ? 'xm-select-linkage-hide' : '') + '">'];
+			$.each(arr, function (idx2, item) {
+				var span = '<li title="' + item.name + '" pid="' + item.pid + '" xm-value="' + item.value + '"><span>' + item.name + '</span></li>';
+				groupDiv.push(span);
+			});
+			groupDiv.push('</div>');
+			html = html.concat(groupDiv);
+		});
+		html.push('<div style="clear: both; height: 288px;"></div>');
+		html.push('</div>');
+		reElem.find('dl').html(html.join(''));
+		reElem.find('.' + INPUT).css('display', 'none'); //联动暂时不支持搜索
+	};
+
+	Common.prototype.renderReplace = function (id, dataArr) {
+		var _this7 = this;
+
+		var dl = $('.' + PNAME + ' dl[xid="' + id + '"]');
+		var ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
+
+		dataArr = this.exchangeData(id, dataArr);
+		db[id] = dataArr;
+
+		var html = dataArr.map(function (item) {
+			var itemVal = $.extend({}, item, {
+				innerHTML: item[ajaxConfig.keyName],
+				value: item[ajaxConfig.keyVal],
+				sel: item[ajaxConfig.keySel],
+				disabled: item[ajaxConfig.keyDis],
+				type: item.type,
+				name: item[ajaxConfig.keyName]
+			});
+			return _this7.createDD(id, itemVal);
+		}).join('');
+
+		dl.find('dd:not(.' + FORM_SELECT_TIPS + '),dt:not([style])').remove();
+		dl.find('dt[style]').after($(html));
 	};
 
 	Common.prototype.exchangeData = function (id, arr) {
@@ -659,13 +683,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 	};
 
 	Common.prototype.renderBtns = function (id, show, right) {
-		var _this7 = this;
+		var _this8 = this;
 
 		var quickBtn = [];
 		var dl = $('dl[xid="' + id + '"]');
 		quickBtn.push('<div class="' + CZ_GROUP + '" show="' + show + '" style="max-width: ' + (dl.prev().width() - 54) + 'px;">');
 		$.each(data[id].config.btns, function (index, item) {
-			quickBtn.push(_this7.createQuickBtn(item, right));
+			quickBtn.push(_this8.createQuickBtn(item, right));
 		});
 		quickBtn.push('</div>');
 		quickBtn.push(this.createQuickBtn({ icon: 'xm-iconfont icon-caidan', name: '' }));
@@ -673,7 +697,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 	};
 
 	Common.prototype.renderSelect = function (id, tips, select) {
-		var _this8 = this;
+		var _this9 = this;
 
 		db[id] = {};
 		var arr = [];
@@ -693,7 +717,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 					if (item.type && item.type === 'optgroup') {
 						arr.push('<dt>' + item.name + '</dt>');
 					} else {
-						arr.push(_this8.createDD(id, item));
+						arr.push(_this9.createDD(id, item));
 					}
 				}
 			});
@@ -705,7 +729,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 				if (item.tagName.toLowerCase() === 'optgroup') {
 					arr.push('<dt>' + item.label + '</dt>');
 				} else {
-					arr.push(_this8.createDD(id, item));
+					arr.push(_this9.createDD(id, item));
 				}
 			});
 		}
@@ -715,7 +739,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 	};
 
 	Common.prototype.on = function () {
-		var _this9 = this;
+		var _this10 = this;
 
 		//事件绑定
 		this.one();
@@ -727,14 +751,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 				$('.' + PNAME + ' dl dd.' + FORM_EMPTY).removeClass(FORM_EMPTY);
 				$('.' + PNAME + ' dl dd.' + TEMP).remove();
 				$.each(data, function (key, fs) {
-					_this9.clearInput(key);
+					_this10.clearInput(key);
 					if (!fs.values.length) {
-						_this9.changePlaceHolder($('div[FS_ID="' + key + '"] .' + LABEL));
+						_this10.changePlaceHolder($('div[FS_ID="' + key + '"] .' + LABEL));
 					}
 				});
 			}
 			$('.' + PNAME + ' .' + FORM_SELECTED).each(function (index, item) {
-				_this9.changeShow($(item).find('.' + FORM_TITLE), false);
+				_this10.changeShow($(item).find('.' + FORM_TITLE), false);
 			});
 		});
 	};
@@ -779,7 +803,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 	};
 
 	Common.prototype.one = function (target) {
-		var _this10 = this;
+		var _this11 = this;
 
 		//一次性事件绑定
 		$(target ? target : document).off('click', '.' + FORM_TITLE).on('click', '.' + FORM_TITLE, function (e) {
@@ -790,7 +814,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 			//清空非本select的input val
 			$('dl[xid]').not(dl).each(function (index, item) {
-				_this10.clearInput($(item).attr('xid'));
+				_this11.clearInput($(item).attr('xid'));
 			});
 			$('dl[xid]').not(dl).find('dd.' + DD_HIDE).removeClass(DD_HIDE);
 
@@ -800,19 +824,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 			}
 			//如果点击的是右边的三角或者只读的input
 			if (othis.is('.' + SANJIAO) || othis.is('.' + INPUT + '[readonly]')) {
-				_this10.changeShow(title, !title.parents('.' + FORM_SELECT).hasClass(FORM_SELECTED));
+				_this11.changeShow(title, !title.parents('.' + FORM_SELECT).hasClass(FORM_SELECTED));
 				return false;
 			}
 			//如果点击的是input的右边, focus一下
 			if (title.find('.' + INPUT + ':not(readonly)')[0]) {
 				var input = title.find('.' + INPUT),
 				    epos = { x: e.pageX, y: e.pageY },
-				    pos = _this10.getPosition(title[0]),
+				    pos = _this11.getPosition(title[0]),
 				    width = title.width();
 				while (epos.x > pos.x) {
 					if ($(document.elementFromPoint(epos.x, epos.y)).is(input)) {
 						input.focus();
-						_this10.changeShow(title, true);
+						_this11.changeShow(title, true);
 						return false;
 					}
 					epos.x -= 50;
@@ -821,22 +845,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 			//如果点击的是可搜索的input
 			if (othis.is('.' + INPUT)) {
-				_this10.changeShow(title, true);
+				_this11.changeShow(title, true);
 				return false;
 			}
 			//如果点击的是x按钮
 			if (othis.is('i[fsw="' + NAME + '"]')) {
-				var val = _this10.getItem(id, othis),
+				var val = _this11.getItem(id, othis),
 				    dd = dl.find('dd[lay-value=\'' + val.value + '\']');
 				if (dd.hasClass(DISABLED)) {
 					//如果是disabled状态, 不可选, 不可删
 					return false;
 				}
-				_this10.handlerLabel(id, dd, false, val);
+				_this11.handlerLabel(id, dd, false, val);
 				return false;
 			}
 
-			_this10.changeShow(title, !title.parents('.' + FORM_SELECT).hasClass(FORM_SELECTED));
+			_this11.changeShow(title, !title.parents('.' + FORM_SELECT).hasClass(FORM_SELECTED));
 			return false;
 		});
 		$(target ? target : document).off('click', 'dl.' + DL).on('click', 'dl.' + DL, function (e) {
@@ -881,7 +905,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 							return item.value;
 						}).join('/')
 					};
-					_this10.handlerLabel(_id, null, isAdd, val);
+					_this11.handlerLabel(_id, null, isAdd, val);
 				} else {
 					nextGroup.removeClass('xm-select-linkage-hide');
 				}
@@ -927,7 +951,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 			if (treeId) {
 				//忽略右边的图标
 				if (othis.is('i:not(.icon-expand)')) {
-					_this10.handlerLabel(id, dd, !dd.hasClass(THIS));
+					_this11.handlerLabel(id, dd, !dd.hasClass(THIS));
 					return false;
 				}
 				var ajaxConfig = ajaxs[id] || ajax;
@@ -935,7 +959,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 				var childrens = dd.nextAll('dd[tree-id^="' + treeId + '"]');
 				if (childrens && childrens.length) {
 					var len = childrens[0].clientHeight;
-					len ? (_this10.addTreeHeight(dd, len), len = 0) : (len = dd.attr('xm-tree-hidn') || 36, dd.removeAttr('xm-tree-hidn'), dd.find('>i').remove(), childrens = childrens.filter(function (index, item) {
+					len ? (_this11.addTreeHeight(dd, len), len = 0) : (len = dd.attr('xm-tree-hidn') || 36, dd.removeAttr('xm-tree-hidn'), dd.find('>i').remove(), childrens = childrens.filter(function (index, item) {
 						return $(item).attr('tree-id').split('-').length - 1 == treeId.split('-').length;
 					}));
 					childrens.animate({
@@ -944,16 +968,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 					return false;
 				} else {
 					if (treeConfig.nextClick && treeConfig.nextClick instanceof Function) {
-						treeConfig.nextClick(id, _this10.getItem(id, dd), function (res) {
+						treeConfig.nextClick(id, _this11.getItem(id, dd), function (res) {
 							if (!res || !res.length) {
-								_this10.handlerLabel(id, dd, !dd.hasClass(THIS));
+								_this11.handlerLabel(id, dd, !dd.hasClass(THIS));
 							} else {
 								dd.attr('tree-folder', 'true');
 								var ddChilds = [];
 								res.forEach(function (item, idx) {
 									item.innerHTML = item[ajaxConfig.keyName];
 									item[FORM_TEAM_PID] = JSON.stringify(treeId.split('-').concat([idx]));
-									ddChilds.push(_this10.createDD(id, item));
+									ddChilds.push(_this11.createDD(id, item));
 									db[id][item[ajaxConfig.keyVal]] = item;
 								});
 								dd.after(ddChilds.join(''));
@@ -974,16 +998,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 				var obj = data[id].config.btns.filter(function (bean) {
 					return bean.name == method;
 				})[0];
-				obj && obj.click && obj.click instanceof Function && obj.click(id, _this10);
+				obj && obj.click && obj.click instanceof Function && obj.click(id, _this11);
 				return false;
 			}
-			_this10.handlerLabel(id, dd, !dd.hasClass(THIS));
+			_this11.handlerLabel(id, dd, !dd.hasClass(THIS));
 			return false;
 		});
 	};
 
 	Common.prototype.addTreeHeight = function (dd, len) {
-		var _this11 = this;
+		var _this12 = this;
 
 		var treeId = dd.attr('tree-id');
 		var childrens = dd.nextAll('dd[tree-id^="' + treeId + '"]');
@@ -992,7 +1016,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 			dd.attr('xm-tree-hidn', len);
 			childrens.each(function (index, item) {
 				var that = $(item);
-				_this11.addTreeHeight(that, len);
+				_this12.addTreeHeight(that, len);
 			});
 		}
 	};
@@ -1007,7 +1031,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 					value: span.attr('value')
 				};
 			}
-			value = value.attr('lay-value');
+			var val = value.attr('lay-value');
+			return !db[id][val] ? db[id][val] = {
+				name: value.find('span[name]').attr('name'),
+				value: val
+			} : db[id][val];
 		} else if (typeof value == 'string' && value.indexOf('/') != -1) {
 			return db[id][value] || {
 				name: this.valToName(id, value),
@@ -1087,7 +1115,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 	};
 
 	Common.prototype.initVal = function (id) {
-		var _this12 = this;
+		var _this13 = this;
 
 		var target = {};
 		if (id) {
@@ -1104,13 +1132,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 			var _vals = values.concat([]);
 			_vals.concat([]).forEach(function (item, index) {
-				_this12.addLabel(key, label, item);
+				_this13.addLabel(key, label, item);
 				dl.find('dd[lay-value="' + item.value + '"]').addClass(THIS);
 			});
 			if (val.config.radio) {
 				_vals.length && values.push(_vals[_vals.length - 1]);
 			}
-			_this12.commonHandler(key, label);
+			_this13.commonHandler(key, label);
 		});
 	};
 
@@ -1335,7 +1363,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 	};
 
 	Common.prototype.selectAll = function (id, isOn, skipDis) {
-		var _this13 = this;
+		var _this14 = this;
 
 		var dl = $('[xid="' + id + '"]');
 		if (!dl[0]) {
@@ -1346,13 +1374,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 		}
 		dl.find('dd[lay-value]:not(.' + FORM_SELECT_TIPS + '):not(.' + THIS + ')' + (skipDis ? ':not(.' + DISABLED + ')' : '')).each(function (index, item) {
 			item = $(item);
-			var val = _this13.getItem(id, item);
-			_this13.handlerLabel(id, dl.find('dd[lay-value="' + val.value + '"]'), true, val, !isOn);
+			var val = _this14.getItem(id, item);
+			_this14.handlerLabel(id, dl.find('dd[lay-value="' + val.value + '"]'), true, val, !isOn);
 		});
 	};
 
 	Common.prototype.removeAll = function (id, isOn, skipDis) {
-		var _this14 = this;
+		var _this15 = this;
 
 		var dl = $('[xid="' + id + '"]');
 		if (!dl[0]) {
@@ -1375,13 +1403,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 		}
 		data[id].values.concat([]).forEach(function (item, index) {
 			if (skipDis && dl.find('dd[lay-value="' + item.value + '"]').hasClass(DISABLED)) {} else {
-				_this14.handlerLabel(id, dl.find('dd[lay-value="' + item.value + '"]'), false, item, !isOn);
+				_this15.handlerLabel(id, dl.find('dd[lay-value="' + item.value + '"]'), false, item, !isOn);
 			}
 		});
 	};
 
 	Common.prototype.reverse = function (id, isOn, skipDis) {
-		var _this15 = this;
+		var _this16 = this;
 
 		var dl = $('[xid="' + id + '"]');
 		if (!dl[0]) {
@@ -1392,8 +1420,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 		}
 		dl.find('dd[lay-value]:not(.' + FORM_SELECT_TIPS + ')' + (skipDis ? ':not(.' + DISABLED + ')' : '')).each(function (index, item) {
 			item = $(item);
-			var val = _this15.getItem(id, item);
-			_this15.handlerLabel(id, dl.find('dd[lay-value="' + val.value + '"]'), !item.hasClass(THIS), val, !isOn);
+			var val = _this16.getItem(id, item);
+			_this16.handlerLabel(id, dl.find('dd[lay-value="' + val.value + '"]'), !item.hasClass(THIS), val, !isOn);
 		});
 	};
 
@@ -1450,11 +1478,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 		}
 	};
 
-	Common.prototype.check = function (id) {
+	Common.prototype.check = function (id, notAutoRender) {
 		if ($('dl[xid="' + id + '"]').length) {
 			return true;
 		} else if ($('select[xm-select="' + id + '"]').length) {
-			this.render(id, $('select[xm-select="' + id + '"]'));
+			if (!notAutoRender) {
+				this.render(id, $('select[xm-select="' + id + '"]'));
+			}
 		} else {
 			delete data[id];
 			return false;
@@ -1621,7 +1651,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 		options && options.searchType != undefined && (config.searchType = options.searchType == 'dl' ? 1 : 0);
 
-		if (id && !common.check(id)) {
+		if (id && !common.check(id, true)) {
 			return this;
 		}
 		if (id) {
@@ -1736,6 +1766,30 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 			common.triggerSearch($('dl[xid="' + id + '"]').parents('.' + FORM_SELECT), true);
 		}
 		return this;
+	};
+
+	Select4.prototype.replace = function (id, type, config) {
+		var _this17 = this;
+
+		if (!id || !type || !config) {
+			common.log('id: ' + id + ' param error !!!');
+			return this;
+		}
+		if (!common.check(id, true)) {
+			common.log('id: ' + id + ' not render !!!');
+			return this;
+		}
+		var oldVals = this.value(id, 'val');
+		this.value(id, []);
+		this.config(id, config);
+		if (type == 'local') {
+			common.renderData(id, config.arr, config.linkage == true, config.linkageWidth ? config.linkageWidth : '100', false, true);
+			this.value(id, oldVals, true);
+		} else if (type == 'server') {
+			common.ajax(id, config.url, config.keyword, config.linkage == true, config.linkageWidth ? config.linkageWidth : '100', false, function (id) {
+				_this17.value(id, oldVals, true);
+			}, true);
+		}
 	};
 
 	return new Select4();
