@@ -1196,31 +1196,21 @@
 		
 		let fs = data[dl.attr('xid')];
 		let base = dl.parents('.layui-form-pane')[0] && dl.prev()[0].clientHeight > 38 ? 14 : 10;
-		if(fs){
-			if(fs.config.direction == 'up'){
-				dl.css({
-					top: 'auto',
-					bottom: '42px'
-				});
-				return ;
-			}
-			if(fs.config.direction == 'down'){
-				dl.css({
-					top: div[0].offsetTop + div.height() + base + 'px',
-					bottom: 'auto'
-				});
-				return ;
+		if((fs && fs.config.direction == 'up') || up){
+			up = true;
+			if((fs && fs.config.direction == 'down')){
+				up = false;
 			}
 		}
-		
+		let reHeight = div[0].offsetTop + div.height() + base;
 		if(up) {
 			dl.css({
 				top: 'auto',
-				bottom: '42px'
+				bottom: reHeight + 3 + 'px',
 			});
 		} else {
 			dl.css({
-				top: div[0].offsetTop + div.height() + base + 'px',
+				top: reHeight + 'px',
 				bottom: 'auto'
 			});
 		}
@@ -1272,7 +1262,7 @@
 						
 		}else{
 			let height = title.find(`.${NAME}`)[0].clientHeight;
-			title.css('height' , (height > 34 ? height + 4 : height) + 'px');
+			title.css('height' , (height > 36 ? height + 4 : height) + 'px');
 			//如果是layui pane模式, 处理label的高度
 			let label = title.parents(`.${PNAME}`).parent().prev();
 			if(label.is('.layui-form-label') && title.parents('.layui-form-pane')[0]){
@@ -1607,7 +1597,7 @@
 		
 		if(id){
 			fsConfigs[id] = {};
-			$.extend(fsConfigs[id], data[id].config, config);
+			$.extend(fsConfigs[id], data[id] ? data[id].config : {}, config);
 		}else{
 			$.extend(fsConfig, config);
 		}
