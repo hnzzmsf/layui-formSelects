@@ -1484,6 +1484,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 		} else if ($('select[xm-select="' + id + '"]').length) {
 			if (!notAutoRender) {
 				this.render(id, $('select[xm-select="' + id + '"]'));
+				return true;
 			}
 		} else {
 			delete data[id];
@@ -1651,9 +1652,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 		options && options.searchType != undefined && (config.searchType = options.searchType == 'dl' ? 1 : 0);
 
-		if (id && !common.check(id, true)) {
-			return this;
-		}
 		if (id) {
 			fsConfigs[id] = {};
 			$.extend(fsConfigs[id], data[id].config, config);
