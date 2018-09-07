@@ -150,6 +150,7 @@
 					return Date.now();
 				},
 				template: (id, item) => {
+					console.log(item)
 					return item.name;
 				},
 				showCount: 0,
@@ -618,7 +619,7 @@
 	
 	Common.prototype.createDD = function(id, item, clz){
 		let name = $.trim(item.innerHTML);
-		db[id][item.value] = $(item).is('option') ? {name: name, value: item.value} : item;
+		db[id][item.value] = $(item).is('option') ? (item = {name: name, value: item.value}) : item;
 		let template = data[id].config.template(id, item);
 		let pid = item[FORM_TEAM_PID];
 		pid ? (pid = JSON.parse(pid)) : (pid = [-1]);

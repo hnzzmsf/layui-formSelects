@@ -154,6 +154,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 				return Date.now();
 			},
 			template: function template(id, item) {
+				console.log(item);
 				return item.name;
 			},
 			showCount: 0,
@@ -670,7 +671,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 	Common.prototype.createDD = function (id, item, clz) {
 		var name = $.trim(item.innerHTML);
-		db[id][item.value] = $(item).is('option') ? { name: name, value: item.value } : item;
+		db[id][item.value] = $(item).is('option') ? item = { name: name, value: item.value } : item;
 		var template = data[id].config.template(id, item);
 		var pid = item[FORM_TEAM_PID];
 		pid ? pid = JSON.parse(pid) : pid = [-1];
