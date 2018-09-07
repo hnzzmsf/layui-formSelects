@@ -149,8 +149,8 @@
 				create: (id, name) => {
 					return Date.now();
 				},
-				template: (name, value, selected, disabled) => {
-					return name;
+				template: (id, item) => {
+					return item.name;
 				},
 				showCount: 0,
 				isCreate: false,
@@ -619,7 +619,7 @@
 	Common.prototype.createDD = function(id, item, clz){
 		let name = $.trim(item.innerHTML);
 		db[id][item.value] = $(item).is('option') ? {name: name, value: item.value} : item;
-		let template = data[id].config.template(name);
+		let template = data[id].config.template(id, item);
 		let pid = item[FORM_TEAM_PID];
 		pid ? (pid = JSON.parse(pid)) : (pid = [-1]);
 		let attr = pid[0] == -1 ? '' : `tree-id="${pid.join('-')}" tree-folder="${!!item['XM_TREE_FOLDER']}"`;

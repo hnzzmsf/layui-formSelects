@@ -153,8 +153,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 			create: function create(id, name) {
 				return Date.now();
 			},
-			template: function template(name, value, selected, disabled) {
-				return name;
+			template: function template(id, item) {
+				return item.name;
 			},
 			showCount: 0,
 			isCreate: false,
@@ -671,7 +671,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 	Common.prototype.createDD = function (id, item, clz) {
 		var name = $.trim(item.innerHTML);
 		db[id][item.value] = $(item).is('option') ? { name: name, value: item.value } : item;
-		var template = data[id].config.template(name);
+		var template = data[id].config.template(id, item);
 		var pid = item[FORM_TEAM_PID];
 		pid ? pid = JSON.parse(pid) : pid = [-1];
 		var attr = pid[0] == -1 ? '' : 'tree-id="' + pid.join('-') + '" tree-folder="' + !!item['XM_TREE_FOLDER'] + '"';
