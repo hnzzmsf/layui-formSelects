@@ -118,7 +118,7 @@ QQ 号: 707200833
 
 ## 更新记录
 
-[4.0.0.0813](https://hnzzmsf.github.io/layui-formSelects/docs/index.html#/module2/log)
+[4.0.0.0910](https://hnzzmsf.github.io/layui-formSelects/docs/index.html#/module2/log)
 
 ## 打赏 
 

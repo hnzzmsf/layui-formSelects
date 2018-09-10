@@ -19,6 +19,9 @@
 		<link type="image/x-icon" rel="shortcut icon" href="public/fs.png">
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 		<link rel="stylesheet" type="text/css" href="//unpkg.com/docsify/lib/themes/vue.css">
+		<link rel="stylesheet" type="text/css" href="public/SyntaxHighlighter-3.0.83/shCore.css"/>
+		<link rel="stylesheet" type="text/css" href="public/SyntaxHighlighter-3.0.83/shThemeFadeToGrey.css"/>
+		<link rel="stylesheet" type="text/css" href="public/runCode/runCode.css"/>
 		<link rel="stylesheet" type="text/css" href="../dist/formSelects-v4.css" />
 		<link rel="stylesheet" type="text/css" href="public/index.css" />
 	</head>
@@ -32,6 +35,7 @@
 		</nav>
 
 		<div id="app">加载中</div>
+		<div id="runcode-content"></div>
 
 		<script>
 			window.$docsify = {
@@ -45,7 +49,7 @@
 				autoHeader: true,
 				executeScript: true,
 				alias: {
-					'/module/_sidebar.md': '/module/sidebar.md',
+					'/module/_sidebar.md': '/sidebar.md',
 					'/module2/_sidebar.md': '/sidebar.md',
 					'/module3/_sidebar.md': '/sidebar.md',
 					'/_sidebar.md': '/sidebar.md',
@@ -60,6 +64,11 @@
 
 		<script src="//unpkg.com/jquery@3.3.1/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../dist/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
+		
+		<script src="public/SyntaxHighlighter-3.0.83/shCore.js" type="text/javascript" charset="utf-8"></script>
+		<script src="public/SyntaxHighlighter-3.0.83/shAllHtml.js" type="text/javascript" charset="utf-8"></script>
+		<script src="public/runCode/runCode.js" type="text/javascript" charset="utf-8"></script>
+		
 		<script type="text/javascript">
 			var clearId = -1;
 			$(document).on('DOMNodeInserted', function(e) {
@@ -71,6 +80,11 @@
 					});
 				}, 100);
 			});
+
+// 			$(document).on('click', '.runcode', function(e){
+// 				var val = $(e.target).prev().text();
+// 				$('#runcode-content').runCode({}, val);
+// 			});
 		</script>
 
 	</body>

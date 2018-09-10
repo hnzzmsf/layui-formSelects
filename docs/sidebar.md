@@ -4,3 +4,5 @@
 * [常见问题](module2/question)
 * [意外惊喜](module2/others)
 * [更新日志](module2/log)
+* [学习交流](module/study)
+* [打赏赞助](module/money)

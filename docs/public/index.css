@@ -12,3 +12,26 @@ div[xm-select-skin=zhongguohong].xm-form-selected .xm-select,div[xm-select-skin=
 .md-danger{margin: 0px !important; padding-left: 10px; color: red; font-weight: bold;}
 .md-normal{margin: 0px !important; padding-left: 10px; color: #1E9FFF; font-weight: bold;}
 
+.card {padding: 0;box-sizing: inherit;}
+.card img{opacity: 0;}
+.card .card-header{background: url(//img.juzimi.com/juzimi/images/ju_top.jpg) no-repeat center top; width: 100%; margin-left: 1px;}
+.card .card-content{margin-top: -47px;margin-bottom: -47px;padding-left: 130px;line-height: 38px;letter-spacing: 1px;font-size: 18px;text-align: justify;}
+.card .card-footer{background: url(//img.juzimi.com/juzimi/images/ju_ce.jpg) no-repeat center top; width: 100%;}
+@media screen and (max-width: 768px){
+	.card .card-content{padding-left: 10px; margin-top: 20px; margin-bottom: 20px;}
+	.card .card-header,.card .card-footer{display: none;}
+}
+
+.md-danger{margin: 0px !important; padding-left: 10px; color: red; font-weight: bold;}
+.md-normal{margin: 0px !important; padding-left: 10px; color: #1E9FFF; font-weight: bold;}
+
+.layui-btn{display: inline-block; vertical-align: middle; height: 36px; line-height: 36px; padding: 0 18px; background-color: #009688; color: #fff; white-space: nowrap; text-align: center; font-size: 14px; border: none; border-radius: 2px; cursor: pointer; -moz-user-select: none; -webkit-user-select: none; -ms-user-select: none; margin-right: 10px;}
+.layui-btn:hover{opacity: 0.8; filter:alpha(opacity=80); color: #fff;}
+.layui-btn:active{opacity: 1; filter:alpha(opacity=100);}
+
+.syntaxhighlighter {overflow-y: hidden !important; margin: 0 !important;}
+.syntaxhighlighter .toolbar{background: none !important;}
+.syntaxhighlighter .toolbar a {display: none !important;}
+
+#runcode-content{display: none;}
+

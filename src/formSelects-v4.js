@@ -1,7 +1,7 @@
 /**
  * name: formSelects
  * 基于Layui Select多选
- * version: 4.0.0.0817
+ * version: 4.0.0.0910
  * http://sun.faysunshine.com/layui/formSelects-v4/dist/formSelects-v4.js
  */
 (function(layui, window, factory) {
@@ -17,7 +17,7 @@
 		window.formSelects = factory();
 	}
 })(typeof layui == 'undefined' ? null : layui, window, function() {
-	let v = '4.0.0.0817',
+	let v = '4.0.0.0910',
 		NAME = 'xm-select',
 		PNAME = 'xm-select-parent',
 		INPUT = 'xm-select-input',
@@ -150,7 +150,6 @@
 					return Date.now();
 				},
 				template: (id, item) => {
-					console.log(item)
 					return item.name;
 				},
 				showCount: 0,
@@ -618,8 +617,15 @@
 	}
 	
 	Common.prototype.createDD = function(id, item, clz){
+		let ajaxConfig = ajaxs[id] ? ajaxs[id] : ajax;
 		let name = $.trim(item.innerHTML);
-		db[id][item.value] = $(item).is('option') ? (item = {name: name, value: item.value}) : item;
+		db[id][item.value] = $(item).is('option') ? (item = function(){
+			let resultItem = {};
+			resultItem[ajaxConfig.keyName] = name;
+			resultItem[ajaxConfig.keyVal] = item.value;
+			resultItem[ajaxConfig.keyDis] = item.disabled;
+			return resultItem;
+		}()) : item;
 		let template = data[id].config.template(id, item);
 		let pid = item[FORM_TEAM_PID];
 		pid ? (pid = JSON.parse(pid)) : (pid = [-1]);
@@ -815,7 +821,7 @@
 		$(target ? target : document).off('click', `dl.${DL}`).on('click', `dl.${DL}`, (e) => {
 			let othis = $(e.target);
 			if(othis.is(`.${LINKAGE}`) || othis.parents(`.${LINKAGE}`)[0]){//linkage的处理
-				othis = othis.is('li') ? othis : othis.parents('li');
+				othis = othis.is('li') ? othis : othis.parents('li[xm-value]');
 				let group = othis.parents('.xm-select-linkage-group'),
 					id = othis.parents('dl').attr('xid');
 				if(!id){
@@ -1333,7 +1339,7 @@
 				let pid, li, index = 0;
 				do{
 					pid = vs[index ++];
-					li = dl.find(`.xm-select-linkage-group${index}:not(.xm-select-linkage-hide) li[value="${pid}"]`);
+					li = dl.find(`.xm-select-linkage-group${index}:not(.xm-select-linkage-hide) li[xm-value="${pid}"]`);
 					li.click();
 				}while(li.length && pid != undefined);
 			});

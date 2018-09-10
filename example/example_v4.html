@@ -1535,6 +1535,16 @@ layui.formSelects.config({direction: 'up'});
 				<p>你们的支持, 是我们坚持的动力</p>
 			</div>
 <pre class="brush: js">
+[2018-09-10] v4.0.0.0910
+-- bug修复 --
+1. 修改多级联动在li中不能使用
+2. 修改多级联动在动态赋值中的错误
+3. 修改非tree模式下的显示异常
+4. 修改render的单独渲染异常
+5. 修改template不能够获取到所有数据的问题
+6. 修改默认disabled不正常的问题
+
+	
 [2018-08-17] v4.0.0.0817
 -- bug修复 --
 1.在多次render的时候快捷图标的错误
@@ -1711,6 +1721,9 @@ formSelects-v1, 一个简简单单的layui多选...
 
 <script type="syntaxhighlighter" xid="use" class="brush: js"><![CDATA[
 //1.下载formSelects-v4
+
+//然后引入formSelects.css
+&lt;link rel="stylesheet" href="formSelects-v4.css" />
 
 //2.模块化使用
 &lt;script src="layui.js" type="text/javascript" charset="utf-8">&lt;/script>
