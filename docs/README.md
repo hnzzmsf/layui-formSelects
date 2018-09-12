@@ -45,42 +45,24 @@ clone最新版本
 ## 快速上手
 
 ```
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<title></title>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" type="text/css" href="formSelects-v4.css"/>
-	</head>
-	<body>
-		<div>
-			<select name="city" xm-select="selectId">
-			    <option value="1" disabled="disabled">北京</option>
-			    <option value="2" selected="selected">上海</option>
-			    <option value="3">广州</option>
-			    <option value="4" selected="selected">深圳</option>
-			    <option value="5">天津</option>
-			</select>
-		</div>
-		
-		<script src="jquery.js" type="text/javascript" charset="utf-8"></script>
-		<script src="formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
-		<script type="text/javascript">
-			formSelects.render('selectId');
-		</script>
-	</body>
-</html>
+<!-- 首先引入css, 和js, 唯一依赖: jQuery -->
+<link href="//raw.githack.com/hnzzmsf/layui-formSelects/master/dist/formSelects-v4.css" rel="stylesheet" />
+<script src="//unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="//raw.githack.com/hnzzmsf/layui-formSelects/master/dist/formSelects-v4.min.js"></script>
+
+<!-- 这里的xm-select属性是多选的ID, 如多处使用请保证全局唯一 -->
+<select name="city" xm-select="selectId">
+	<option value="1" disabled="disabled">北京</option>
+	<option value="2" selected="selected">上海</option>
+	<option value="3">广州</option>
+	<option value="4" selected="selected">深圳</option>
+	<option value="5">天津</option>
+</select>
+
+<!-- 执行渲染, 把原始select美化~~ -->
+<script type="text/javascript">
+	formSelects.render('selectId');
+</script>
 ```
 
-效果如下:
-
-<html>
-	<select name="city" xm-select="selectId">
-		<option value="1" disabled="disabled">北京</option>
-		<option value="2" selected="selected">上海</option>
-		<option value="3">广州</option>
-		<option value="4" selected="selected">深圳</option>
-		<option value="5">天津</option>
-	</select>
-</html>
+<button class="layui-btn runcode">在线运行</button>

@@ -8,7 +8,7 @@
  *********/
 ;
 (function ($, window, document, undefined) {
-	var runCode = function (ele, opt) {
+	var runCode = function (ele, opt, closeFun) {
 		this.$body = $("body");
 		this.$ele = ele;
 		this.$previewWrap = null;
@@ -22,6 +22,7 @@
 			height: '90%'
 		};
 		this.options = $.extend({}, this.defaults, opt);
+		this.closeFun = closeFun;
 	}
 	runCode.prototype = {
 		init: function (htmlCode) {
@@ -29,7 +30,7 @@
 				'<div class="preview-wrap">',
 					'<div class="inner">',
 						'<div class="bar">',
-							'<span>Edit</span><span>Result</span>',
+							'<span>FormSelects在线编辑</span><span>Result</span>',
 							'<button class="btn-preview">►</button>',
 							// '<label class="label"><input class="watch-code" type="checkbox">自动运行</label>',
 							'<i class="btn-close-view">X</i>',
@@ -96,7 +97,8 @@
 					var text = $container.find('.line').map(function(index, item){
 						return item.innerText;
 					}).get().join('\n');
-					self.$codeContent.html('<pre class="brush: all">'+text+'</pre>');
+					self.$codeContent.html('<script type="syntaxhighlighter" class="brush: all"></script>');
+					self.$codeContent.find('script').text('<![CDATA['+self.escape2Html(text, true)+']]>');
 					SyntaxHighlighter.highlight();
 					$('.syntaxhighlighter .toolbar').remove();
 					$('#codeContent .container').attr('contenteditable', true);
@@ -128,6 +130,7 @@
 
 			this.$btnCloseView.on('click', function (e) {
 				self.$previewWrap.remove();
+				self.closeFun();
 			});
 		},
 		changeRange: function(event, nums, isCreate){
@@ -167,7 +170,7 @@
 				
 			}
 		},
-		escape2Html: function (str) {
+		escape2Html: function (str, space) {
 			var arrEntities = {
 				'lt': '<',
 				'gt': '>',
@@ -177,12 +180,12 @@
 			};
 			return str.replace(/&(lt|gt|nbsp|amp|quot);/ig, function (all, t) {
 				return arrEntities[t];
-			}).replace(/ /g, '');
+			}).replace(/ /g, space ? ' ' : '');
 		}
 
 	}
-	$.fn.runCode = function (options, htmlCode) {
-		var r = new runCode(this, options);
+	window.runCode = function (options, htmlCode, closeFun) {
+		var r = new runCode(this, options, closeFun);
 		return r.init(htmlCode);
 	}
 })(jQuery, window, document);

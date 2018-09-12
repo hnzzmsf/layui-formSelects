@@ -33,63 +33,54 @@ formSelects.filter(null, function(id, inputVal, choice, isDisabled){
 
 根据选项文本过滤
 
-<html>
-	<div style="width: 300px; display: inline-block;margin-right: 10px;">
-		<select name="city" xm-select="method-filter-example1" xm-select-search>
-			<option value="1">北京</option>
-			<option value="2">上海</option>
-			<option value="3">广州</option>
-			<option value="4">深圳</option>
-			<option value="5">天津</option>
-		</select>
-	</div>
-</html>
-
 ```js
-formSelects.filter('method-filter-example1', function(id, inputVal, choice, isDisabled){
-	if(choice.name.indexOf(inputVal) != -1){
-		return false;
-	}
-	return true;
-});s
+<div style="width: 300px; display: inline-block;margin-right: 10px;">
+	<select name="city" xm-select="method-filter-example1" xm-select-search>
+		<option value="1">北京</option>
+		<option value="2">上海</option>
+		<option value="3">广州</option>
+		<option value="4">深圳</option>
+		<option value="5">天津</option>
+	</select>
+</div>
+
+<script type="text/javascript">
+	formSelects.render('method-filter-example1');
+	formSelects.filter('method-filter-example1', function(id, inputVal, choice, isDisabled){
+		if(choice.name.indexOf(inputVal) != -1){
+			return false;
+		}
+		return true;
+	});
+</script>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
 
 ---
 
 根据选项文本和val过滤
 
-<html>
-	<div style="width: 300px; display: inline-block;margin-right: 10px;">
-		<select name="city" xm-select="method-filter-example2" xm-select-search>
-			<option value="1">北京</option>
-			<option value="2">上海</option>
-			<option value="3">广州</option>
-			<option value="4">深圳</option>
-			<option value="5">天津</option>
-		</select>
-	</div>
-</html>
-
 ```js
-formSelects.filter('method-filter-example2', function(id, inputVal, choice, isDisabled){
-	if(choice.name.indexOf(inputVal) != -1 || choice.val.indexOf(inputVal) != -1){
-		return false;
-	}
-	return true;
-});s
+<div style="width: 300px; display: inline-block;margin-right: 10px;">
+	<select name="city" xm-select="method-filter-example2" xm-select-search>
+		<option value="1">北京</option>
+		<option value="2">上海</option>
+		<option value="3">广州</option>
+		<option value="4">深圳</option>
+		<option value="5">天津</option>
+	</select>
+</div>
+
+<script type="text/javascript">
+	formSelects.render('method-filter-example2');
+	formSelects.filter('method-filter-example2', function(id, inputVal, choice, isDisabled){
+		if(choice.name.indexOf(inputVal) != -1 || choice.value.indexOf(inputVal) != -1){
+			return false;
+		}
+		return true;
+	});
+</script>
 ```
 
-<script>
-formSelects.filter('method-filter-example1', function(id, inputVal, choice, isDisabled){
-	if(choice.name.indexOf(inputVal) != -1){
-		return false;
-	}
-	return true;
-});
-formSelects.filter('method-filter-example2', function(id, inputVal, choice, isDisabled){
-	if(choice.name.indexOf(inputVal) != -1 || choice.val.indexOf(inputVal) != -1){
-		return false;
-	}
-	return true;
-});
-</script>
+<button class="layui-btn runcode">在线运行</button>

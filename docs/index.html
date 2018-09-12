@@ -18,12 +18,15 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 		<link type="image/x-icon" rel="shortcut icon" href="public/fs.png">
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-		<link rel="stylesheet" type="text/css" href="//unpkg.com/docsify/lib/themes/vue.css">
+		<link rel="stylesheet" type="text/css" href="public/docsify/vue.css">
 		<link rel="stylesheet" type="text/css" href="public/SyntaxHighlighter-3.0.83/shCore.css"/>
 		<link rel="stylesheet" type="text/css" href="public/SyntaxHighlighter-3.0.83/shThemeFadeToGrey.css"/>
 		<link rel="stylesheet" type="text/css" href="public/runCode/runCode.css"/>
-		<link rel="stylesheet" type="text/css" href="../dist/formSelects-v4.css" />
 		<link rel="stylesheet" type="text/css" href="public/index.css" />
+		
+		<script src="public/jquery-v3.2.1.js" type="text/javascript" charset="utf-8"></script>
+		<link href="../dist/formSelects-v4.css" rel="stylesheet" type="text/css" />
+		<script src="../dist/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
 	</head>
 
 	<body>
@@ -56,35 +59,85 @@
 				},
 			}
 		</script>
-		<script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
-		<script src="//unpkg.com/docsify/lib/plugins/external-script.min.js"></script>
-		<script src="//unpkg.com/docsify/lib/plugins/zoom-image.js"></script>
-		<script src="//unpkg.com/prismjs/components/prism-javascript.min.js"></script>
-		<script src="//unpkg.com/prismjs/components/prism-css.min.js"></script>
-
-		<script src="//unpkg.com/jquery@3.3.1/dist/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-		<script src="../dist/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
+		<script src="public/docsify/docsify.min.js"></script>
+		<script src="public/docsify/external-script.min.js"></script>
+		<script src="public/docsify/zoom-image.js"></script>
+		<script src="public/docsify/prism-javascript.min.js"></script>
+		<script src="public/docsify/prism-css.min.js"></script>
 		
 		<script src="public/SyntaxHighlighter-3.0.83/shCore.js" type="text/javascript" charset="utf-8"></script>
 		<script src="public/SyntaxHighlighter-3.0.83/shAllHtml.js" type="text/javascript" charset="utf-8"></script>
 		<script src="public/runCode/runCode.js" type="text/javascript" charset="utf-8"></script>
 		
-		<script type="text/javascript">
-			var clearId = -1;
-			$(document).on('DOMNodeInserted', function(e) {
-				clearTimeout(clearId);
-				clearId = setTimeout(function() {
-					$('select[xm-select]').each(function(index, select) {
-						var xid = select.getAttribute('xm-select');
-						formSelects.render(xid);
-					});
-				}, 100);
-			});
+<noscript id="noscript-head">
+<!-- 首先引入css, 和js, 唯一依赖: jQuery -->
+<link href="//raw.githack.com/hnzzmsf/layui-formSelects/master/dist/formSelects-v4.css" rel="stylesheet" />
+<script src="//unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="//raw.githack.com/hnzzmsf/layui-formSelects/master/dist/formSelects-v4.min.js"></script>
 
-// 			$(document).on('click', '.runcode', function(e){
-// 				var val = $(e.target).prev().text();
-// 				$('#runcode-content').runCode({}, val);
+</noscript>
+
+<noscript id="noscript-foot">
+
+<!-- 执行渲染, 把原始select美化~~ -->
+<script type="text/javascript">
+	formSelects.render('xid');
+</script>
+</noscript>
+
+<noscript id="noscript-advertising">
+
+
+<!-- 
+ 作    者: maplemei, 一个热爱前端的Java程序猿
+ 联系方式: QQ群. 769620939,QQ. 707200833, WX. faymaplemei 。加好友请备注 formSelects
+ 打赏赞助: https://hnzzmsf.github.io/layui-formSelects/docs/index.html#/module/money
+ 
+ 开源不易, 有问题请多多包涵
+ -->
+</noscript>
+
+		
+		<script type="text/javascript">
+// 			var clearId = -1;
+// 			$(document).on('DOMNodeInserted', function(e) {
+// 				clearTimeout(clearId);
+// 				clearId = setTimeout(function() {
+// 					$('select[xm-select]').each(function(index, select) {
+// 						var xid = select.getAttribute('xm-select');
+// 						formSelects.render(xid);
+// 					});
+// 				}, 100);
 // 			});
+			
+			var scrollTop,
+				checkHeadStr = '//raw.githack.com/hnzzmsf/layui-formSelects/master/dist/formSelects-v4.css',
+				addHead = $('#noscript-head').html().replace(/&lt;/g, '<').replace(/&gt;/g, '>'),
+				checkFootStr = 'formSelects.render',
+				addFoot = $('#noscript-foot').html().replace(/&lt;/g, '<').replace(/&gt;/g, '>'),
+				addAdvertising = $('#noscript-advertising').html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+				;
+			$(window).scroll(function(){
+				if(scrollTop){
+					$(window).scrollTop(scrollTop);
+				}
+			});
+			$(document).on('click', '.runcode', function(e){
+				scrollTop = $(window).scrollTop();
+				
+				var val = $(e.target).prev().text();
+				if(val.indexOf(checkHeadStr) == -1){
+					val = addHead + val;
+				}
+				if(val.indexOf(checkFootStr) == -1){
+					var xid = /xm-select="([a-zA-Z0-9-_]+)"/.exec(val)[1];
+					val = val + addFoot.replace('xid', xid);
+				}
+				val = val + addAdvertising;
+				runCode({}, val, function(){
+					scrollTop = null;
+				});
+			});
 		</script>
 
 	</body>

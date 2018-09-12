@@ -1,6 +1,6 @@
 .preview-wrap{position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color:rgba(0,0,0,0.5);z-index: 2;}
 .preview-wrap .inner{position: absolute;margin: auto;top:-30px;left: 0;right: 0;bottom: 0;width: 96%;height: 92%;background-color: #fff;}
-.preview-wrap .btn-preview{position: absolute;top: 2px;left: 50%;width: 60px;height: 26px;margin-left: -40px;cursor: pointer;border: 1px solid #7aa55e;border-radius: 2px;outline: none;color: green;font-size: 20px;}
+.preview-wrap .btn-preview{position: absolute;top: 4px;left: 66.5%;width: 60px;height: 22px;margin-left: -40px;cursor: pointer;border: 1px solid #7aa55e;border-radius: 2px;outline: none;color: green;font-size: 18px;}
 .preview-wrap .btn-preview:hover{color: #066b06;}
 .preview-wrap .label{position: absolute;top: 7px;left: 50%;margin-left: 30px;font-size: 12px;}
 .preview-wrap .label>input{vertical-align: middle;}
@@ -8,6 +8,8 @@
 .preview-wrap .btn-close-view:hover{color: #333;}
 .preview-wrap .bar{overflow:hidden;}
 .preview-wrap .bar span{float: left;display: inline-block;width: 50%;height: 30px;line-height: 30px;background-color:#efefef;text-align: center;border-bottom: 1px solid #d8d8d8;color: #333;}
+.preview-wrap .bar span:nth-child(1){width: 66%;}
+.preview-wrap .bar span:nth-child(2){width: 34%;}
 .preview-wrap .con{height: 100%;background-color: #fff;}
 .preview-wrap .con .pre-span,.preview-wrap .con iframe{position: relative;width: 49%;height: 100%;padding: 0;margin: 0;overflow-y: auto;}
 .preview-wrap .con .pre-span{width: 66%;}

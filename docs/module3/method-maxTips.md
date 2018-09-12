@@ -32,19 +32,6 @@ formSelects.maxTips(null, function(id, vals, choice, max){
 
 超出上限后alert提示
 
-<html>
-	<div style="width: 300px; display: inline-block;margin-right: 10px;">
-		<select name="city" xm-select="method-maxTips-example1" xm-select-max="2">
-			<option value="1">北京</option>
-			<option value="2">上海</option>
-			<option value="3">广州</option>
-			<option value="4">深圳</option>
-			<option value="5">天津</option>
-		</select>
-	</div>
-</html>
-
-
 ```js
 <select name="city" xm-select="method-maxTips-example1" xm-select-max="2">
 	<option value="1">北京</option>
@@ -54,14 +41,13 @@ formSelects.maxTips(null, function(id, vals, choice, max){
 	<option value="5">天津</option>
 </select>
 
+<script type="text/javascript">
+	formSelects.render('method-maxTips-example1');
+	formSelects.maxTips('method-maxTips-example1', function(id, vals, choice, max){
+	    alert('选超了, ' + choice.name + ' 不能再选了, 当前上限: ' + max);
+	});
+</script>
 
-formSelects.maxTips('method-maxTips-example1', function(id, vals, choice, max){
-    alert('选超了, ' + choice.name + ' 不能再选了, 当前上限: ' + max);
-});
 ```
 
-<script>
-formSelects.maxTips('method-maxTips-example1', function(id, vals, choice, max){
-    alert('选超了, ' + choice.name + ' 不能再选了, 当前上限: ' + max);
-});
-</script>
+<button class="layui-btn runcode">在线运行</button>

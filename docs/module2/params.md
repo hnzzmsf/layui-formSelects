@@ -32,18 +32,10 @@
 </select>
 ```
 
+<button class="layui-btn runcode">在线运行</button>
+
 一个小栗子, 可以试下选超3个的效果
 
-<html>
-<select name="city" xm-select="select5" xm-select-max="3">
-    <option value="">啦啦, 我是自定义的</option>
-    <option value="1" disabled="disabled">北京</option>
-    <option value="2" selected="selected">上海</option>
-    <option value="3">广州</option>
-    <option value="4" selected="selected">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
 
 ## xm-select-skin
 
@@ -59,18 +51,8 @@
 
 其中 `primary` 墨绿style被内置成为了默认皮肤
 
-> xm-select-skin="default"
 
-<html>
-<select name="city" xm-select="skin-default" xm-select-skin="default">
-    <option value=""></option>
-    <option value="1">北京</option>
-    <option value="2" selected="selected">上海</option>
-    <option value="3">广州</option>
-    <option value="4" selected="selected">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
+> xm-select-skin="default"
 
 ``` html
 <select name="city" xm-select="skin-default" xm-select-skin="default">
@@ -82,20 +64,12 @@
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
+
 
 > xm-select-skin="primary"
 
-<html>
-<select name="city" xm-select="skin-primary" xm-select-skin="primary">
-    <option value=""></option>
-    <option value="1">北京</option>
-    <option value="2" selected="selected">上海</option>
-    <option value="3">广州</option>
-    <option value="4" selected="selected">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="skin-primary" xm-select-skin="primary">
     <option value=""></option>
@@ -106,20 +80,11 @@
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
 
 > xm-select-skin="normal"
 
-<html>
-<select name="city" xm-select="skin-normal" xm-select-skin="normal">
-    <option value=""></option>
-    <option value="1">北京</option>
-    <option value="2" selected="selected">上海</option>
-    <option value="3">广州</option>
-    <option value="4" selected="selected">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="skin-normal" xm-select-skin="normal">
     <option value=""></option>
@@ -130,20 +95,12 @@
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
+
 
 > xm-select-skin="warm"
 
-<html>
-<select name="city" xm-select="skin-warm" xm-select-skin="warm">
-    <option value=""></option>
-    <option value="1">北京</option>
-    <option value="2" selected="selected">上海</option>
-    <option value="3">广州</option>
-    <option value="4" selected="selected">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="skin-warm" xm-select-skin="warm">
     <option value=""></option>
@@ -154,20 +111,12 @@
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
+
 
 > xm-select-skin="danger"
 
-<html>
-<select name="city" xm-select="skin-danger" xm-select-skin="danger">
-    <option value=""></option>
-    <option value="1">北京</option>
-    <option value="2" selected="selected">上海</option>
-    <option value="3">广州</option>
-    <option value="4" selected="selected">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="skin-danger" xm-select-skin="danger">
     <option value=""></option>
@@ -178,18 +127,20 @@
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
 
 > 同样你也可以通过css自定义皮肤, 下面定义一个 `zhongguohong`, 中国红
 
-``` css
+``` html
+<style type="text/css">
 div[xm-select-skin=zhongguohong] .xm-select-title div.xm-select-label>span {background-color: #FF0000;color: #FFF;border: 1px solid #FF0000}
 div[xm-select-skin=zhongguohong] .xm-select-title div.xm-select-label>span i {background-color: #FF0000;color: #FFF}
-div[xm-select-skin=zhongguohong] dl dd.xm-select-this:not(.xm-dis-disabled) i {background-color: #FF0000;border-color: #FF0000;color: #FFF}
-div[xm-select-skin=zhongguohong].xm-form-selected .xm-select,
-div[xm-select-skin=zhongguohong].xm-form-selected .xm-select:hover {border-color: #FF0000!important}
-```
+div[xm-select-skin=zhongguohong] dl dd:not(.xm-dis-disabled) i {border-color: #FF0000}
+div[xm-select-skin=zhongguohong] dl dd.xm-select-this:not(.xm-dis-disabled) i {color: #FF0000}
+div[xm-select-skin=zhongguohong].xm-form-selected .xm-select,div[xm-select-skin=danger].xm-form-selected .xm-select:hover {border-color: #FF0000!important}
+</style>
 
-``` html
 <select name="city" xm-select="skin-red" xm-select-skin="zhongguohong">
     <option value="">中国红</option>
     <option value="1" disabled="disabled">北京</option>
@@ -200,18 +151,8 @@ div[xm-select-skin=zhongguohong].xm-form-selected .xm-select:hover {border-color
 </select>
 ```
 
-展示效果
+<button class="layui-btn runcode">在线运行</button>
 
-<html>
-<select name="city" xm-select="skin-red" xm-select-skin="zhongguohong">
-    <option value="">中国红</option>
-    <option value="1" disabled="disabled">北京</option>
-    <option value="2" selected="selected">上海</option>
-    <option value="3">广州</option>
-    <option value="4" selected="selected">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
 
 ## xm-select-search
 
@@ -221,17 +162,6 @@ xm-select-search, 指定url后将开启远程搜搜, 不指定则为已有选项
 
 > 本地搜索
 
-<html>
-<select name="city" xm-select="search-local" xm-select-search>
-    <option value=""></option>
-    <option value="1">北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="search-local" xm-select-search>
     <option value=""></option>
@@ -242,20 +172,19 @@ xm-select-search, 指定url后将开启远程搜搜, 不指定则为已有选项
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
+
 
 > 远程搜索
 
-<html>
-<select name="city" xm-select="search-server" xm-select-search="https://easy-mock.com/mock/5b441b7c364aa54a929cb4a7/formSelects/server-search">
-    <option value=""></option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="search-server" xm-select-search="https://easy-mock.com/mock/5b441b7c364aa54a929cb4a7/formSelects/server-search">
     <option value=""></option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
 
 
 ## xm-select-create
@@ -266,17 +195,6 @@ xm-select-search, 指定url后将开启远程搜搜, 不指定则为已有选项
 
 !> 创建条目时, 必须打开本地搜索模式
 
-<html>
-<select name="city" xm-select="search-create" xm-select-search xm-select-create>
-    <option value=""></option>
-    <option value="1">北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="search-create" xm-select-search xm-select-create>
     <option value=""></option>
@@ -287,6 +205,9 @@ xm-select-search, 指定url后将开启远程搜搜, 不指定则为已有选项
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
+
 
 ## xm-select-direction
 
@@ -296,64 +217,40 @@ xm-select-search, 指定url后将开启远程搜搜, 不指定则为已有选项
 
 > xm-select-direction="auto", 自动, 向上或向下
 
-<html>
-<select name="city" xm-select="direction-auto" xm-select-direction="auto">
-    <option value=""></option>
-    <option value="1" selected="selected">北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
-<select name="city" xm-select="direction-auto" xm-select-direction="auto">
-    <option value=""></option>
-    <option value="1" selected="selected">北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
+<div style="margin-top: 700px;">
+	<select name="city" xm-select="direction-auto" xm-select-direction="auto">
+	    <option value=""></option>
+	    <option value="1" selected="selected">北京</option>
+	    <option value="2">上海</option>
+	    <option value="3">广州</option>
+	    <option value="4">深圳</option>
+	    <option value="5">天津</option>
+	</select>
+</div>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
 
 > xm-select-direction="up", 始终向上
 
-<html>
-<select name="city" xm-select="direction-up" xm-select-direction="up">
-    <option value=""></option>
-    <option value="1" selected="selected">北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
-<select name="city" xm-select="direction-up" xm-select-direction="up">
-    <option value=""></option>
-    <option value="1" selected="selected">北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
+<div style="margin-top: 700px;">
+	<select name="city" xm-select="direction-up" xm-select-direction="up">
+		<option value=""></option>
+		<option value="1" selected="selected">北京</option>
+		<option value="2">上海</option>
+		<option value="3">广州</option>
+		<option value="4">深圳</option>
+		<option value="5">天津</option>
+	</select>
+</div>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
+
 > xm-select-direction="down", 始终向下
 
-<html>
-<select name="city" xm-select="direction-down" xm-select-direction="down">
-    <option value=""></option>
-    <option value="1" selected="selected">北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="direction-down" xm-select-direction="down">
     <option value=""></option>
@@ -364,6 +261,9 @@ xm-select-search, 指定url后将开启远程搜搜, 不指定则为已有选项
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
+
 
 ## xm-select-height
 
@@ -373,19 +273,6 @@ xm-select-height="任意值", 指定后高度将固定为34px, 不在发生变�
 
 > xm-select-height="34px"
 
-<html>
-<div style="width: 260px;">
-<select name="city" xm-select="height-34" xm-select-height="34px">
-    <option value=""></option>
-    <option value="1" selected="selected">北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
-</div>
-</html>
-
 ``` html
 <select name="city" xm-select="height-34" xm-select-height="34px">
     <option value=""></option>
@@ -396,6 +283,9 @@ xm-select-height="任意值", 指定后高度将固定为34px, 不在发生变�
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
+
 
 ## xm-select-radio
 
@@ -403,17 +293,6 @@ xm-select-height="任意值", 指定后高度将固定为34px, 不在发生变�
 
 仍然使用的label模式显示, 不过选择任意一项后将收起下拉
 
-<html>
-<select name="city" xm-select="radio" xm-select-radio>
-    <option value=""></option>
-    <option value="1" selected="selected" disabled>北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="radio" xm-select-radio>
     <option value=""></option>
@@ -424,6 +303,9 @@ xm-select-height="任意值", 指定后高度将固定为34px, 不在发生变�
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
+
 
 ## xm-select-search-type
 
@@ -433,17 +315,6 @@ xm-select-height="任意值", 指定后高度将固定为34px, 不在发生变�
 
 > xm-select-search-type="title"
 
-<html>
-<select name="city" xm-select="search-type-title" xm-select-search xm-select-search-type="title">
-    <option value=""></option>
-    <option value="1" selected="selected">北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="search-type-title" xm-select-search xm-select-search-type="title">
     <option value=""></option>
@@ -454,22 +325,13 @@ xm-select-height="任意值", 指定后高度将固定为34px, 不在发生变�
     <option value="5">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
 
 > xm-select-search-type="dl"
 
 此时显示在下拉框中
 
-<html>
-<select name="city" xm-select="search-type-dl" xm-select-search xm-select-search-type="dl">
-    <option value=""></option>
-    <option value="1" selected="selected">北京</option>
-    <option value="2">上海</option>
-    <option value="3">广州</option>
-    <option value="4">深圳</option>
-    <option value="5">天津</option>
-</select>
-</html>
-
 ``` html
 <select name="city" xm-select="search-type-dl" xm-select-search xm-select-search-type="dl">
     <option value=""></option>
@@ -481,7 +343,10 @@ xm-select-height="任意值", 指定后高度将固定为34px, 不在发生变�
 </select>
 ```
 
+<button class="layui-btn runcode">在线运行</button>
+
 **注:** 设置搜索框的位置必须要开启 `xm-select-search`
+
 
 ## xm-select-show-count
 
@@ -489,19 +354,6 @@ xm-select-height="任意值", 指定后高度将固定为34px, 不在发生变�
 
 当设置了 `xm-select-show-count="2"` 后, 超过2个选项将以 +xxx 的形式显示
 
-<html>
-<div style="width: 260px;">
-<select name="city" xm-select="show-count" xm-select-show-count="2">
-    <option value=""></option>
-    <option value="1" selected="selected">北京</option>
-    <option value="2" selected="selected">上海</option>
-    <option value="3" selected="selected">广州</option>
-    <option value="4" selected="selected">深圳</option>
-    <option value="5" selected="selected">天津</option>
-</select>
-</div>
-</html>
-
 ``` html
 <select name="city" xm-select="show-count" xm-select-show-count="2">
     <option value=""></option>
@@ -512,3 +364,5 @@ xm-select-height="任意值", 指定后高度将固定为34px, 不在发生变�
     <option value="5" selected="selected">天津</option>
 </select>
 ```
+
+<button class="layui-btn runcode">在线运行</button>
