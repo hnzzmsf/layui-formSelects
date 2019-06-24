@@ -65,19 +65,25 @@
 			<br/>
 			群主会在第一时间把代码更新至<a href="https://github.com/hnzzmsf/layui-formSelects" target="_blank">GitHub</a>, 
 			你可以前往<a href="https://github.com/hnzzmsf/layui-formSelects" target="_blank">GitHub</a>下载formSelects完整代码, 以便于二次开发<br /><br />
-			<iframe src="http://ghbtns.com/github-btn.html?user=hnzzmsf&amp;repo=layui-formSelects&amp;type=watch&amp;count=true&amp;size=large" allowtransparency="true" frameborder="0" scrolling="0" width="156px" height="30px"></iframe>
-			<iframe src="http://ghbtns.com/github-btn.html?user=hnzzmsf&amp;repo=layui-formSelects&amp;type=fork&amp;count=true&amp;size=large" allowtransparency="true" frameborder="0" scrolling="0" width="156px" height="30px"></iframe>
+			<iframe src="https://ghbtns.com/github-btn.html?user=hnzzmsf&amp;repo=layui-formSelects&amp;type=watch&amp;count=true&amp;size=large" allowtransparency="true" frameborder="0" scrolling="0" width="156px" height="30px"></iframe>
+			<iframe src="https://ghbtns.com/github-btn.html?user=hnzzmsf&amp;repo=layui-formSelects&amp;type=fork&amp;count=true&amp;size=large" allowtransparency="true" frameborder="0" scrolling="0" width="156px" height="30px"></iframe>
 		</div>
 		
 		<blockquote class="layui-elem-quote layui-quote-nm" id="download">3、下载与使用</blockquote>
 		<div class="chat">
 			下载地址: <a href="https://github.com/hnzzmsf/layui-formSelects" target="_blank">GitHub</a><br />
-			使用文档:	<a href="https://hnzzmsf.github.io/layui-formSelects/docs/index.html" target="_blank">GitHub Pages</a><br />
+			使用文档:	<a href="https://hnzzmsf.github.io/example/example_v4.html" target="_blank">GitHub Pages</a><br />
 			
 			使用方式: 
 			<div class="layui-collapse">
 				<div class="layui-colla-item">
 					<div class="layui-colla-content layui-show" sid="use" style="border-top-width: 0;"></div>
+					
+					<h2>一个简单的小例子</h2>
+					<iframe height="500" style="width: 100%;" scrolling="no" title="xorKdr" src="//codepen.io/hnzzmsf/embed/xorKdr/?height=265&theme-id=dark&default-tab=html,result" frameborder="no" allowtransparency="true" allowfullscreen="true">
+					  See the Pen <a href='https://codepen.io/hnzzmsf/pen/xorKdr/'>xorKdr</a> by maplemei
+					  (<a href='https://codepen.io/hnzzmsf'>@hnzzmsf</a>) on <a href='https://codepen.io'>CodePen</a>.
+					</iframe>
 				</div>
 			</div>
 		</div>
@@ -127,11 +133,11 @@
 		      		<td>下拉方向</td>
 		      		<td>xm-select-direction="auto|up|down", 自动, 上, 下, 默认自动模式</td>
 		    	</tr>
-		    	<tr>
+		    	<!-- <tr>
 		      		<td>xm-select-height</td>
 		      		<td>标记select高度是否固定</td>
 		      		<td>xm-select-height="36px", 高度不再随数据变化而变化</td>
-		    	</tr>
+		    	</tr> -->
 		    	<tr>
 		      		<td>xm-select-radio</td>
 		      		<td>单选模式</td>
@@ -420,7 +426,7 @@
 			<p>xm-select-search="/search", 指定一个url, 将开启远程搜索模式</p>
 			<div>
 				<div style="width: 400px; display: inline-block; vertical-align: top;">
-					<select name="city" xm-select="select8" xm-select-search="http://yapi.demo.qunar.com/mock/9813/layui/search">
+					<select name="city" xm-select="select8" xm-select-search="https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data">
 						<option value="1" disabled="disabled">北京</option>
 						<option value="2" selected="selected">上海</option>
 						<option value="3">广州</option>
@@ -448,7 +454,7 @@
 			<p>当然, 远程搜索也是可以分组的</p>
 			<div>
 				<div style="width: 400px; display: inline-block; vertical-align: top;">
-					<select name="city" xm-select="select8_2" xm-select-search="http://yapi.demo.qunar.com/mock/9813/layui/group">
+					<select name="city" xm-select="select8_2" xm-select-search="https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/group">
 						<option value="1" disabled="disabled">北京</option>
 						<option value="2" selected="selected">上海</option>
 						<option value="3">广州</option>
@@ -1122,7 +1128,7 @@ layui.formSelects.config({direction: 'up'});
 						</select>
 						<js>
 							layui.formSelects.config('example5_1', {
-								searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/search'
+								searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data'
 							});
 						</js>
 					</div>
@@ -1138,12 +1144,12 @@ layui.formSelects.config({direction: 'up'});
 						</select>
 						<js>
 							layui.formSelects.config('example5_2', {
-								searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/search'
+								searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data'
 							});
 						</js>
 					</div>
 				</div>
-				<button class="layui-btn example-btn" onclick="formSelects.config('example5_2', {searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/search'})">点我加载</button>
+				<button class="layui-btn example-btn" onclick="formSelects.config('example5_2', {searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data'})">点我加载</button>
 				<button class="layui-btn layui-btn-normal example-show-code">查看代码</button>
 			</div>
 			<p> - beforeSuccess的用法</p>
@@ -1155,7 +1161,7 @@ layui.formSelects.config({direction: 'up'});
 						</select>
 						<js>
 							layui.formSelects.config('example5_3', {
-								searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/search',
+								searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data',
 								beforeSuccess: function(id, url, searchVal, result){
 									//我要把数据外层的code, msg, data去掉
 									result = result.data;
@@ -1186,7 +1192,7 @@ layui.formSelects.config({direction: 'up'});
 						</select>
 						<js>
 							layui.formSelects.config('example5_4', {
-								searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/search',
+								searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data',
 								success: function(id, url, searchVal, result){
 									formSelects.value('example5_4', [3, 4]);
 								}
@@ -1206,7 +1212,7 @@ layui.formSelects.config({direction: 'up'});
 						</select>
 						<js>
 							layui.formSelects.config('example5_5', {
-								searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/search',
+								searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data',
 								success: function(id, url, searchVal, result){
 									formSelects.value('example5_5', [result.data[0].value, result.data[4].value]);
 								}
@@ -1253,7 +1259,7 @@ layui.formSelects.config({direction: 'up'});
 						</select>
 						<js>
 							layui.formSelects.data('example6_2', 'server', {
-							    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data'
+							    url: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data'
 							});
 							//佛曰, 格式不可变, 不喜欢 name,value 可以使用config重新定义
 							//同样适合剥去外皮, 同样可以使用config beforeSuccess处理数据, 不过你需要这么写
@@ -1269,7 +1275,7 @@ layui.formSelects.config({direction: 'up'});
 									return result;
 								}
 							}).data('example6_2', 'server', {
-							    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data'
+							    url: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data'
 							});
 							//使用了新增的链接写法, 当然你也可以分开写
 						</js>
@@ -1286,7 +1292,7 @@ layui.formSelects.config({direction: 'up'});
 						</select>
 						<js>
 							layui.formSelects.data('example6_3', 'server', {
-							    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data',
+							    url: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data',
 							    beforeSuccess: function(id, url, searchVal, result){
 									//我要把数据外层的code, msg, data去掉
 									result = result.data;
@@ -1358,7 +1364,7 @@ layui.formSelects.config({direction: 'up'});
 						<select name="city" xm-select="example7_1" xm-select-search></select>
 						<js>
 							layui.formSelects.config('example7_1', {
-								searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/data', 
+								searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data', 
 								beforeSearch: function(id, url, val){
 									if(!val){
 										console.log('内容为空, 不进行远程搜索')
@@ -1376,7 +1382,7 @@ layui.formSelects.config({direction: 'up'});
 			<div>
 				<div style="width: 400px; display: inline-block; vertical-align: top;">
 					<div class="layui-form">
-						<select name="city" xm-select="example7_2" xm-select-search="http://yapi.demo.qunar.com/mock/9813/layui/data"></select>
+						<select name="city" xm-select="example7_2" xm-select-search="https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data"></select>
 						<js>
 							layui.formSelects.search('example7_2', 'click');
 						</js>
@@ -1492,6 +1498,15 @@ layui.formSelects.config({direction: 'up'});
 									},
 								}
 							});
+							
+							//这里也算是给自己挖了一手好坑吧, 简单的一种处理方式, 在多选第一次打开的时候收缩所有的子节点, 目前处理的很粗鲁, 就是为了一种效果, 收缩全部节点
+							var isFirst = true;
+							layui.formSelects.opened('example11_1', function(id){
+								if(isFirst){
+									isFirst = false;
+									$('[fs_id="example11_1"]').find('.xm-cz i.icon-caidan').click();
+								}
+							});
 						</js>
 					</div>
 				</div>
@@ -1535,6 +1550,16 @@ layui.formSelects.config({direction: 'up'});
 				<p>你们的支持, 是我们坚持的动力</p>
 			</div>
 <pre class="brush: js">
+[2019-06-24] v4.x
+-- 修复 --
+1. 修复文档中因为https无法访问http接口的问题, 从 http://yapi.demo.qunar.com 更换为 https://www.fastmock.site
+2. 一个简单的手段, 让树状结构能够收起来
+3. 修改template中文档写法错误
+
+其实天下没有不散的宴席, 目前来看 jQuery 已经成为了历史, 加油吧, 小伙伴, 努力向最新的技术看齐~~~
+
+	
+	
 [2018-09-10] v4.0.0.0910
 -- bug修复 --
 1. 修改多级联动在li中不能使用
@@ -2066,7 +2091,7 @@ formSelects.data('select1', 'local', {
 
 //server模式
 formSelects.data('select1', 'server', {
-    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data',
+    url: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data',
     keyword: '水果'
 });
 //server返回数据与远程搜索数据结构一致
@@ -2308,7 +2333,7 @@ formSelects.closed(function(id){
 			layui.use(['layer'], function(){
 				//生成目录结构
 				var layer = layui.layer;
-				var content = '<ul class="sun-menu" style="overflow: auto;">';
+				var content = '<ul class="sun-menu" style="overflow: auto; max-height: 70vh">';
 				$('body *[id]:not(.syntaxhighlighter)').each(function(index, item){
 					item = $(item);
 					content += '<li><a href="#'+item.attr("id")+'">'+(item.attr('title') ? item.attr('title') : item.html())+'</a></li>'
@@ -2327,7 +2352,7 @@ formSelects.closed(function(id){
 							minWidth: 0,
 							width: 'auto',
 							left: 'auto',
-							right: 10
+							right: 10,
 						});
 						var layero = $(layero);
 						layero.on('hover', '*', function(){
@@ -2335,22 +2360,7 @@ formSelects.closed(function(id){
 						});
 					}
 				});
-				//填充一个聊天窗口
-				//openChat();
 			});
-			
-			function openChat(){
-				layui.layer.open({
-				  	type: 2,
-				  	title: false,
-				  	shade: false,
-				  	area: ['440px', '544px'],
-					offset: 'rb', 
-					anim: 2,
-					content: ['https://faysunshine.com/layui/formSelects/chat/chat.php', 'no'],
-				});
-				$('body').append('<div id="openChat" onclick="openChat()" class="layui-btn layui-btn-primary layui-btn-xs">open chat</div>')
-			}
 			
 			
 			//填充内容
@@ -2389,7 +2399,7 @@ formSelects.closed(function(id){
 						type: 1,
 						scrollbar: false,
 						shadeClose: true,
-						area: [(logs.width() + 30) + "px"],
+						area: ["80vw"],
 						content: '<div style="padding: 10px" id="history-info">' + logs.html() + '</div>',
 						success: function(){
 							setTimeout(function(){
@@ -2489,10 +2499,10 @@ formSelects.closed(function(id){
 			    return true;
 			});
 			formSelects.config('example5_1', {
-				searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/search'
+				searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data'
 			});
 			formSelects.config('example5_3', {
-				searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/search',
+				searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data',
 				beforeSuccess: function(id, url, searchVal, result){
 					//我要把数据外层的code, msg, data去掉
 					result = result.data;
@@ -2505,13 +2515,13 @@ formSelects.closed(function(id){
 				}
 			});
 			formSelects.config('example5_4', {
-				searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/search',
+				searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data',
 				success: function(id, url, searchVal, result){
 					formSelects.value('example5_4', [3, 4]);
 				}
 			});
 			formSelects.config('example5_5', {
-				searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/search',
+				searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data',
 				success: function(id, url, searchVal, result){
 					formSelects.value('example5_5', [result.data[0].value, result.data[4].value]);
 				}
@@ -2536,10 +2546,10 @@ formSelects.closed(function(id){
 					return result;
 				}
 			}).data('example6_2', 'server', {
-			    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data'
+			    url: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data'
 			});
 			formSelects.data('example6_3', 'server', {
-			    url: 'http://yapi.demo.qunar.com/mock/9813/layui/data',
+			    url: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data',
 			    beforeSuccess: function(id, url, searchVal, result){
 					//我要把数据外层的code, msg, data去掉
 					result = result.data;
@@ -2565,7 +2575,7 @@ formSelects.closed(function(id){
 				]
 			});
 			formSelects.config('example7_1', {
-				searchUrl: 'http://yapi.demo.qunar.com/mock/9813/layui/data', 
+				searchUrl: 'https://www.fastmock.site/mock/29487363107ab7d242c46305cadf4c52/formSelects/layui/data', 
 				beforeSearch: function(id, url, val){
 					if(!val){
 						console.log('内容为空, 不进行远程搜索')
@@ -2575,7 +2585,7 @@ formSelects.closed(function(id){
 				}
 			});
 			formSelects.render('example9_1', {
-				template: function(name, value, selected, disabled){
+				template: function(id, {name, value, selected, disabled}){
 					return name + '<span style="position: absolute; right: 0; color: #A0A0A0; font-size: 12px;">' + PY.fullPY(name) + '</span>';
 				}
 			});
@@ -2596,6 +2606,14 @@ formSelects.closed(function(id){
 					},
 				}
 			});
+			var isFirst = true;
+			formSelects.opened('example11_1', function(id){
+				if(isFirst){
+					isFirst = false;
+					$('[fs_id="example11_1"]').find('.xm-cz i.icon-caidan').click();
+				}
+			});
+			
 			formSelects.opened('example12_1', function(id){
 				alert('打开了...');
 			}).closed('example12_1', function(id){
