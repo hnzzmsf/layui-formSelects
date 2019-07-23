@@ -10,6 +10,8 @@
 
 [演示站点](http://sun.faysunshine.com/layui/formSelects-v4/example/example_v4.html)
 
+[xm-select一个自由发挥的新版多选](https://gitee.com/maplemei/xm-select)
+
 ---
 
 > 基于Layui的select多选解决方案
