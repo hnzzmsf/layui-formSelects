@@ -6,8 +6,6 @@
 
 ---
 
-[文档地址](https://hnzzmsf.github.io/layui-formSelects/docs/index.html)  未完待续, 文档先以演示站点为主
-
 [演示站点](http://sun.faysunshine.com/layui/formSelects-v4/example/example_v4.html)
 
 [xm-select一个自由发挥的新版多选](https://gitee.com/maplemei/xm-select)
@@ -39,6 +37,8 @@ formSelects有哪些功能
 - [x] 多级联动
 
 ## 目录结构
+
+重要的事情说三遍, src下的版本是开发版本, dist目录下的是编译后的压缩代码
 
 ```
   ├─UI                       //文档示例用到的一些组件库, layui等
@@ -106,21 +106,11 @@ clone最新版本
 
 ## 学习交流
 
-QQ 群: 769620939
+QQ 群1: 769620939 (2000人已满)
+QQ 群2: 660408068
 
-QQ 号: 707200833
 
-微信群: 
 
-<p>
-  <a href="javascript:;">
-    <img src="docs/public/wx.png" alt="formSelects" width="300">
-  </a>
-</p>
-
-## 更新记录
-
-[4.0.0.0910](https://hnzzmsf.github.io/layui-formSelects/docs/index.html#/module2/log)
 
 ## 打赏 
 
