@@ -8,6 +8,9 @@
 
 [演示站点](http://sun.faysunshine.com/layui/formSelects-v4/example/example_v4.html)
 
+
+# formSelects停止维护, 已经迁移至xm-select
+
 [xm-select一个自由发挥的新版多选](https://gitee.com/maplemei/xm-select)
 
 ---
