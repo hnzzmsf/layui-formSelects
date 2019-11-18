@@ -251,7 +251,7 @@
 
 			//构造渲染div
 			let dinfo = this.renderSelect(id, fs.config.placeholder, select); 
-			let heightStyle = !fs.config.height || fs.config.height == 'auto' ? '' : `xm-hg style="height: 34px;"`;
+			let heightStyle = !fs.config.height || fs.config.height == 'auto' ? '' : `xm-hg style="height: ${fs.config.height };"`;
 			let inputHtml = [
 				`<div class="${LABEL}">`,
 					`<input type="text" fsw class="${FORM_INPUT} ${INPUT}" ${fs.config.isSearch ? '' : 'style="display: none;"'} autocomplete="off" debounce="0" />`,
